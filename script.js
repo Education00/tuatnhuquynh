@@ -355,31 +355,31 @@ const interactiveObjects = [];
 const wishList = [
   {
     text: "chúc m và gia đình một mùa trung thu thật vui vẻ, tràn ngập niềm vui và hạnh phúc",
-    img: "./assets/1.jpg",
+    img: "1.jpg",
   },
   {
     text: "chúc cho mọi nguyện ước của m đêm nay sẽ trở thành hiện thực-)",
-    img: "./assets/2.jpg",
+    img: "2.jpg",
   },
   {
     text: "m đừng quên tặng quà t nha:))",
-    img: "./assets/3.jpg",
+    img: "3.jpg",
   },
   {
     text: "chúc  q luôn giữ được tâm hồn trong trẻo, yêu đời như ánh trăng rằm",
-    img: "./assets/1.jpg",
+    img: "1.jpg",
   },
   {
     text: "trung thu năm nay t kh dc đi chơi m cũng phải v🤗💔😆😔😇 ",
-    img: "./assets/2.jpg",
+    img: "2.jpg",
   },
   {
     text: "chúc m kh dc đi chơi tt😔",
-    img: "./assets/3.jpg",
+    img: "3.jpg",
   },
   {
     text: "m bớt nổi loạn nha q😇",
-    img: "./assets/1.jpg",
+    img: "1.jpg",
   },
 ];
 
