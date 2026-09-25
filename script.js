@@ -367,19 +367,19 @@ const wishList = [
   },
   {
     text: "chúc  q luôn giữ được tâm hồn trong trẻo, yêu đời như ánh trăng rằm",
-    img: "1.jpg",
+    img: "4.jpg",
   },
   {
     text: "trung thu năm nay t kh dc đi chơi m cũng phải v🤗💔😆😔😇 ",
-    img: "2.jpg",
+    img: "5.jpg",
   },
   {
     text: "chúc m kh dc đi chơi tt😔",
-    img: "3.jpg",
+    img: "6.jpg",
   },
   {
     text: "m bớt nổi loạn nha q😇",
-    img: "1.jpg",
+    img: "7.jpg",
   },
 ];
 
@@ -675,20 +675,44 @@ const bgm = document.getElementById("bgm");
 const audioBtn = document.getElementById("audio-btn");
 let isPlaying = false;
 
+function startBgm() {
+  if (isPlaying) return;
+  bgm
+    .play()
+    .then(() => {
+      isPlaying = true;
+      audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    })
+    .catch(() => {});
+}
+
 audioBtn.addEventListener("click", () => {
   if (isPlaying) {
     bgm.pause();
     audioBtn.innerHTML = '<i class="fas fa-music" style="opacity:0.5;"></i>';
+    isPlaying = false;
   } else {
-    bgm
-      .play()
-      .then(() => {
-        audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-      })
-      .catch(() => {});
+    startBgm();
   }
-  isPlaying = !isPlaying;
 });
+
+// Thử tự phát nhạc ngay khi trang vừa mở
+bgm
+  .play()
+  .then(() => {
+    isPlaying = true;
+    audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+  })
+  .catch(() => {
+    // Trình duyệt chặn autoplay -> phát ngay khi người dùng chạm/click lần đầu vào trang
+    const unlockAudio = () => {
+      startBgm();
+      document.removeEventListener("click", unlockAudio);
+      document.removeEventListener("touchstart", unlockAudio);
+    };
+    document.addEventListener("click", unlockAudio, { once: true });
+    document.addEventListener("touchstart", unlockAudio, { once: true });
+  });
 
 // ANIMATION
 const clock = new THREE.Clock();

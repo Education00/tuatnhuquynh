@@ -144,10 +144,11 @@ html {
 
 .wish-image-container {
   width: 100%;
-  height: 180px;
+  max-width: 260px;
+  aspect-ratio: 3 / 4;
+  margin: 12px auto 16px auto;
   border-radius: 14px;
   overflow: hidden;
-  margin: 12px 0 16px 0;
   border: 1px solid rgba(255, 215, 0, 0.4);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   background: #000;
@@ -157,6 +158,7 @@ html {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
   display: block;
 }
 
