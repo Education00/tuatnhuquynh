@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Blockborne: Dungeons II - Mobile Edition</title>
+<title>Blockborne: Dungeons II - Ultimate Edition (15+ Skills)</title>
 <style>
   * {
     box-sizing: border-box;
@@ -17,7 +17,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #0d0f12;
+    background: #080a0e;
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     color: #f1f2f6;
     touch-action: none;
@@ -34,7 +34,7 @@
     display: block;
     width: 100%;
     height: 100%;
-    background: #181a1f;
+    background: #11141a;
   }
 
   /* HUD Top Bar */
@@ -50,47 +50,72 @@
     z-index: 10;
   }
   .hud-panel {
-    background: rgba(18, 20, 26, 0.85);
-    border: 2px solid #3d4251;
-    border-radius: 8px;
-    padding: 6px 12px;
-    backdrop-filter: blur(4px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    background: rgba(14, 18, 26, 0.92);
+    border: 2px solid #363e4f;
+    border-radius: 10px;
+    padding: 7px 12px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.65);
   }
   .bar-container {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 4px;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
   }
   .bar-track {
-    width: 120px;
-    height: 12px;
-    background: #222;
-    border-radius: 6px;
+    width: 125px;
+    height: 10px;
+    background: #1a1e27;
+    border-radius: 5px;
     overflow: hidden;
-    border: 1px solid #444;
+    border: 1px solid #3d4659;
   }
   .bar-fill {
     height: 100%;
     width: 100%;
     transition: width 0.15s ease-out;
   }
-  .hp-fill { background: linear-gradient(90deg, #e74c3c, #ff6b6b); }
+  .hp-fill { background: linear-gradient(90deg, #2ed573, #7bed9f); }
   .soul-fill { background: linear-gradient(90deg, #0984e3, #00cec9); }
+  .exp-fill { background: linear-gradient(90deg, #f1c40f, #ff9f43); }
 
   .stats-info {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     color: #f5f6fa;
     display: flex;
-    gap: 14px;
+    gap: 12px;
   }
+  .stat-lvl { color: #ffd32a; text-shadow: 0 0 8px rgba(255, 211, 42, 0.6); }
+  .stat-floor { color: #70a1ff; }
   .stat-emerald { color: #2ecc71; text-shadow: 0 0 6px rgba(46,204,113,0.5); }
-  .stat-floor { color: #ffd32a; }
-  .stat-weapon { color: #e056fd; }
+
+  /* Active Perks Tray */
+  #perks-tray {
+    position: absolute;
+    top: env(safe-area-inset-top, 74px);
+    left: env(safe-area-inset-left, 12px);
+    right: 120px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    pointer-events: none;
+    z-index: 15;
+  }
+  .perk-badge {
+    background: rgba(18, 22, 32, 0.88);
+    border: 1px solid #f1c40f;
+    border-radius: 6px;
+    padding: 3px 6px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #ffd32a;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    white-space: nowrap;
+  }
 
   /* Mobile Controls Layer */
   #controls-layer {
@@ -114,7 +139,7 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(20,25,35,0.65) 100%);
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(20,25,35,0.7) 100%);
     border: 2px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0 0 15px rgba(0,0,0,0.6);
     transform: translate(-50%, -50%);
@@ -155,7 +180,6 @@
     color: #fff;
     box-shadow: 0 4px 12px rgba(0,0,0,0.6);
     pointer-events: auto;
-    active: transform: scale(0.92);
     touch-action: none;
     overflow: hidden;
   }
@@ -174,7 +198,6 @@
     pointer-events: none;
   }
 
-  /* Main Action Buttons */
   #btn-melee {
     width: 78px;
     height: 78px;
@@ -208,7 +231,7 @@
     border: 2px solid #fd79a8;
   }
 
-  /* Top Artifact Buttons */
+  /* Artifacts */
   #artifacts-bar {
     position: absolute;
     right: env(safe-area-inset-right, 16px);
@@ -221,7 +244,7 @@
     width: 52px;
     height: 52px;
     border-radius: 12px;
-    background: rgba(30, 35, 48, 0.9);
+    background: rgba(30, 35, 48, 0.92);
     border: 2px solid #485460;
     display: flex;
     flex-direction: column;
@@ -250,28 +273,102 @@
     transition: height 0.08s linear;
   }
 
-  /* Death & Overlay Screen */
-  #modal-overlay {
+  /* Modals */
+  .modal-screen {
     position: absolute;
     inset: 0;
-    background: rgba(10, 10, 15, 0.85);
-    backdrop-filter: blur(6px);
+    background: rgba(6, 8, 12, 0.9);
+    backdrop-filter: blur(10px);
     display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 50;
+    z-index: 60;
     text-align: center;
-    padding: 20px;
+    padding: 16px;
   }
-  #modal-title {
+
+  /* Level Up Cards */
+  #levelup-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: #ffd32a;
+    text-shadow: 0 0 18px rgba(255, 211, 42, 0.85);
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+  #levelup-subtitle {
+    font-size: 13px;
+    color: #a4b0be;
+    margin-bottom: 18px;
+  }
+  #cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  @media (min-width: 768px) {
+    #cards-container {
+      flex-direction: row;
+      max-width: 820px;
+      max-height: none;
+    }
+  }
+  .skill-card {
+    background: linear-gradient(145deg, #1b202c, #121620);
+    border: 2px solid #4b586e;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    transition: transform 0.12s, border-color 0.12s;
+    text-align: left;
+    touch-action: manipulation;
+  }
+  .skill-card:active {
+    transform: scale(0.96);
+    border-color: #ffd32a;
+    box-shadow: 0 0 20px rgba(255, 211, 42, 0.6);
+  }
+  .card-icon {
+    font-size: 32px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .card-content h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #f1f2f6;
+    margin-bottom: 4px;
+  }
+  .card-content p {
+    font-size: 12px;
+    color: #c8d1de;
+    line-height: 1.4;
+  }
+
+  /* Game Over */
+  #modal-gameover-title {
     font-size: 26px;
     font-weight: 900;
     color: #e74c3c;
     margin-bottom: 12px;
     text-shadow: 0 0 16px rgba(231, 76, 60, 0.7);
   }
-  #modal-summary, .modal-desc {
+  #modal-gameover-desc {
     font-size: 15px;
     color: #dcdde1;
     margin-bottom: 24px;
@@ -306,28 +403,33 @@
         <span>HP</span>
         <div class="bar-track"><div id="hp-bar" class="bar-fill hp-fill"></div></div>
       </div>
-      <div class="bar-container" style="margin-bottom:0;">
+      <div class="bar-container">
         <span>HỒN</span>
         <div class="bar-track"><div id="soul-bar" class="bar-fill soul-fill"></div></div>
       </div>
+      <div class="bar-container" style="margin-bottom:0;">
+        <span>EXP</span>
+        <div class="bar-track"><div id="exp-bar" class="bar-fill exp-fill" style="width:0%;"></div></div>
+      </div>
     </div>
     <div class="hud-panel stats-info">
-      <div class="stat-floor">TẦNG: <span id="txt-floor">1</span></div>
+      <div class="stat-lvl">⭐ CẤP <span id="txt-lvl">1</span></div>
+      <div class="stat-floor">TẦNG <span id="txt-floor">1</span></div>
       <div class="stat-emerald">💎 <span id="txt-emerald">0</span></div>
-      <div class="stat-weapon">⚔️ CẤP <span id="txt-tier">1</span></div>
     </div>
   </div>
 
-  <!-- Mobile Controls -->
+  <!-- Active Perks Tray -->
+  <div id="perks-tray"></div>
+
+  <!-- Mobile Controls Layer -->
   <div id="controls-layer">
-    <!-- Touch Joystick Zone -->
     <div id="joystick-zone">
       <div id="joystick-base">
         <div id="joystick-knob"></div>
       </div>
     </div>
 
-    <!-- 3 Artifacts -->
     <div id="artifacts-bar">
       <div class="art-btn" id="art-1">
         <span class="art-icon">🍄</span>
@@ -346,7 +448,6 @@
       </div>
     </div>
 
-    <!-- Action Buttons Cluster -->
     <div id="actions-zone">
       <div class="ctrl-btn" id="btn-melee">
         <span class="icon">⚔️</span>
@@ -369,16 +470,23 @@
     </div>
   </div>
 
+  <!-- Level Up Modal -->
+  <div id="modal-levelup" class="modal-screen">
+    <div id="levelup-title">LÊN CẤP CHIẾN BINH!</div>
+    <div id="levelup-subtitle">Chọn 1 trong 3 kỹ năng cổ xưa để cường hóa:</div>
+    <div id="cards-container"></div>
+  </div>
+
   <!-- Game Over Modal -->
-  <div id="modal-overlay">
-    <div id="modal-title">BẠN ĐÃ GỤC NGÃ!</div>
-    <div id="modal-summary" class="modal-desc">Quái vật hầm ngục đã áp đảo bạn. Hãy nâng cấp vũ khí và chuẩn bị chiến lược tốt hơn!</div>
-    <button class="big-btn" id="btn-revive">HỒI SINH & THỬ LẠI</button>
+  <div id="modal-gameover" class="modal-screen">
+    <div id="modal-gameover-title">BẠN ĐÃ GỤC NGÃ!</div>
+    <div id="modal-gameover-desc">Quái vật quá hung hãn. Hãy thử lại nào!</div>
+    <button class="big-btn" id="btn-revive">HỒI SINH & TIẾP TỤC</button>
   </div>
 </div>
 
 <script>
-// --- Web Audio Synth for Punchy Retro Effects ---
+// Sound Engine
 const AudioEngine = {
   ctx: null,
   init() {
@@ -386,9 +494,7 @@ const AudioEngine = {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) this.ctx = new AudioCtx();
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
   },
   playSlash() {
     if (!this.ctx) return;
@@ -399,10 +505,8 @@ const AudioEngine = {
     osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.1);
     gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.1);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.1);
   },
   playBow() {
     if (!this.ctx) return;
@@ -413,10 +517,8 @@ const AudioEngine = {
     osc.frequency.exponentialRampToValueAtTime(540, this.ctx.currentTime + 0.12);
     gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.12);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.12);
   },
   playBlast() {
     if (!this.ctx) return;
@@ -427,10 +529,8 @@ const AudioEngine = {
     osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.25);
     gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.25);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.25);
   },
   playPickup() {
     if (!this.ctx) return;
@@ -439,16 +539,28 @@ const AudioEngine = {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(580, this.ctx.currentTime);
     osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    gain.gain.setValueAtTime(0.16, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.16);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.16);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.16);
+  },
+  playLevelUp() {
+    if (!this.ctx) return;
+    const notes = [330, 415, 493, 660];
+    notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+      gain.gain.setValueAtTime(0.22, this.ctx.currentTime + idx * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.08 + 0.18);
+      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.start(this.ctx.currentTime + idx * 0.08);
+      osc.stop(this.ctx.currentTime + idx * 0.08 + 0.18);
+    });
   }
 };
 
-// Canvas & Engine Init
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 let W = 0, H = 0;
@@ -460,26 +572,128 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Core Player State
+// 15+ EPIC SKILLS DATABASE
+const SKILL_DATABASE = [
+  {
+    id: 'multishot',
+    title: 'Mũi Tên Đa Hướng (Multishot)',
+    icon: '🏹',
+    desc: 'Cung tên bắn 3 mũi tên tỏa rộng theo hình quạt.'
+  },
+  {
+    id: 'firework',
+    title: 'Tên Pháo Hoa (Firework Arrow)',
+    icon: '🎆',
+    desc: 'Mũi tên phát nổ pháo hoa cực lớn, sát thương diện rộng khi va chạm.'
+  },
+  {
+    id: 'thunder',
+    title: 'Sấm Sét Cổ Đại (Thundering)',
+    icon: '⚡',
+    desc: 'Mỗi cú chém cận chiến giật tia sét xích lan sang kẻ địch kế bên.'
+  },
+  {
+    id: 'stormCall',
+    title: 'Thiên Lôi Giáng Lâm (Call of Storm)',
+    icon: '⛈️',
+    desc: 'Cứ mỗi 3 giây tự động giáng một cột sét tử thần xuống đầu quái gần nhất.'
+  },
+  {
+    id: 'swirling',
+    title: 'Lốc Xoáy Cuồng Nộ (Swirling Blade)',
+    icon: '🌀',
+    desc: 'Mỗi cú chém tạo vòng bão kiếm 360 độ quét sạch quái vật xung quanh.'
+  },
+  {
+    id: 'crit',
+    title: 'Trảm Kích Chí Mạng (Critical Strike)',
+    icon: '💥',
+    desc: '25% tỷ lệ gây sát thương x3 cực lớn với hiệu ứng nổ cam.'
+  },
+  {
+    id: 'glaive',
+    title: 'Phi Kiếm Hộ Thân (Spectral Glaive)',
+    icon: '🪓',
+    desc: 'Triệu hồi thanh ma kiếm bay xoay tròn liên tục quanh bạn, chém quái lại gần.'
+  },
+  {
+    id: 'corpseExplode',
+    title: 'Xác Nổ Liên Hoàn (Corpse Explosion)',
+    icon: '💣',
+    desc: 'Quái vật chết sẽ phát nổ tung xác gây sát thương lớn cho quái xung quanh.'
+  },
+  {
+    id: 'freezing',
+    title: 'Băng Phong Hàn Băng (Frost Aspect)',
+    icon: '❄️',
+    desc: 'Đòn đánh đóng băng làm chậm 65% tốc độ di chuyển và bắn của quái.'
+  },
+  {
+    id: 'fire',
+    title: 'Lửa Địa Ngục (Fire Aspect)',
+    icon: '🔥',
+    desc: 'Vũ khí thiêu đốt kẻ địch, rút máu liên tục trong 3 giây.'
+  },
+  {
+    id: 'poisonCloud',
+    title: 'Mây Độc Tử Thần (Poison Cloud)',
+    icon: '☠️',
+    desc: 'Đòn đánh có 35% tạo vùng khí độc xanh lục rút máu liên hồi.'
+  },
+  {
+    id: 'leech',
+    title: 'Quang Năng Hồi Phục (Radiance)',
+    icon: '💖',
+    desc: 'Đòn đánh có 35% tạo hào quang ánh sáng hồi ngay 14 HP.'
+  },
+  {
+    id: 'swiftness',
+    title: 'Giày Phong Thần (Swiftfooted)',
+    icon: '👟',
+    desc: 'Tăng 22% tốc độ chạy và giảm 35% thời gian hồi chiêu Lộn nhào.'
+  },
+  {
+    id: 'thorns',
+    title: 'Giáp Kim Cương (Iron Hide)',
+    icon: '🛡️',
+    desc: 'Giảm 25% sát thương gánh chịu và phản 18 sát thương lên kẻ va chạm.'
+  },
+  {
+    id: 'soulHarvest',
+    title: 'Hút Linh Hồn (Soul Siphon)',
+    icon: '🔮',
+    desc: 'Thu thập gấp đôi Linh Hồn và hồi ngay 20 HP mỗi khi dùng Cổ vật.'
+  }
+];
+
+// Player State & Talents
 const player = {
   x: W / 2, y: H / 2,
   size: 26,
-  hp: 100, maxHp: 100,
-  souls: 40, maxSouls: 100,
+  hp: 150, maxHp: 150,
+  souls: 50, maxSouls: 100,
+  exp: 0, maxExp: 40, level: 1,
   emeralds: 0,
   weaponTier: 1,
-  speed: 3.5,
+  speed: 3.8,
   facing: { x: 1, y: 0 },
   vx: 0, vy: 0,
-  rollTime: 0, rollCd: 0, maxRollCd: 55,
+  rollTime: 0, rollCd: 0, maxRollCd: 40,
+  invulnTime: 0,
   meleeCd: 0, bowCd: 0,
   shroomBuff: 0,
   beaconTime: 0,
-  cdArt1: 0, maxCdArt1: 420,
-  cdArt2: 0, maxCdArt2: 220,
-  cdArt3: 0, maxCdArt3: 320,
-  potCd: 0, maxPotCd: 450
+  cdArt1: 0, maxCdArt1: 300,
+  cdArt2: 0, maxCdArt2: 180,
+  cdArt3: 0, maxCdArt3: 240,
+  potCd: 0, maxPotCd: 360,
+  stormTimer: 0,
+  glaiveAngle: 0,
+  perks: {}
 };
+
+// Initialize perks object
+SKILL_DATABASE.forEach(s => player.perks[s.id] = 0);
 
 let dungeonFloor = 1;
 let enemies = [];
@@ -487,9 +701,12 @@ let projectiles = [];
 let particles = [];
 let drops = [];
 let slashArcs = [];
+let lightningArcs = [];
+let poisonClouds = [];
+let floatingTexts = [];
 let gameOver = false;
+let isLevelingUp = false;
 
-// Auto-aim utility for touch screens
 function getClosestEnemy(maxDist = 9999) {
   let closest = null;
   let minDist = maxDist;
@@ -503,80 +720,213 @@ function getClosestEnemy(maxDist = 9999) {
   return closest;
 }
 
-// Spawning Waves
 function spawnFloorWave() {
-  const count = 5 + dungeonFloor * 3;
+  const count = 3 + dungeonFloor * 2;
   for (let i = 0; i < count; i++) {
     let ex, ey;
     let attempts = 0;
     do {
-      ex = Math.random() * (W - 120) + 60;
-      ey = Math.random() * (H - 120) + 60;
+      ex = Math.random() * (W - 140) + 70;
+      ey = Math.random() * (H - 140) + 70;
       attempts++;
-    } while (attempts < 50 && Math.hypot(ex - player.x, ey - player.y) < 180);
+    } while (attempts < 50 && Math.hypot(ex - player.x, ey - player.y) < 220);
 
-    const isBoss = (i === 0 && dungeonFloor % 2 === 0);
+    const isBoss = (i === 0 && dungeonFloor % 3 === 0);
     const rand = Math.random();
 
     if (isBoss) {
       enemies.push({
-        x: ex, y: ey, size: 46,
-        hp: 220 + dungeonFloor * 70, maxHp: 220 + dungeonFloor * 70,
-        speed: 1.4, type: 'boss', color: '#9b59b6', shootCd: 90
+        x: ex, y: ey, size: 48,
+        hp: 190 + dungeonFloor * 45, maxHp: 190 + dungeonFloor * 45,
+        speed: 1.2, type: 'boss', color: '#9b59b6', shootCd: 110, burn: 0, freeze: 0
       });
-    } else if (rand < 0.65) {
+    } else if (rand < 0.7) {
       enemies.push({
         x: ex, y: ey, size: 24,
-        hp: 35 + dungeonFloor * 14, maxHp: 35 + dungeonFloor * 14,
-        speed: 2.1, type: 'zombie', color: '#2ecc71'
+        hp: 25 + dungeonFloor * 8, maxHp: 25 + dungeonFloor * 8,
+        speed: 1.6, type: 'zombie', color: '#2ecc71', burn: 0, freeze: 0
       });
     } else {
       enemies.push({
         x: ex, y: ey, size: 22,
-        hp: 25 + dungeonFloor * 9, maxHp: 25 + dungeonFloor * 9,
-        speed: 1.5, type: 'skeleton', color: '#bdc3c7', shootCd: 85 + Math.random() * 50
+        hp: 20 + dungeonFloor * 6, maxHp: 20 + dungeonFloor * 6,
+        speed: 1.3, type: 'skeleton', color: '#bdc3c7', shootCd: 130 + Math.random() * 40, burn: 0, freeze: 0
       });
     }
   }
 }
 
-// Player Actions
+// Exp & Level Up
+function addExp(amount) {
+  player.exp += amount;
+  if (player.exp >= player.maxExp) {
+    player.exp -= player.maxExp;
+    player.level++;
+    player.maxExp = Math.floor(player.maxExp * 1.4);
+    triggerLevelUpModal();
+  }
+}
+
+function triggerLevelUpModal() {
+  isLevelingUp = true;
+  AudioEngine.playLevelUp();
+  player.hp = Math.min(player.maxHp, player.hp + Math.floor(player.maxHp * 0.35));
+
+  const shuffled = [...SKILL_DATABASE].sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, 3);
+
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  selected.forEach(skill => {
+    const card = document.createElement('div');
+    card.className = 'skill-card';
+    card.innerHTML = `
+      <div class="card-icon">${skill.icon}</div>
+      <div class="card-content">
+        <h3>${skill.title}</h3>
+        <p>${skill.desc}</p>
+      </div>
+    `;
+    card.addEventListener('click', () => chooseSkill(skill.id));
+    card.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      chooseSkill(skill.id);
+    });
+    container.appendChild(card);
+  });
+
+  document.getElementById('modal-levelup').style.display = 'flex';
+}
+
+function chooseSkill(skillId) {
+  player.perks[skillId] = (player.perks[skillId] || 0) + 1;
+  isLevelingUp = false;
+  document.getElementById('modal-levelup').style.display = 'none';
+
+  if (skillId === 'swiftness') {
+    player.speed = 3.8 * 1.22;
+    player.maxRollCd = 26;
+  }
+  updatePerksTray();
+}
+
+function updatePerksTray() {
+  const tray = document.getElementById('perks-tray');
+  tray.innerHTML = '';
+  for (const [key, count] of Object.entries(player.perks)) {
+    if (count > 0) {
+      const sk = SKILL_DATABASE.find(s => s.id === key);
+      if (sk) {
+        const badge = document.createElement('div');
+        badge.className = 'perk-badge';
+        badge.innerText = `${sk.icon} ${sk.title.split(' ')[0]} x${count}`;
+        tray.appendChild(badge);
+      }
+    }
+  }
+}
+
+function spawnFloatingText(x, y, text, color = '#ffd32a') {
+  floatingTexts.push({ x, y, text, color, life: 30, vy: -1.2 });
+}
+
+function applyDamage(en, baseDmg, source = 'melee') {
+  let isCrit = false;
+  let dmg = baseDmg;
+
+  // Talent: Critical Hit (25% chance for 3x)
+  if (player.perks.crit > 0 && Math.random() < 0.25) {
+    isCrit = true;
+    dmg *= 3;
+    spawnFloatingText(en.x, en.y - 12, 'CHÍ MẠNG! ' + Math.round(dmg), '#ff3838');
+    spawnParticles(en.x, en.y, '#ff4757', 12);
+  } else {
+    spawnFloatingText(en.x, en.y - 8, Math.round(dmg), isCrit ? '#ff4757' : '#f1c40f');
+  }
+
+  en.hp -= dmg;
+
+  // Talent: Freezing
+  if (player.perks.freezing > 0) {
+    en.freeze = 90;
+  }
+
+  // Talent: Fire Aspect
+  if (player.perks.fire > 0) {
+    en.burn = 90;
+  }
+
+  // Talent: Poison Cloud
+  if (player.perks.poisonCloud > 0 && Math.random() < 0.35) {
+    poisonClouds.push({ x: en.x, y: en.y, radius: 45, life: 120 });
+  }
+
+  return isCrit;
+}
+
 function doMelee() {
   AudioEngine.init();
-  if (player.meleeCd > 0 || player.rollTime > 0) return;
-  player.meleeCd = player.shroomBuff > 0 ? 11 : 19;
+  if (player.meleeCd > 0 || player.rollTime > 0 || isLevelingUp) return;
+  player.meleeCd = player.shroomBuff > 0 ? 10 : 16;
   AudioEngine.playSlash();
 
-  // Mobile auto-aim: prioritize target near player
-  let target = getClosestEnemy(190);
+  let target = getClosestEnemy(200);
   let aimAngle = Math.atan2(player.facing.y, player.facing.x);
   if (target) {
     aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
     player.facing = { x: Math.cos(aimAngle), y: Math.sin(aimAngle) };
   }
 
-  slashArcs.push({ x: player.x, y: player.y, angle: aimAngle, life: 9 });
+  slashArcs.push({ x: player.x, y: player.y, angle: aimAngle, life: 10, swirling: false });
 
+  // Talent: Swirling (Full 360 circle slash)
+  if (player.perks.swirling > 0) {
+    slashArcs.push({ x: player.x, y: player.y, angle: 0, life: 12, swirling: true });
+  }
+
+  let hitAny = false;
   enemies.forEach(en => {
     const dist = Math.hypot(en.x - player.x, en.y - player.y);
     const enAngle = Math.atan2(en.y - player.y, en.x - player.x);
     let diff = Math.abs(enAngle - aimAngle);
     if (diff > Math.PI) diff = Math.PI * 2 - diff;
 
-    if (dist < 80 && diff < 1.25) {
-      const dmg = 20 + player.weaponTier * 7;
-      en.hp -= dmg;
-      en.x += Math.cos(aimAngle) * 22;
-      en.y += Math.sin(aimAngle) * 22;
+    const inRange = (player.perks.swirling > 0 && dist < 100) || (dist < 90 && diff < 1.3);
+
+    if (inRange) {
+      hitAny = true;
+      const baseDmg = 34 + player.weaponTier * 10;
+      applyDamage(en, baseDmg, 'melee');
+
+      en.x += Math.cos(aimAngle) * 35;
+      en.y += Math.sin(aimAngle) * 35;
       spawnParticles(en.x, en.y, '#f1c40f', 6);
+
+      // Talent: Thundering Chain
+      if (player.perks.thunder > 0) {
+        enemies.forEach(other => {
+          if (other !== en && Math.hypot(other.x - en.x, other.y - en.y) < 140) {
+            other.hp -= 20 * player.perks.thunder;
+            lightningArcs.push({ x1: en.x, y1: en.y, x2: other.x, y2: other.y, life: 6 });
+          }
+        });
+      }
     }
   });
+
+  // Talent: Radiance
+  if (hitAny && player.perks.leech > 0 && Math.random() < 0.35) {
+    player.hp = Math.min(player.maxHp, player.hp + 14 * player.perks.leech);
+    spawnParticles(player.x, player.y, '#2ed573', 12);
+    spawnFloatingText(player.x, player.y - 20, '+HỒI MÁU', '#2ed573');
+  }
 }
 
 function doBow() {
   AudioEngine.init();
-  if (player.bowCd > 0 || player.rollTime > 0) return;
-  player.bowCd = 24;
+  if (player.bowCd > 0 || player.rollTime > 0 || isLevelingUp) return;
+  player.bowCd = 20;
   AudioEngine.playBow();
 
   let target = getClosestEnemy(600);
@@ -586,60 +936,77 @@ function doBow() {
     player.facing = { x: Math.cos(aimAngle), y: Math.sin(aimAngle) };
   }
 
-  projectiles.push({
-    x: player.x, y: player.y,
-    vx: Math.cos(aimAngle) * 10, vy: Math.sin(aimAngle) * 10,
-    dmg: 16 + player.weaponTier * 6, friendly: true, color: '#f39c12'
-  });
+  const count = player.perks.multishot > 0 ? 3 : 1;
+  const spread = 0.22;
+  for (let i = 0; i < count; i++) {
+    const angleOffset = count === 1 ? 0 : (i - 1) * spread;
+    const finalAngle = aimAngle + angleOffset;
+    projectiles.push({
+      x: player.x, y: player.y,
+      vx: Math.cos(finalAngle) * 12, vy: Math.sin(finalAngle) * 12,
+      dmg: 28 + player.weaponTier * 9, friendly: true,
+      color: player.perks.firework > 0 ? '#ff4757' : '#f39c12',
+      isFirework: player.perks.firework > 0
+    });
+  }
 }
 
 function doRoll() {
-  if (player.rollCd > 0 || player.rollTime > 0) return;
+  if (player.rollCd > 0 || player.rollTime > 0 || isLevelingUp) return;
   let dx = joystickVector.x, dy = joystickVector.y;
   if (dx === 0 && dy === 0) {
     dx = player.facing.x;
     dy = player.facing.y;
   }
   const len = Math.hypot(dx, dy) || 1;
-  player.vx = (dx / len) * 9.5;
-  player.vy = (dy / len) * 9.5;
-  player.rollTime = 13;
+  player.vx = (dx / len) * 11;
+  player.vy = (dy / len) * 11;
+  player.rollTime = 14;
   player.rollCd = player.maxRollCd;
+  player.invulnTime = 20;
   spawnParticles(player.x, player.y, '#ffffff', 8);
 }
 
 function doPotion() {
   AudioEngine.init();
-  if (player.potCd <= 0 && player.hp < player.maxHp) {
-    player.hp = Math.min(player.maxHp, player.hp + 60);
+  if (player.potCd <= 0 && player.hp < player.maxHp && !isLevelingUp) {
+    player.hp = Math.min(player.maxHp, player.hp + 80);
     player.potCd = player.maxPotCd;
-    spawnParticles(player.x, player.y, '#e84393', 18);
+    spawnParticles(player.x, player.y, '#2ed573', 20);
+    spawnFloatingText(player.x, player.y - 20, '+80 HP', '#2ed573');
   }
 }
 
 function useArtifact(num) {
   AudioEngine.init();
+  if (isLevelingUp) return;
+
+  if (player.perks.soulHarvest > 0) {
+    player.hp = Math.min(player.maxHp, player.hp + 20);
+    spawnParticles(player.x, player.y, '#00cec9', 10);
+  }
+
   if (num === 1 && player.cdArt1 <= 0) {
-    player.shroomBuff = 250;
+    player.shroomBuff = 300;
     player.cdArt1 = player.maxCdArt1;
     spawnParticles(player.x, player.y, '#e67e22', 15);
-  } else if (num === 2 && player.cdArt2 <= 0 && player.souls >= 20) {
-    player.souls -= 20;
+  } else if (num === 2 && player.cdArt2 <= 0 && player.souls >= 15) {
+    player.souls -= 15;
     player.cdArt2 = player.maxCdArt2;
     AudioEngine.playBlast();
-    spawnParticles(player.x, player.y, '#00cec9', 36);
+    spawnParticles(player.x, player.y, '#00cec9', 40);
     enemies.forEach(en => {
       const d = Math.hypot(en.x - player.x, en.y - player.y);
-      if (d < 170) {
-        en.hp -= 60 + player.weaponTier * 16;
+      if (d < 190) {
+        applyDamage(en, 80 + player.weaponTier * 20, 'artifact');
         const a = Math.atan2(en.y - player.y, en.x - player.x);
-        en.x += Math.cos(a) * 50;
-        en.y += Math.sin(a) * 50;
+        en.x += Math.cos(a) * 65;
+        en.y += Math.sin(a) * 65;
       }
     });
-  } else if (num === 3 && player.cdArt3 <= 0 && player.souls >= 25) {
-    player.souls -= 25;
-    player.beaconTime = 100;
+  } else if (num === 3 && player.cdArt3 <= 0 && player.souls >= 20) {
+    player.souls -= 20;
+    player.beaconTime = 120;
     player.cdArt3 = player.maxCdArt3;
   }
 }
@@ -652,7 +1019,7 @@ function spawnParticles(x, y, color, count) {
   }
 }
 
-// Touch Virtual Joystick Logic
+// Joystick
 const joyZone = document.getElementById('joystick-zone');
 const joyBase = document.getElementById('joystick-base');
 const joyKnob = document.getElementById('joystick-knob');
@@ -664,7 +1031,7 @@ const JOYSTICK_RADIUS = 50;
 joyZone.addEventListener('touchstart', e => {
   e.preventDefault();
   AudioEngine.init();
-  if (joystickTouchId !== null) return;
+  if (joystickTouchId !== null || isLevelingUp) return;
   const touch = e.changedTouches[0];
   joystickTouchId = touch.identifier;
   joystickCenter = { x: touch.clientX, y: touch.clientY };
@@ -676,7 +1043,7 @@ joyZone.addEventListener('touchstart', e => {
 }, { passive: false });
 
 window.addEventListener('touchmove', e => {
-  if (joystickTouchId === null) return;
+  if (joystickTouchId === null || isLevelingUp) return;
   for (let i = 0; i < e.changedTouches.length; i++) {
     const touch = e.changedTouches[i];
     if (touch.identifier === joystickTouchId) {
@@ -712,13 +1079,9 @@ window.addEventListener('touchend', e => {
 });
 window.addEventListener('touchcancel', resetJoystick);
 
-// Button Listeners (Touch + Click)
 function attachBtn(id, action) {
   const el = document.getElementById(id);
-  const handler = e => {
-    e.preventDefault();
-    action();
-  };
+  const handler = e => { e.preventDefault(); action(); };
   el.addEventListener('touchstart', handler, { passive: false });
   el.addEventListener('mousedown', handler);
 }
@@ -731,64 +1094,75 @@ attachBtn('art-1', () => useArtifact(1));
 attachBtn('art-2', () => useArtifact(2));
 attachBtn('art-3', () => useArtifact(3));
 
-// Keyboard support for PC testing
-window.addEventListener('keydown', e => {
-  AudioEngine.init();
-  if (e.code === 'KeyW') joystickVector.y = -1;
-  if (e.code === 'KeyS') joystickVector.y = 1;
-  if (e.code === 'KeyA') joystickVector.x = -1;
-  if (e.code === 'KeyD') joystickVector.x = 1;
-  if (e.code === 'Space') doRoll();
-  if (e.code === 'KeyJ') doMelee();
-  if (e.code === 'KeyK') doBow();
-  if (e.code === 'KeyE') doPotion();
-  if (e.code === 'Digit1') useArtifact(1);
-  if (e.code === 'Digit2') useArtifact(2);
-  if (e.code === 'Digit3') useArtifact(3);
-  if (e.code === 'KeyR' && gameOver) revivePlayer();
-});
-window.addEventListener('keyup', e => {
-  if (['KeyW','KeyS'].includes(e.code)) joystickVector.y = 0;
-  if (['KeyA','KeyD'].includes(e.code)) joystickVector.x = 0;
-});
-
 function revivePlayer() {
   gameOver = false;
+  isLevelingUp = false;
   player.hp = player.maxHp;
-  player.souls = 30;
+  player.souls = 50;
+  player.exp = 0;
+  player.level = 1;
+  player.maxExp = 40;
   player.weaponTier = 1;
-  player.emeralds = 0;
+  SKILL_DATABASE.forEach(s => player.perks[s.id] = 0);
   dungeonFloor = 1;
   enemies = [];
   drops = [];
   projectiles = [];
-  document.getElementById('modal-overlay').style.display = 'none';
+  updatePerksTray();
+  document.getElementById('modal-gameover').style.display = 'none';
   spawnFloorWave();
 }
 document.getElementById('btn-revive').addEventListener('click', revivePlayer);
 
-// Main Game Loop Update
 function update() {
-  if (gameOver) return;
+  if (gameOver || isLevelingUp) return;
 
   if (player.hp <= 0) {
     gameOver = true;
-    document.getElementById('modal-summary').innerText =
-      `Bạn đã chiến đấu dũng cảm đến Tầng ${dungeonFloor} và thu thập được ${player.emeralds} Ngọc Lục Bảo!`;
-    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('modal-gameover-desc').innerText =
+      `Bạn đã chiến đấu dũng cảm đến Cấp ${player.level}, Tầng ${dungeonFloor} và thu thập được ${player.emeralds} Ngọc!`;
+    document.getElementById('modal-gameover').style.display = 'flex';
     return;
   }
 
-  // Cooldown ticks
+  // Ticks
   if (player.meleeCd > 0) player.meleeCd--;
   if (player.bowCd > 0) player.bowCd--;
   if (player.rollCd > 0) player.rollCd--;
+  if (player.invulnTime > 0) player.invulnTime--;
   if (player.shroomBuff > 0) player.shroomBuff--;
   if (player.beaconTime > 0) player.beaconTime--;
   if (player.cdArt1 > 0) player.cdArt1--;
   if (player.cdArt2 > 0) player.cdArt2--;
   if (player.cdArt3 > 0) player.cdArt3--;
   if (player.potCd > 0) player.potCd--;
+
+  // Talent: Call of Storm (Every 3 seconds auto strike)
+  if (player.perks.stormCall > 0) {
+    player.stormTimer++;
+    if (player.stormTimer >= 180) {
+      player.stormTimer = 0;
+      const target = getClosestEnemy(500);
+      if (target) {
+        lightningArcs.push({ x1: target.x, y1: 0, x2: target.x, y2: target.y, life: 10 });
+        applyDamage(target, 60 + player.weaponTier * 15, 'storm');
+        spawnParticles(target.x, target.y, '#f1c40f', 16);
+      }
+    }
+  }
+
+  // Talent: Orbiting Spectral Glaive rotation & collision
+  if (player.perks.glaive > 0) {
+    player.glaiveAngle += 0.08;
+    const gx = player.x + Math.cos(player.glaiveAngle) * 65;
+    const gy = player.y + Math.sin(player.glaiveAngle) * 65;
+    enemies.forEach(en => {
+      if (Math.hypot(en.x - gx, en.y - gy) < 26) {
+        applyDamage(en, 3.5 + player.weaponTier * 0.8, 'glaive');
+        spawnParticles(gx, gy, '#70a1ff', 1);
+      }
+    });
+  }
 
   // Movement
   const curSpeed = player.speed * (player.shroomBuff > 0 ? 1.45 : 1);
@@ -801,11 +1175,10 @@ function update() {
     player.y += joystickVector.y * curSpeed;
   }
 
-  // Arena bounds clamp
   player.x = Math.max(player.size, Math.min(W - player.size, player.x));
   player.y = Math.max(player.size, Math.min(H - player.size, player.y));
 
-  // Artifact 3: Beacon Beam
+  // Beacon Beam
   if (player.beaconTime > 0) {
     let target = getClosestEnemy(420);
     let aimAngle = Math.atan2(player.facing.y, player.facing.x);
@@ -817,7 +1190,7 @@ function update() {
       let diff = Math.abs(enAngle - aimAngle);
       if (diff > Math.PI) diff = Math.PI * 2 - diff;
       if (dist < 420 && diff < 0.22) {
-        en.hp -= 2.4 + player.weaponTier * 0.6;
+        en.hp -= 3.5 + player.weaponTier * 0.8;
         spawnParticles(en.x, en.y, '#a29bfe', 1);
       }
     });
@@ -837,29 +1210,85 @@ function update() {
     if (p.friendly) {
       for (let j = enemies.length - 1; j >= 0; j--) {
         const en = enemies[j];
-        if (Math.hypot(p.x - en.x, p.y - en.y) < en.size / 2 + 6) {
-          en.hp -= p.dmg;
+        if (Math.hypot(p.x - en.x, p.y - en.y) < en.size / 2 + 8) {
+          applyDamage(en, p.dmg, 'bow');
           spawnParticles(en.x, en.y, '#ffffff', 5);
+
+          // Talent: Firework explosion
+          if (p.isFirework) {
+            AudioEngine.playBlast();
+            enemies.forEach(other => {
+              if (Math.hypot(other.x - en.x, other.y - en.y) < 85) {
+                applyDamage(other, p.dmg * 0.75, 'firework');
+              }
+            });
+            spawnParticles(en.x, en.y, '#ff4757', 24);
+            spawnParticles(en.x, en.y, '#ffd32a', 16);
+          }
+
           projectiles.splice(i, 1);
           break;
         }
       }
     } else {
-      if (player.rollTime <= 0 && Math.hypot(p.x - player.x, p.y - player.y) < player.size / 2 + 5) {
-        player.hp -= p.dmg;
+      if (player.rollTime <= 0 && player.invulnTime <= 0 && Math.hypot(p.x - player.x, p.y - player.y) < player.size / 2 + 5) {
+        let dmg = p.dmg;
+        if (player.perks.thorns > 0) dmg *= 0.75;
+        player.hp -= dmg;
+        player.invulnTime = 25;
         spawnParticles(player.x, player.y, '#e74c3c', 7);
         projectiles.splice(i, 1);
       }
     }
   }
 
+  // Poison Clouds Tick
+  for (let i = poisonClouds.length - 1; i >= 0; i--) {
+    const pc = poisonClouds[i];
+    pc.life--;
+    if (pc.life <= 0) {
+      poisonClouds.splice(i, 1);
+      continue;
+    }
+    enemies.forEach(en => {
+      if (Math.hypot(en.x - pc.x, en.y - pc.y) < pc.radius) {
+        en.hp -= 0.35;
+        if (Math.random() < 0.1) spawnParticles(en.x, en.y, '#2ecc71', 1);
+      }
+    });
+  }
+
   // Enemies update
   for (let i = enemies.length - 1; i >= 0; i--) {
     const en = enemies[i];
+
+    // Burn
+    if (en.burn > 0) {
+      en.burn--;
+      en.hp -= 0.4;
+      if (Math.random() < 0.2) spawnParticles(en.x, en.y, '#e67e22', 1);
+    }
+    // Freeze
+    if (en.freeze > 0) en.freeze--;
+
     if (en.hp <= 0) {
-      player.souls = Math.min(player.maxSouls, player.souls + 14);
-      if (Math.random() < 0.65) drops.push({ x: en.x, y: en.y, type: 'emerald' });
-      if (Math.random() < 0.22 || en.type === 'boss') drops.push({ x: en.x + 8, y: en.y, type: 'weapon' });
+      const soulGain = player.perks.soulHarvest > 0 ? 30 : 16;
+      player.souls = Math.min(player.maxSouls, player.souls + soulGain);
+      addExp(en.type === 'boss' ? 45 : 15);
+
+      // Talent: Corpse Explosion
+      if (player.perks.corpseExplode > 0) {
+        AudioEngine.playBlast();
+        spawnParticles(en.x, en.y, '#e74c3c', 25);
+        enemies.forEach(other => {
+          if (other !== en && Math.hypot(other.x - en.x, other.y - en.y) < 95) {
+            applyDamage(other, 35 + player.weaponTier * 10, 'explosion');
+          }
+        });
+      }
+
+      if (Math.random() < 0.75) drops.push({ x: en.x, y: en.y, type: 'emerald' });
+      if (Math.random() < 0.35 || en.type === 'boss') drops.push({ x: en.x + 8, y: en.y, type: 'weapon' });
       spawnParticles(en.x, en.y, en.color, 12);
       enemies.splice(i, 1);
       continue;
@@ -867,65 +1296,75 @@ function update() {
 
     const dist = Math.hypot(player.x - en.x, player.y - en.y);
     const angle = Math.atan2(player.y - en.y, player.x - en.x);
+    const effectiveSpeed = en.freeze > 0 ? en.speed * 0.45 : en.speed;
 
     if (en.type === 'skeleton') {
-      if (dist > 180) {
-        en.x += Math.cos(angle) * en.speed;
-        en.y += Math.sin(angle) * en.speed;
+      if (dist > 190) {
+        en.x += Math.cos(angle) * effectiveSpeed;
+        en.y += Math.sin(angle) * effectiveSpeed;
       }
       en.shootCd--;
       if (en.shootCd <= 0) {
-        en.shootCd = 100;
+        en.shootCd = en.freeze > 0 ? 190 : 135;
         projectiles.push({
           x: en.x, y: en.y,
-          vx: Math.cos(angle) * 5.6, vy: Math.sin(angle) * 5.6,
-          dmg: 9 + dungeonFloor * 2, friendly: false, color: '#ff7675'
+          vx: Math.cos(angle) * 4.8, vy: Math.sin(angle) * 4.8,
+          dmg: 6 + dungeonFloor * 1.5, friendly: false, color: '#ff7675'
         });
       }
     } else {
-      en.x += Math.cos(angle) * en.speed;
-      en.y += Math.sin(angle) * en.speed;
+      en.x += Math.cos(angle) * effectiveSpeed;
+      en.y += Math.sin(angle) * effectiveSpeed;
 
       if (en.type === 'boss') {
         en.shootCd--;
         if (en.shootCd <= 0) {
-          en.shootCd = 90;
+          en.shootCd = 110;
           for (let k = -1; k <= 1; k++) {
             projectiles.push({
               x: en.x, y: en.y,
-              vx: Math.cos(angle + k * 0.28) * 6, vy: Math.sin(angle + k * 0.28) * 6,
-              dmg: 13 + dungeonFloor * 2, friendly: false, color: '#a29bfe'
+              vx: Math.cos(angle + k * 0.28) * 5, vy: Math.sin(angle + k * 0.28) * 5,
+              dmg: 10 + dungeonFloor * 1.5, friendly: false, color: '#a29bfe'
             });
           }
         }
       }
     }
 
-    // Touch collision damage
-    if (player.rollTime <= 0 && dist < (player.size + en.size) / 2) {
-      player.hp -= 0.5 + dungeonFloor * 0.08;
+    // Touch Collision
+    if (player.rollTime <= 0 && player.invulnTime <= 0 && dist < (player.size + en.size) / 2) {
+      let dmg = (8 + dungeonFloor * 1.2);
+      if (player.perks.thorns > 0) {
+        dmg *= 0.75;
+        en.hp -= 18;
+      }
+      player.hp -= dmg;
+      player.invulnTime = 30;
+      player.x += Math.cos(angle + Math.PI) * 15;
+      player.y += Math.sin(angle + Math.PI) * 15;
+      spawnParticles(player.x, player.y, '#e74c3c', 5);
     }
   }
 
-  // Drops pickup
+  // Drops
   for (let i = drops.length - 1; i >= 0; i--) {
     const d = drops[i];
-    if (Math.hypot(player.x - d.x, player.y - d.y) < 36) {
+    if (Math.hypot(player.x - d.x, player.y - d.y) < 38) {
       AudioEngine.playPickup();
-      if (d.type === 'emerald') player.emeralds += 5;
+      if (d.type === 'emerald') player.emeralds += 8;
       if (d.type === 'weapon') player.weaponTier++;
       spawnParticles(d.x, d.y, '#2ecc71', 8);
       drops.splice(i, 1);
     }
   }
 
-  // Next Floor
   if (enemies.length === 0) {
     dungeonFloor++;
+    player.hp = Math.min(player.maxHp, player.hp + 25);
     spawnFloorWave();
   }
 
-  // Particles
+  // FX & Texts
   for (let i = particles.length - 1; i >= 0; i--) {
     particles[i].x += particles[i].vx;
     particles[i].y += particles[i].vy;
@@ -936,13 +1375,23 @@ function update() {
     slashArcs[i].life--;
     if (slashArcs[i].life <= 0) slashArcs.splice(i, 1);
   }
+  for (let i = lightningArcs.length - 1; i >= 0; i--) {
+    lightningArcs[i].life--;
+    if (lightningArcs[i].life <= 0) lightningArcs.splice(i, 1);
+  }
+  for (let i = floatingTexts.length - 1; i >= 0; i--) {
+    floatingTexts[i].y += floatingTexts[i].vy;
+    floatingTexts[i].life--;
+    if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+  }
 
-  // Update DOM HUDs
+  // Update HUD
   document.getElementById('hp-bar').style.width = Math.max(0, (player.hp / player.maxHp * 100)) + '%';
   document.getElementById('soul-bar').style.width = Math.max(0, (player.souls / player.maxSouls * 100)) + '%';
+  document.getElementById('exp-bar').style.width = Math.min(100, Math.max(0, (player.exp / player.maxExp * 100))) + '%';
+  document.getElementById('txt-lvl').innerText = player.level;
   document.getElementById('txt-floor').innerText = dungeonFloor;
   document.getElementById('txt-emerald').innerText = player.emeralds;
-  document.getElementById('txt-tier').innerText = player.weaponTier;
 
   document.getElementById('cd-roll').style.height = (player.rollCd / player.maxRollCd * 100) + '%';
   document.getElementById('cd-pot').style.height = (player.potCd / player.maxPotCd * 100) + '%';
@@ -951,12 +1400,11 @@ function update() {
   document.getElementById('cd-art-3').style.height = (player.cdArt3 / player.maxCdArt3 * 100) + '%';
 }
 
-// Render Loop
 function draw() {
   ctx.clearRect(0, 0, W, H);
 
-  // Isometric Grid Tiles
-  ctx.strokeStyle = '#222730';
+  // Background Grid
+  ctx.strokeStyle = '#1d222b';
   ctx.lineWidth = 1.5;
   const gridSize = 50;
   for (let x = 0; x < W; x += gridSize) {
@@ -966,6 +1414,16 @@ function draw() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
   }
 
+  // Poison Clouds
+  poisonClouds.forEach(pc => {
+    ctx.save();
+    ctx.fillStyle = 'rgba(46, 204, 113, 0.25)';
+    ctx.beginPath();
+    ctx.arc(pc.x, pc.y, pc.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+
   // Drops
   drops.forEach(d => {
     ctx.fillStyle = d.type === 'emerald' ? '#2ecc71' : '#f1c40f';
@@ -974,7 +1432,7 @@ function draw() {
     ctx.strokeRect(d.x - 8, d.y - 8, 16, 16);
   });
 
-  // Artifact 3: Beacon Beam visual
+  // Beacon Beam
   if (player.beaconTime > 0) {
     let target = getClosestEnemy(420);
     let aimAngle = Math.atan2(player.facing.y, player.facing.x);
@@ -991,29 +1449,60 @@ function draw() {
     ctx.restore();
   }
 
-  // Slash Arcs
-  slashArcs.forEach(s => {
+  // Lightning Arcs
+  lightningArcs.forEach(l => {
     ctx.save();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.lineWidth = 7;
+    ctx.strokeStyle = '#ffd32a';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
-    ctx.arc(s.x, s.y, 50, s.angle - 0.85, s.angle + 0.85);
+    ctx.moveTo(l.x1, l.y1);
+    ctx.lineTo((l.x1 + l.x2) / 2 + (Math.random() - 0.5) * 25, (l.y1 + l.y2) / 2 + (Math.random() - 0.5) * 25);
+    ctx.lineTo(l.x2, l.y2);
     ctx.stroke();
     ctx.restore();
   });
 
+  // Slash Arcs
+  slashArcs.forEach(s => {
+    ctx.save();
+    ctx.strokeStyle = player.perks.fire > 0 ? 'rgba(230, 126, 34, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    if (s.swirling) {
+      ctx.arc(s.x, s.y, 65, 0, Math.PI * 2);
+    } else {
+      ctx.arc(s.x, s.y, 52, s.angle - 0.85, s.angle + 0.85);
+    }
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // Orbiting Glaive
+  if (player.perks.glaive > 0) {
+    const gx = player.x + Math.cos(player.glaiveAngle) * 65;
+    const gy = player.y + Math.sin(player.glaiveAngle) * 65;
+    ctx.save();
+    ctx.fillStyle = '#70a1ff';
+    ctx.shadowColor = '#70a1ff';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(gx, gy, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   // Player
-  ctx.fillStyle = player.rollTime > 0 ? '#74b9ff' : (player.shroomBuff > 0 ? '#e67e22' : '#0984e3');
-  ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
-  // Facing indicator dot
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(player.x + player.facing.x * 12 - 2, player.y + player.facing.y * 12 - 2, 5, 5);
+  if (player.invulnTime % 4 < 2) {
+    ctx.fillStyle = player.rollTime > 0 ? '#74b9ff' : (player.shroomBuff > 0 ? '#e67e22' : '#0984e3');
+    ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(player.x + player.facing.x * 12 - 2, player.y + player.facing.y * 12 - 2, 5, 5);
+  }
 
   // Enemies
   enemies.forEach(en => {
-    ctx.fillStyle = en.color;
+    ctx.fillStyle = en.freeze > 0 ? '#74b9ff' : (en.burn > 0 ? '#e67e22' : en.color);
     ctx.fillRect(en.x - en.size / 2, en.y - en.size / 2, en.size, en.size);
-    // HP Mini Bar
     ctx.fillStyle = '#000';
     ctx.fillRect(en.x - 16, en.y - en.size / 2 - 8, 32, 4);
     ctx.fillStyle = '#e74c3c';
@@ -1030,6 +1519,16 @@ function draw() {
   particles.forEach(pt => {
     ctx.fillStyle = pt.color;
     ctx.fillRect(pt.x - 3, pt.y - 3, 6, 6);
+  });
+
+  // Floating Texts
+  floatingTexts.forEach(ft => {
+    ctx.save();
+    ctx.fillStyle = ft.color;
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(ft.text, ft.x, ft.y);
+    ctx.restore();
   });
 }
 
