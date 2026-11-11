@@ -1,768 +1,1046 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>huuanh tool – Tải Video, Ảnh, Nhạc, Nhật ký & Bình luận</title>
-<meta name="description" content="Công cụ tải xuống video TikTok không logo, Nhật ký (Story), Slide ảnh, Nhạc MP3, Nhãn dán & Live Photo từ bình luận TikTok và video YouTube.">
-<meta name="robots" content="index, follow">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Blockborne: Dungeons II - Mobile Edition</title>
 <style>
-:root{--bg:#F6F6F4;--ink:#000000;--muted:#5E5E5A;--accent:#FFD85E;--hot:#FFD85E;--soft:#FBEDB9;--card:#fff;--line:#E4E4DF;--hl:rgba(255,255,255,.65);--glass:rgba(246,246,244,.6);
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-html.dark{--bg:#141414;--ink:#F6F6F4;--muted:#A5A5A0;--soft:#2B2614;--card:#1E1E1E;--line:#333330;--hl:rgba(255,255,255,.07);--glass:rgba(20,20,20,.6);color-scheme:dark}
-*,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;transition:background-color .2s,color .2s}
-.wrap{max-width:640px;margin:0 auto;padding:68px 20px 140px}
-h1,h2,h3{font-family:Lora,Georgia,serif;font-weight:700;line-height:1.2;margin:0}
-a,button,input,select{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
-.topbar{position:fixed;top:0;left:0;right:0;height:calc(60px + env(safe-area-inset-top,0px));background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);border-bottom:1px solid var(--line);z-index:8}
-.brand{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:22px;height:40px;display:flex;align-items:center;gap:8px;z-index:9;font:700 1.25rem Lora,Georgia,serif;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
-.brand>svg{width:28px;height:28px}
-.brand:active{transform:scale(.96);opacity:.7}
-html.dark .brand>svg{filter:brightness(1.35)}
-.btxt{display:inline-flex;align-items:center}.bdg-sub{width:40px;height:17px;margin-left:5px;transform:translateY(-3px) rotate(-6deg);transform-origin:center;filter:drop-shadow(0 2px 4px rgba(43,112,251,.24));flex:none}
-.actions{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:16px;height:40px;display:flex;align-items:center;gap:4px;z-index:9}
-.menu-btn{position:relative;width:40px;height:40px;border:0;background:none;padding:0;display:grid;place-content:center;gap:6px;z-index:9;cursor:pointer;color:var(--muted)}
-.menu-btn i{display:block;width:22px;height:1.5px;border-radius:2px;background:currentColor;transition:transform .3s,opacity .2s}
-.menu-btn[aria-expanded="true"] i:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
-.menu-btn[aria-expanded="true"] i:nth-child(2){opacity:0}
-.menu-btn[aria-expanded="true"] i:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
-.cta{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:11px;background:var(--ink);color:var(--bg);font-weight:600;font-size:.86rem;text-decoration:none;white-space:nowrap;border:0;cursor:pointer}
-.cta:active{opacity:.8}
-.tabs a,.srch,.menu-btn,.sheet a,.sheet button,.brand,.seg button,.tgl,.dl-btn{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-.glass{position:relative;background:rgba(255,255,255,.74);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,.75);box-shadow:0 10px 30px rgba(38,34,29,.16),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.35);border-radius:999px}
-html.dark .glass{background:rgba(44,44,44,.72);border-color:rgba(255,255,255,.16);box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05)}
-.sheet{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));right:14px;left:14px;max-width:280px;margin-left:auto;border-radius:24px;padding:10px;z-index:9;display:grid;gap:2px;transform-origin:top right;transform:scale(.92);opacity:0;visibility:hidden;pointer-events:none;transition:transform .35s cubic-bezier(.3,1.3,.5,1),opacity .2s,visibility .2s}
-.sheet.open{transform:none;opacity:1;visibility:visible;pointer-events:auto}
-.sheet a,.sheet button{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-radius:14px;text-decoration:none;font-size:.95rem;font-weight:500;border:0;background:none;color:var(--ink);width:100%;text-align:left;cursor:pointer;transition:background-color .12s}
-.sheet a.active,.sheet a:focus-visible,.sheet button.active,.sheet button:focus-visible{background:rgba(120,120,128,.16)}
-html.dark .sheet a.active,html.dark .sheet a:focus-visible,html.dark .sheet button.active,html.dark .sheet button:focus-visible{background:rgba(255,255,255,.14)}
-.sheet small{color:var(--muted);font-size:.8rem;font-weight:400}
-.sheet hr{border:0;border-top:1px solid var(--line);margin:6px 8px;width:calc(100% - 16px)}
-.mh{margin:6px 16px 2px;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.dock{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;justify-content:center;padding:0 14px;z-index:8;pointer-events:none;transition:opacity .2s,transform .2s}
-.dock>*{pointer-events:auto}
-.tabs{display:flex;padding:5px;flex:1;max-width:360px}
-.tabs a{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0;line-height:1.1;text-decoration:none;font-size:.68rem;font-weight:500;color:var(--ink);border-radius:999px;transition:color .12s}
-.tabs a[aria-current="page"]{color:var(--ink);font-weight:600}
-.tabs a .i-fil{display:none}
-.tabs a[aria-current="page"] .i-out{display:none}
-.tabs a[aria-current="page"] .i-fil{display:block}
-.ind{position:absolute;top:0;left:0;width:0;height:0;border-radius:999px;background:rgba(120,120,128,.16);box-shadow:none;transition:transform .28s cubic-bezier(.4,0,.2,1),width .28s,height .28s}
-html.dark .ind{background:rgba(255,255,255,.14)}
-#badge{position:absolute;top:2px;left:calc(50% + 4px);background:var(--hot);color:#000;font-size:.62rem;line-height:1;padding:3px 5px;border-radius:99px;min-width:16px;text-align:center}
-.view[hidden]{display:none}
-.top{text-align:center;padding:10px 0 18px}
-h1{font-size:clamp(2rem,8.5vw,2.75rem);line-height:1.1}
-.tag{color:var(--muted);margin:10px auto 0;font:400 1.02rem/1.5 Lora,Georgia,serif;max-width:36ch}
-h2{font-size:1.35rem;margin:28px 0 12px}
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0d0f12;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    color: #f1f2f6;
+    touch-action: none;
+  }
+  #game-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #181a1f;
+  }
 
-/* Box nhập link */
-.tbox{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.04);margin-bottom:16px}
-.url-w{display:flex;gap:8px;align-items:center;background:var(--bg);border:1.5px solid var(--line);border-radius:16px;padding:6px 6px 6px 14px;transition:border-color .15s}
-.url-w:focus-within{border-color:var(--ink)}
-.url-in{flex:1;min-width:0;border:0;background:none;font-size:.96rem;padding:8px 0;outline:none}
-.ibtn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:11px;padding:8px 12px;font-size:.84rem;font-weight:500;cursor:pointer;white-space:nowrap}
-.ibtn:hover{border-color:var(--ink)}
-.go-btn{width:100%;height:50px;margin-top:12px;border:0;border-radius:14px;background:var(--ink);color:var(--bg);font:600 .98rem Inter,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
-.go-btn:active{opacity:.85}
-.go-btn:disabled{opacity:.45;cursor:default}
-.spin{display:none;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
-.go-btn.busy .spin{display:inline-block}
-@keyframes sp{to{transform:rotate(360deg)}}
+  /* HUD Top Bar */
+  #top-hud {
+    position: absolute;
+    top: env(safe-area-inset-top, 10px);
+    left: env(safe-area-inset-left, 12px);
+    right: env(safe-area-inset-right, 12px);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .hud-panel {
+    background: rgba(18, 20, 26, 0.85);
+    border: 2px solid #3d4251;
+    border-radius: 8px;
+    padding: 6px 12px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .bar-track {
+    width: 120px;
+    height: 12px;
+    background: #222;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #444;
+  }
+  .bar-fill {
+    height: 100%;
+    width: 100%;
+    transition: width 0.15s ease-out;
+  }
+  .hp-fill { background: linear-gradient(90deg, #e74c3c, #ff6b6b); }
+  .soul-fill { background: linear-gradient(90deg, #0984e3, #00cec9); }
 
-/* Thẻ kết quả bóc tách */
-.rcard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:22px;animation:rise .35s cubic-bezier(.2,.8,.2,1)}
-@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.rhead{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
-.rth{width:96px;height:96px;border-radius:14px;overflow:hidden;flex:none;background:var(--bg);border:1px solid var(--line);position:relative}
-.rth svg{width:100%;height:100%;display:block}
-.rdur{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.78);color:#fff;font-size:.7rem;font-weight:600;padding:1px 6px;border-radius:6px}
-.rmeta{flex:1;min-width:0}
-.rbdg{display:inline-flex;align-items:center;gap:5px;background:var(--soft);color:var(--ink);border:1px solid var(--line);font-size:.74rem;font-weight:600;padding:2px 9px;border-radius:99px;margin-bottom:6px}
-.rbdg i{width:6px;height:6px;border-radius:50%;background:var(--ink)}
-.rmeta h3{font-size:1.05rem;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.rauthor{font-size:.84rem;color:var(--muted);margin-bottom:4px}
-.rstats{display:flex;gap:8px;flex-wrap:wrap;font-size:.76rem;color:var(--muted)}
-.rstats span{border:1px solid var(--line);padding:1px 8px;border-radius:99px}
+  .stats-info {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f5f6fa;
+    display: flex;
+    gap: 14px;
+  }
+  .stat-emerald { color: #2ecc71; text-shadow: 0 0 6px rgba(46,204,113,0.5); }
+  .stat-floor { color: #ffd32a; }
+  .stat-weapon { color: #e056fd; }
 
-/* Lưới chọn ảnh cho Slide TikTok / Bình luận */
-.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0 14px}
-@media (min-width:480px){.sgrid{grid-template-columns:repeat(3,1fr)}}
-.sitem{position:relative;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg);cursor:pointer}
-.sitem.sel{border-color:var(--ink)}
-.sitem .sth{height:104px;display:block}
-.sitem .sth svg{width:100%;height:100%;display:block}
-.sitem .sbar{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;font-size:.78rem;background:var(--card)}
-.schk{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.7rem;font-weight:700}
-.sitem.sel .schk{background:var(--accent);border-color:var(--ink);color:#000}
+  /* Mobile Controls Layer */
+  #controls-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+  }
 
-/* Các nút tải xuống */
-.dl-list{display:grid;gap:8px;margin-top:12px}
-.dl-btn{display:flex;justify-content:space-between;align-items:center;width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-weight:500;font-size:.92rem;cursor:pointer;text-align:left;transition:transform .12s,border-color .15s}
-.dl-btn:hover{border-color:var(--ink)}
-.dl-btn:active{transform:scale(.99)}
-.dl-btn.pri{background:var(--accent);border-color:var(--ink);color:#000;font-weight:600}
-.dl-btn small{font-weight:400;font-size:.78rem;opacity:.8;display:block}
-.dl-tag{font-size:.75rem;font-weight:600;padding:3px 9px;border-radius:99px;border:1px solid currentColor}
+  /* Virtual Joystick */
+  #joystick-zone {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 45%;
+    height: 70%;
+    pointer-events: auto;
+  }
+  #joystick-base {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(20,25,35,0.65) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 15px rgba(0,0,0,0.6);
+    transform: translate(-50%, -50%);
+    display: none;
+    pointer-events: none;
+  }
+  #joystick-knob {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #74b9ff, #0984e3);
+    border: 2px solid #dfe6e9;
+    box-shadow: 0 0 12px rgba(9,132,227,0.8);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
 
-/* Thẻ tính năng hỗ trợ */
-.fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.fcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
-.fcard b{display:block;font-size:.95rem;margin-bottom:4px}
-.fcard span{display:block;color:var(--muted);font-size:.82rem;line-height:1.45}
+  /* Right Action Cluster */
+  #actions-zone {
+    position: absolute;
+    right: env(safe-area-inset-right, 16px);
+    bottom: env(safe-area-inset-bottom, 16px);
+    width: 240px;
+    height: 240px;
+    pointer-events: none;
+  }
+  .ctrl-btn {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    pointer-events: auto;
+    active: transform: scale(0.92);
+    touch-action: none;
+    overflow: hidden;
+  }
+  .ctrl-btn:active {
+    transform: scale(0.91);
+    filter: brightness(1.2);
+  }
+  .ctrl-btn span.label {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+  }
+  .ctrl-btn span.icon {
+    font-size: 20px;
+    margin-bottom: 2px;
+    pointer-events: none;
+  }
 
-/* Danh sách lịch sử & Cài đặt */
-.list{display:grid;gap:10px;list-style:none;margin:0;padding:0}
-.hrow{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
-.hrow .hth{width:56px;height:56px;border-radius:10px;overflow:hidden;flex:none}
-.hrow .hth svg{width:100%;height:100%;display:block}
-.hrow .htx{flex:1;min-width:0}
-.hrow b{display:block;font-size:.94rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hrow small{display:block;color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hacts{display:flex;gap:6px}
-.hacts button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 10px;font-size:.8rem;cursor:pointer}
-.empty{text-align:center;color:var(--muted);padding:28px 0}
-.scard{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:6px 16px;margin-bottom:14px}
-.srow{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
-.srow:last-child{border-bottom:0}
-.srow.col{flex-direction:column;align-items:stretch;gap:10px}
-.slb b{display:block;font-weight:500;font-size:.96rem}
-.slb small{display:block;color:var(--muted);font-size:.82rem;margin-top:2px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--bg);border:1px solid var(--line);padding:4px;border-radius:14px}
-.seg button{border:0;background:none;color:var(--muted);padding:8px 10px;border-radius:10px;font-size:.85rem;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.tgl{position:relative;width:48px;height:28px;border-radius:99px;border:1px solid var(--line);background:var(--bg);cursor:pointer;padding:0;flex:none;transition:background-color .2s,border-color .2s}
-.tgl i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:transform .2s cubic-bezier(.3,1.2,.5,1),background-color .2s}
-.tgl[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
-.tgl[aria-checked="true"] i{transform:translateX(20px);background:#000}
-.arow{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px;font:inherit;color:var(--ink);cursor:pointer;text-align:left}
-.arow small{display:block;color:var(--muted);font-size:.82rem;margin-top:2px}
-.fi{width:100%;height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:.9rem}
-.item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:10px}
-.item h3{font-size:1.02rem;margin-bottom:6px}
-.item p,.item ol{margin:0;color:var(--muted);font-size:.9rem}
-.item ol{padding-left:18px;display:grid;gap:4px}
-.ft{text-align:left;font-size:.92rem;margin-top:48px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.ft a{color:var(--ink);text-decoration:none;font-weight:500}
-#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,240px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;transition:transform .3s;z-index:40;font-size:.9rem}
-#toast.show{transform:translate(-50%,0)}
-body.rm *,body.rm *::before,body.rm *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+  /* Main Action Buttons */
+  #btn-melee {
+    width: 78px;
+    height: 78px;
+    right: 20px;
+    bottom: 30px;
+    background: radial-gradient(circle, #ff7675, #d63031);
+    border: 3px solid #ff7675;
+  }
+  #btn-bow {
+    width: 60px;
+    height: 60px;
+    right: 110px;
+    bottom: 24px;
+    background: radial-gradient(circle, #55efc4, #00b894);
+    border: 2px solid #55efc4;
+  }
+  #btn-roll {
+    width: 60px;
+    height: 60px;
+    right: 18px;
+    bottom: 122px;
+    background: radial-gradient(circle, #74b9ff, #0984e3);
+    border: 2px solid #74b9ff;
+  }
+  #btn-potion {
+    width: 50px;
+    height: 50px;
+    right: 96px;
+    bottom: 98px;
+    background: radial-gradient(circle, #fd79a8, #e84393);
+    border: 2px solid #fd79a8;
+  }
+
+  /* Top Artifact Buttons */
+  #artifacts-bar {
+    position: absolute;
+    right: env(safe-area-inset-right, 16px);
+    bottom: 245px;
+    display: flex;
+    gap: 12px;
+    pointer-events: auto;
+  }
+  .art-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: rgba(30, 35, 48, 0.9);
+    border: 2px solid #485460;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 9px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .art-btn:active {
+    transform: scale(0.92);
+  }
+  .art-btn span.art-icon {
+    font-size: 18px;
+  }
+  .cd-mask {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    height: 0%;
+    pointer-events: none;
+    transition: height 0.08s linear;
+  }
+
+  /* Death & Overlay Screen */
+  #modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(6px);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    text-align: center;
+    padding: 20px;
+  }
+  #modal-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: #e74c3c;
+    margin-bottom: 12px;
+    text-shadow: 0 0 16px rgba(231, 76, 60, 0.7);
+  }
+  #modal-summary, .modal-desc {
+    font-size: 15px;
+    color: #dcdde1;
+    margin-bottom: 24px;
+    max-width: 380px;
+    line-height: 1.5;
+  }
+  .big-btn {
+    background: linear-gradient(135deg, #0984e3, #6c5ce7);
+    color: white;
+    border: none;
+    padding: 14px 34px;
+    font-size: 17px;
+    font-weight: 800;
+    border-radius: 30px;
+    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
+    cursor: pointer;
+  }
+  .big-btn:active {
+    transform: scale(0.95);
+  }
 </style>
 </head>
-<body ontouchstart="">
-<div class="topbar" aria-hidden="true"></div>
-<a class="brand" href="#dl" id="brand" aria-label="huuanh tool, về đầu trang">
-  <svg viewBox="-128 -128 256 256" width="28" height="28" aria-hidden="true"><g id="lg"><path d="M0-21C27-45 27-100 0-124C-27-100-27-45 0-21Z" fill="#82cffd"/><path d="M0-21C27-45 27-100 0-124C-27-100-27-45 0-21Z" fill="#4daefd" transform="rotate(45)"/><path d="M0-21C27-45 27-100 0-124C-27-100-27-45 0-21Z" fill="#2b70fb" transform="rotate(90)"/><path d="M0-21C27-45 27-100 0-124C-27-100-27-45 0-21Z" fill="#2050fc" transform="rotate(135)"/><path d="M0-21C27-45 27-100 0-124C-27-100-27-45 0-21Z" fill="#0226c2" transform="rotate(180)"/><path d="M0-21C27-45 27-100 0-124C-27-100-27-45 0-21Z" fill="#001896" transform="rotate(225)"/><path d="M0-21C27-45 27-100 0-124C-27-100-27-45 0-21Z" fill="#02186d" transform="rotate(270)"/><path d="M0-21C27-45 27-100 0-124C-27-100-27-45 0-21Z" fill="#bfeafb" transform="rotate(315)"/></g></svg>
-  <span class="btxt">huuanh<svg class="bdg-sub" viewBox="0 0 42 18" aria-label="tool"><defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="50%" stop-color="#2b70fb"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs><rect width="42" height="18" rx="9" fill="url(#tg)"/><path d="M12.41 5.38L12.41 7.09L14.40 7.09L14.40 8.46L12.41 8.46L12.41 11.01Q12.41 11.43 12.58 11.58Q12.75 11.73 13.24 11.73L14.23 11.73L14.23 13.10L12.58 13.10Q11.44 13.10 10.97 12.63Q10.49 12.15 10.49 11.01L10.49 8.46L9.53 8.46L9.53 7.09L10.49 7.09L10.49 5.38L12.41 5.38ZM18.44 8.32Q17.80 8.32 17.46 8.77Q17.13 9.23 17.13 10.10Q17.13 10.96 17.46 11.42Q17.80 11.88 18.44 11.88Q19.06 11.88 19.40 11.42Q19.73 10.96 19.73 10.10Q19.73 9.23 19.40 8.77Q19.06 8.32 18.44 8.32ZM18.44 6.94Q19.99 6.94 20.86 7.78Q21.73 8.62 21.73 10.10Q21.73 11.58 20.86 12.42Q19.99 13.26 18.44 13.26Q16.88 13.26 16.00 12.42Q15.12 11.58 15.12 10.10Q15.12 8.62 16.00 7.78Q16.88 6.94 18.44 6.94ZM25.99 8.32Q25.35 8.32 25.02 8.77Q24.68 9.23 24.68 10.10Q24.68 10.96 25.02 11.42Q25.35 11.88 25.99 11.88Q26.62 11.88 26.95 11.42Q27.29 10.96 27.29 10.10Q27.29 9.23 26.95 8.77Q26.62 8.32 25.99 8.32ZM25.99 6.94Q27.54 6.94 28.42 7.78Q29.29 8.62 29.29 10.10Q29.29 11.58 28.42 12.42Q27.54 13.26 25.99 13.26Q24.44 13.26 23.56 12.42Q22.68 11.58 22.68 10.10Q22.68 8.62 23.56 7.78Q24.44 6.94 25.99 6.94ZM30.69 4.74L32.61 4.74L32.61 13.10L30.69 13.10L30.69 4.74Z" fill="#fff"/></svg></span>
-</a>
-<div class="actions">
-  <button class="menu-btn" id="mb" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="sheet"><i></i><i></i><i></i></button>
-  <button class="cta" id="quick-paste" type="button">Dán link</button>
+<body>
+
+<div id="game-wrapper">
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Top HUD -->
+  <div id="top-hud">
+    <div class="hud-panel">
+      <div class="bar-container">
+        <span>HP</span>
+        <div class="bar-track"><div id="hp-bar" class="bar-fill hp-fill"></div></div>
+      </div>
+      <div class="bar-container" style="margin-bottom:0;">
+        <span>HỒN</span>
+        <div class="bar-track"><div id="soul-bar" class="bar-fill soul-fill"></div></div>
+      </div>
+    </div>
+    <div class="hud-panel stats-info">
+      <div class="stat-floor">TẦNG: <span id="txt-floor">1</span></div>
+      <div class="stat-emerald">💎 <span id="txt-emerald">0</span></div>
+      <div class="stat-weapon">⚔️ CẤP <span id="txt-tier">1</span></div>
+    </div>
+  </div>
+
+  <!-- Mobile Controls -->
+  <div id="controls-layer">
+    <!-- Touch Joystick Zone -->
+    <div id="joystick-zone">
+      <div id="joystick-base">
+        <div id="joystick-knob"></div>
+      </div>
+    </div>
+
+    <!-- 3 Artifacts -->
+    <div id="artifacts-bar">
+      <div class="art-btn" id="art-1">
+        <span class="art-icon">🍄</span>
+        <span>NẤM</span>
+        <div class="cd-mask" id="cd-art-1"></div>
+      </div>
+      <div class="art-btn" id="art-2">
+        <span class="art-icon">⚡</span>
+        <span>NỔ HỒN</span>
+        <div class="cd-mask" id="cd-art-2"></div>
+      </div>
+      <div class="art-btn" id="art-3">
+        <span class="art-icon">🔮</span>
+        <span>LASER</span>
+        <div class="cd-mask" id="cd-art-3"></div>
+      </div>
+    </div>
+
+    <!-- Action Buttons Cluster -->
+    <div id="actions-zone">
+      <div class="ctrl-btn" id="btn-melee">
+        <span class="icon">⚔️</span>
+        <span class="label">CHÉM</span>
+      </div>
+      <div class="ctrl-btn" id="btn-bow">
+        <span class="icon">🏹</span>
+        <span class="label">BẮN</span>
+      </div>
+      <div class="ctrl-btn" id="btn-roll">
+        <span class="icon">💨</span>
+        <span class="label">LỘN</span>
+        <div class="cd-mask" id="cd-roll"></div>
+      </div>
+      <div class="ctrl-btn" id="btn-potion">
+        <span class="icon">🧪</span>
+        <span class="label">MÁU</span>
+        <div class="cd-mask" id="cd-pot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div id="modal-overlay">
+    <div id="modal-title">BẠN ĐÃ GỤC NGÃ!</div>
+    <div id="modal-summary" class="modal-desc">Quái vật hầm ngục đã áp đảo bạn. Hãy nâng cấp vũ khí và chuẩn bị chiến lược tốt hơn!</div>
+    <button class="big-btn" id="btn-revive">HỒI SINH & THỬ LẠI</button>
+  </div>
 </div>
-
-<nav class="glass sheet" id="sheet" aria-label="Menu">
-  <p class="mh">Chế độ tải nhanh</p>
-  <button type="button" data-m="tt_vid">TikTok Video<small>Không logo</small></button>
-  <button type="button" data-m="tt_story">Nhật ký TikTok<small>Story & nhạc</small></button>
-  <button type="button" data-m="tt_slide">Slide Ảnh & Nhạc<small>Tải lẻ / gộp</small></button>
-  <button type="button" data-m="tt_cmt">Bình luận TikTok<small>Sticker & Live</small></button>
-  <button type="button" data-m="yt">YouTube & Shorts<small>MP4 / MP3</small></button>
-  <hr>
-  <a href="#his">Lịch sử đã tải<small id="mhis">0</small></a>
-  <a href="#hd">Hướng dẫn & API</a>
-  <a href="#set">Cài đặt giao diện</a>
-</nav>
-
-<div class="wrap">
-<main>
-<!-- TAB 1: TẢI XUỐNG -->
-<section class="view" id="v-dl">
-  <header class="top">
-    <h1>Tải Video, Ảnh & Bình luận</h1>
-    <p class="tag">Hỗ trợ TikTok Video, Nhật ký (Story), Slide ảnh, Nhạc nền, Sticker/Live Photo bình luận và YouTube</p>
-  </header>
-
-  <div class="tbox">
-    <form id="dlf" novalidate>
-      <div class="url-w">
-        <input class="url-in" id="url" type="url" inputmode="url" autocomplete="off" autocapitalize="none" placeholder="Dán link TikTok, bình luận, nhật ký hoặc YouTube…" aria-label="Liên kết cần tải">
-        <button class="ibtn" id="btn-clr" type="button" hidden>Xóa</button>
-        <button class="ibtn" id="btn-pst" type="button">Dán</button>
-      </div>
-      <button class="go-btn" id="btn-go" type="submit">
-        <span id="go-txt">Phân tích & lấy link tải</span>
-        <i class="spin"></i>
-      </button>
-    </form>
-
-  </div>
-
-  <!-- Khu vực hiển thị kết quả bóc tách -->
-  <div id="res" aria-live="polite"></div>
-
-  <h2>Hỗ trợ toàn diện</h2>
-  <div class="fgrid">
-    <div class="fcard">
-      <b>TikTok & Nhật ký</b>
-      <span>Tải video và nhật ký (Story 24h) ở độ phân giải gốc Full HD không dính watermark hay ID người đăng.</span>
-    </div>
-    <div class="fcard">
-      <b>Ảnh Slide & Nhạc nền</b>
-      <span>Tự tách từng ảnh chất lượng cao từ bài đăng cuộn ảnh kèm file âm thanh MP3 gốc riêng biệt.</span>
-    </div>
-    <div class="fcard">
-      <b>Bình luận TikTok</b>
-      <span>Lấy nhãn dán (Sticker trong suốt), ảnh bình luận và cả gói Live Photo (Ảnh + Video chuyển động .MOV).</span>
-    </div>
-    <div class="fcard">
-      <b>YouTube & Shorts</b>
-      <span>Tải video MP4 (1080p, 2K, 4K), Shorts không viền, tách nhạc MP3 320kbps và lưu ảnh thu nhỏ (Thumbnail).</span>
-    </div>
-  </div>
-</section>
-
-<!-- TAB 2: LỊCH SỬ -->
-<section class="view" id="v-his" hidden>
-  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:12px">
-    <h2 style="margin:0">Lịch sử bóc tách</h2>
-    <button type="button" class="ibtn" id="clr-his">Xóa tất cả</button>
-  </div>
-  <p style="color:var(--muted);font-size:.88rem;margin:6px 0 14px">Các liên kết bạn đã phân tích gần đây được lưu ngay trên trình duyệt này.</p>
-  <ul class="list" id="hlist"></ul>
-  <p class="empty" id="nohis">Chưa có lịch sử tải xuống nào.</p>
-</section>
-
-<!-- TAB 3: HƯỚNG DẪN & API -->
-<section class="view" id="v-hd" hidden>
-  <h2 style="margin-top:12px">Cách lấy link chuẩn</h2>
-  <div class="item">
-    <h3>1. Lấy link Nhãn dán / Ảnh / Live Photo trong bình luận TikTok</h3>
-    <ol>
-      <li>Mở phần bình luận của video TikTok có chứa ảnh, nhãn dán hoặc Live Photo.</li>
-      <li>Nhấn giữ vào bình luận đó (hoặc bấm biểu tượng chia sẻ cạnh bình luận) và chọn <b>Sao chép liên kết</b>.</li>
-      <li>Dán vào ô tìm kiếm trên trang này, công cụ sẽ tự tách riêng file ảnh tĩnh, GIF nhãn dán và file chuyển động <code>.MOV</code> của Live Photo.</li>
-    </ol>
-  </div>
-  <div class="item">
-    <h3>2. Lấy link Nhật ký (Story) & Slide ảnh TikTok</h3>
-    <ol>
-      <li>Ở giao diện xem Nhật ký (Story) hoặc bài đăng nhiều ảnh, bấm nút <b>Chia sẻ (Mũi tên)</b> → <b>Sao chép liên kết</b>.</li>
-      <li>Khi dán link vào trang, bạn có thể chọn tải lẻ từng tấm ảnh, tải toàn bộ slide ảnh hoặc chỉ tải riêng nhạc nền MP3.</li>
-    </ol>
-  </div>
-  <div class="item">
-    <h3>3. Tích hợp Backend / Cloudflare Worker (Dành cho Admin)</h3>
-    <p>Trang này được thiết kế để gắn lên tên miền phụ (ví dụ <code>dl.huuanh.shop</code>). Bạn có thể gắn URL API xử lý thực tế ở mục <b>Cài đặt → Máy chủ API</b>. Khi có API, công cụ sẽ gửi yêu cầu <code>POST /parse</code> kèm <code>{ url, mode }</code> và hiển thị danh sách link tải trực tiếp từ phản hồi JSON.</p>
-  </div>
-</section>
-
-<!-- TAB 4: CÀI ĐẶT -->
-<section class="view" id="v-set" hidden>
-  <h2 style="margin-top:12px">Giao diện & hiển thị</h2>
-  <div class="scard">
-    <div class="srow col">
-      <div class="slb"><b>Chế độ nền</b><small id="thm-sub">Tự động theo thiết bị của bạn</small></div>
-      <div class="seg" id="thm" role="group" aria-label="Chế độ nền">
-        <button type="button" data-thm="system">Hệ thống</button>
-        <button type="button" data-thm="light">Sáng</button>
-        <button type="button" data-thm="dark">Tối</button>
-      </div>
-    </div>
-    <div class="srow col">
-      <div class="slb"><b>Cỡ chữ</b><small>Điều chỉnh độ lớn văn bản trên trang công cụ</small></div>
-      <div class="seg" id="fsz" role="group" aria-label="Cỡ chữ">
-        <button type="button" data-fs="sm">Nhỏ</button>
-        <button type="button" data-fs="md">Mặc định</button>
-        <button type="button" data-fs="lg">Lớn</button>
-      </div>
-    </div>
-  </div>
-
-  <h2>Tùy chọn tải xuống</h2>
-  <div class="scard">
-    <div class="srow">
-      <div class="slb"><b>Ưu tiên bản không dính logo</b><small>Đặt nút tải HD No-Watermark làm mặc định trên đầu</small></div>
-      <button type="button" class="tgl" id="tg-nwm" role="switch" aria-checked="true" aria-label="Ưu tiên bản không logo"><i></i></button>
-    </div>
-    <div class="srow">
-      <div class="slb"><b>Lưu lịch sử tự động</b><small>Ghi nhớ các link đã phân tích trên thiết bị</small></div>
-      <button type="button" class="tgl" id="tg-his" role="switch" aria-checked="true" aria-label="Lưu lịch sử tự động"><i></i></button>
-    </div>
-    <div class="srow">
-      <div class="slb"><b>Hiệu ứng chuyển động</b><small>Hiệu ứng mượt khi hiện thẻ kết quả và chuyển tab</small></div>
-      <button type="button" class="tgl" id="tg-mot" role="switch" aria-checked="true" aria-label="Hiệu ứng chuyển động"><i></i></button>
-    </div>
-  </div>
-
-  <h2>Kết nối API (Tên miền phụ)</h2>
-  <div class="scard">
-    <div class="srow col">
-      <div class="slb"><b>Endpoint API xử lý media</b><small>Để trống để chạy chế độ mô phỏng (Demo) hoặc nhập URL Worker của bạn</small></div>
-      <input class="fi" id="api-ep" type="url" placeholder="https://api.huuanh.shop/v1/extract" aria-label="Endpoint API">
-      <div style="display:flex;gap:8px">
-        <button type="button" class="ibtn" id="save-api" style="background:var(--ink);color:var(--bg)">Lưu API</button>
-        <button type="button" class="ibtn" id="rst-cfg">Khôi phục mặc định</button>
-      </div>
-    </div>
-  </div>
-</section>
-</main>
-
-<footer class="ft">
-  <span>© 2026 <b>huuanh tool</b> · Công cụ tải media không logo</span>
-  <div style="display:flex;gap:14px">
-    <a href="#hd">Hướng dẫn</a>
-    <a href="#set">Cài đặt</a>
-  </div>
-</footer>
-</div>
-
-<!-- Thanh điều hướng dưới cùng (Glass Dock) -->
-<div class="dock">
- <nav class="glass tabs" aria-label="Điều hướng chính">
-  <i class="ind" aria-hidden="true"></i>
-  <a href="#dl" data-t="dl">
-    <svg class="i-out" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-    <svg class="i-fil" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 4.5a1 1 0 1 0-2 0v5.59l-1.8-1.8a1 1 0 0 0-1.4 1.42l3.5 3.5a1 1 0 0 0 1.4 0l3.5-3.5a1 1 0 0 0-1.4-1.42L13 12.09V6.5zm-4.5 9.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2h-7z"/></svg>
-    <span>Tải xuống</span>
-  </a>
-  <a href="#his" data-t="his">
-    <svg class="i-out" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-    <svg class="i-fil" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5a1 1 0 1 0-2 0v5c0 .35.18.68.47.86l3.5 2.1a1 1 0 1 0 1.06-1.72L13 11.43V7z"/></svg>
-    <span>Lịch sử</span>
-    <b id="badge" hidden>0</b>
-  </a>
-  <a href="#hd" data-t="hd">
-    <svg class="i-out" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4"/><circle cx="12" cy="17" r=".8" fill="currentColor"/></svg>
-    <svg class="i-fil" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 5.25a3.25 3.25 0 0 0-3.25 3.25 1 1 0 1 0 2 0 1.25 1.25 0 1 1 1.92 1.05c-.86.55-1.67 1.33-1.67 2.7v.25a1 1 0 1 0 2 0v-.25c0-.53.3-.88.95-1.3A3.25 3.25 0 0 0 12 7.25zm0 8.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5z"/></svg>
-    <span>Hướng dẫn</span>
-  </a>
-  <a href="#set" data-t="set">
-    <svg class="i-out" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.77 1.02 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    <svg class="i-fil" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.77 1.02 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/></svg>
-    <span>Cài đặt</span>
-  </a>
- </nav>
-</div>
-
-<div id="toast" role="status"></div>
 
 <script>
-const $=s=>document.querySelector(s),H=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const DEF_CFG={theme:"system",font:"md",noWm:true,saveHis:true,motion:true,api:""};
-let cfg={...DEF_CFG},his=[],curMode="auto",curItem=null,selSlides=new Set([0,1,2]);
-try{cfg={...DEF_CFG,...JSON.parse(localStorage.getItem("hu_dl_cfg")||"{}")}}catch(e){}
-try{his=JSON.parse(localStorage.getItem("hu_dl_his")||"[]")}catch(e){}
-const saveCfg=()=>{try{localStorage.setItem("hu_dl_cfg",JSON.stringify(cfg))}catch(e){}};
-const saveHis=()=>{try{localStorage.setItem("hu_dl_his",JSON.stringify(his))}catch(e){}};
-
-function toast(t){const x=$("#toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),2200)}
-
-/* Áp dụng cài đặt giao diện */
-const mqDark=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)"):null;
-function applyCfg(){
- const sysDark=mqDark?mqDark.matches:false;
- const isDark=cfg.theme==="dark"||(cfg.theme==="system"&&sysDark);
- const root=document.documentElement;
- root.classList.toggle("dark",isDark);
- root.style.fontSize=cfg.font==="sm"?"93.75%":cfg.font==="lg"?"106.25%":"100%";
- document.body.classList.toggle("rm",!cfg.motion);
- document.querySelectorAll("#thm button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.thm===cfg.theme));
- const tsub=$("#thm-sub");
- if(tsub)tsub.textContent=cfg.theme==="system"?`Tự động theo thiết bị (${sysDark?"đang dùng nền tối":"đang dùng nền sáng"})`:cfg.theme==="dark"?"Luôn hiển thị giao diện nền tối":"Luôn hiển thị giao diện nền sáng";
- document.querySelectorAll("#fsz button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.fs===cfg.font));
- $("#tg-nwm").setAttribute("aria-checked",String(!!cfg.noWm));
- $("#tg-his").setAttribute("aria-checked",String(!!cfg.saveHis));
- $("#tg-mot").setAttribute("aria-checked",String(!!cfg.motion));
- $("#api-ep").value=cfg.api||"";
- placeInd();
-}
-if(mqDark&&mqDark.addEventListener)mqDark.addEventListener("change",applyCfg);
-
-/* Dữ liệu mẫu mô phỏng cho từng chế độ bóc tách */
-const SAMPLES={
- tt_vid:{
-  kind:"tt_vid",
-  badge:"TikTok Video · Không logo",
-  url:"https://www.tiktok.com/@minhanh.film/video/7432910482910",
-  title:"Chiều thu Hà Nội qua lăng kính film Kodak Gold 200 #hanoi #filmphotography",
-  author:"@minhanh.film · Minh Anh",
-  dur:"00:42",
-  stats:["1080×1920 (60fps)","18.4 MB","Âm thanh gốc AAC"],
-  color:"#FFD85E",
-  downloads:[
-   {id:"nwm_hd",label:"Tải Video HD (Không dính logo)",sub:"MP4 · 1080p60 · Đã gỡ watermark",tag:"18.4 MB",pri:true,ext:"mp4"},
-   {id:"src_max",label:"Tải Video Nguồn Gốc (Source)",sub:"MP4 · Bitrate gốc cao nhất từ máy chủ",tag:"26.1 MB",pri:false,ext:"mp4"},
-   {id:"mp3",label:"Tải Nhạc nền / Âm thanh riêng",sub:"MP3 · 320kbps · Nhạc nền gốc",tag:"1.8 MB",pri:false,ext:"mp3"},
-   {id:"cover",label:"Tải Ảnh bìa Video (Thumbnail)",sub:"WEBP/JPG · Độ phân giải gốc",tag:"420 KB",pri:false,ext:"jpg"}
-  ]
- },
- tt_story:{
-  kind:"tt_story",
-  badge:"Nhật ký TikTok (Story 24h)",
-  url:"https://www.tiktok.com/@minhanh.film/story/7432988120312",
-  title:"Nhật ký của @minhanh.film · Hậu trường buổi chụp Hồ Tây sáng sớm",
-  author:"@minhanh.film · Đăng 3 giờ trước",
-  dur:"00:15",
-  stats:["Story Không Logo","1080p","Tự hủy sau 24h"],
-  color:"#F0C23C",
-  downloads:[
-   {id:"story_nwm",label:"Tải Nhật ký Video (Không logo)",sub:"MP4 · 1080p · Không viền tên tài khoản",tag:"7.2 MB",pri:true,ext:"mp4"},
-   {id:"story_mp3",label:"Tải Nhạc gắn trong Nhật ký",sub:"MP3 · Tách âm thanh gốc từ Story",tag:"890 KB",pri:false,ext:"mp3"},
-   {id:"story_img",label:"Tải Khung hình bìa Nhật ký",sub:"JPG · 1080×1920",tag:"350 KB",pri:false,ext:"jpg"}
-  ]
- },
- tt_slide:{
-  kind:"tt_slide",
-  badge:"Slide Ảnh & Nhạc TikTok",
-  url:"https://www.tiktok.com/@minhanh.film/photo/7433019283711",
-  title:"Bộ 4 công thức chỉnh màu Lightroom tone trong trẻo cho ảnh ngoại cảnh",
-  author:"@minhanh.film · 4 ảnh + Nhạc nền",
-  dur:"4 ảnh",
-  stats:["Ảnh gốc không logo","2160×2700 px","Kèm nhạc MP3"],
-  color:"#303030",
-  slides:[
-   {idx:1,name:"Ảnh 01 · Bìa preset",res:"2160×2700",c:"#FFD85E"},
-   {idx:2,name:"Ảnh 02 · Thông số Ánh sáng",res:"2160×2700",c:"#F0C23C"},
-   {idx:3,name:"Ảnh 03 · Bảng pha màu HSL",res:"2160×2700",c:"#5E5E5A"},
-   {idx:4,name:"Ảnh 04 · Kết quả Before/After",res:"2160×2700",c:"#1E1E1E"}
-  ],
-  downloads:[
-   {id:"slide_sel",label:"Tải các ảnh đã chọn (Không logo)",sub:"JPG chất lượng gốc · Không chèn chữ TikTok",tag:"Tải ảnh",pri:true,ext:"jpg"},
-   {id:"slide_all",label:"Tải trọn bộ tất cả 4 ảnh",sub:"Lưu toàn bộ album ảnh độ phân giải cao",tag:"9.6 MB",pri:false,ext:"zip"},
-   {id:"slide_mp3",label:"Tải Nhạc nền của Slide ảnh",sub:"MP3 · 320kbps · Giai điệu lofi đính kèm",tag:"2.4 MB",pri:false,ext:"mp3"}
-  ]
- },
- tt_cmt:{
-  kind:"tt_cmt",
-  badge:"Bình luận TikTok · Sticker & Live Photo",
-  url:"https://www.tiktok.com/@minhanh.film/video/7432910482910?comment_id=743292219081",
-  title:"Bình luận của @linhchi.design: “Gửi mọi người chiếc meme và Live Photo mèo cam nhé!”",
-  author:"@linhchi.design · Bình luận đính kèm media",
-  dur:"Live + Sticker",
-  stats:["Không dính logo","Live Photo (.JPG + .MOV)","Sticker nền trong"],
-  color:"#000000",
-  downloads:[
-   {id:"cmt_live",label:"Tải Live Photo gốc (Ảnh + Video .MOV)",sub:"Giữ nguyên hiệu ứng nhấn giữ chuyển động trên iPhone/Android",tag:"Live 3.8 MB",pri:true,ext:"mov"},
-   {id:"cmt_sticker",label:"Tải Nhãn dán (Sticker động không nền)",sub:"GIF / WEBP trong suốt · Không dính viền",tag:"940 KB",pri:false,ext:"gif"},
-   {id:"cmt_img",label:"Tải Ảnh tĩnh trong bình luận",sub:"PNG gốc · Không đóng dấu",tag:"1.2 MB",pri:false,ext:"png"}
-  ]
- },
- yt:{
-  kind:"yt",
-  badge:"YouTube Video & Shorts",
-  url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-  title:"Hướng dẫn thiết kế giao diện Bio Link tối giản chuẩn UX/UI 2026",
-  author:"Minh Anh Studio · YouTube Official",
-  dur:"10:24",
-  stats:["4K UHD (2160p)","MP4 / WEBM","MP3 320kbps"],
-  color:"#FFD85E",
-  downloads:[
-   {id:"yt_1080",label:"Tải Video Full HD 1080p (MP4)",sub:"H.264 + AAC · Tương thích mọi điện thoại & máy tính",tag:"64.2 MB",pri:true,ext:"mp4"},
-   {id:"yt_4k",label:"Tải Video 4K Ultra HD (2160p60)",sub:"Bản nét nhất · Không giảm chất lượng",tag:"182 MB",pri:false,ext:"mp4"},
-   {id:"yt_mp3",label:"Tải Âm thanh / Nhạc MP3 (320kbps)",sub:"Tách âm thanh chất lượng cao",tag:"9.8 MB",pri:false,ext:"mp3"},
-   {id:"yt_thumb",label:"Tải Ảnh bìa YouTube (MaxRes 4K)",sub:"JPG · 1920×1080",tag:"520 KB",pri:false,ext:"jpg"}
-  ]
- }
+// --- Web Audio Synth for Punchy Retro Effects ---
+const AudioEngine = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+  playSlash() {
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.1);
+  },
+  playBow() {
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(540, this.ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.12);
+  },
+  playBlast() {
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.25);
+    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.25);
+  },
+  playPickup() {
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(580, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.16);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.16);
+  }
 };
 
-function artSvg(kind,c="#FFD85E"){
- if(kind==="tt_slide")return `<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" fill="${c}"/><rect x="22" y="24" width="64" height="72" rx="8" fill="#fff" opacity=".45"/><rect x="34" y="20" width="64" height="72" rx="8" fill="#fff"/><circle cx="54" cy="44" r="7" fill="${c}"/><path d="M34 82l22-20 14 12 12-10 16 18z" fill="${c}" opacity=".75"/></svg>`;
- if(kind==="tt_cmt")return `<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" fill="#1E1E1E"/><path d="M26 32h68a8 8 0 0 1 8 8v40a8 8 0 0 1-8 8H54l-18 14V88h-10a8 8 0 0 1-8-8V40a8 8 0 0 1 8-8z" fill="#FFD85E"/><circle cx="48" cy="60" r="6" fill="#000"/><circle cx="72" cy="60" r="6" fill="#000"/></svg>`;
- if(kind==="yt")return `<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" fill="#FFD85E"/><rect x="20" y="32" width="80" height="56" rx="14" fill="#000"/><path d="M52 46l24 14-24 14z" fill="#FFD85E"/></svg>`;
- if(kind==="tt_story")return `<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" fill="#F0C23C"/><circle cx="60" cy="60" r="38" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="12 6"/><circle cx="60" cy="60" r="28" fill="#fff"/><path d="M54 48l20 12-20 12z" fill="#000"/></svg>`;
- return `<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" fill="${c}"/><circle cx="60" cy="60" r="30" fill="#fff"/><path d="M53 46l22 14-22 14z" fill="#000"/></svg>`;
+// Canvas & Engine Init
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
 }
+window.addEventListener('resize', resize);
+resize();
 
-function detectKind(u,mode){
- if(mode&&mode!=="auto")return mode;
- const s=u.toLowerCase();
- if(s.includes("youtube.com")||s.includes("youtu.be"))return "yt";
- if(s.includes("comment")||s.includes("sticker")||s.includes("live"))return "tt_cmt";
- if(s.includes("story"))return "tt_story";
- if(s.includes("photo")||s.includes("slide"))return "tt_slide";
- return "tt_vid";
-}
-
-function renderResult(item){
- curItem=item;
- const dls=[...item.downloads];
- if(!cfg.noWm&&dls.length>1){const first=dls.shift();dls.splice(1,0,first)}
- let slidesHtml="";
- if(item.kind==="tt_slide"&&item.slides){
-  slidesHtml=`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:.84rem"><span style="font-weight:600">Chọn ảnh muốn tải (${selSlides.size}/${item.slides.length})</span><button type="button" class="ibtn" id="tog-all-sl" style="padding:4px 10px;font-size:.78rem">${selSlides.size===item.slides.length?"Bỏ chọn hết":"Chọn tất cả"}</button></div><div class="sgrid">`+
-  item.slides.map((sl,idx)=>{
-   const on=selSlides.has(idx);
-   return `<div class="sitem${on?" sel":""}" data-sl="${idx}" role="checkbox" aria-checked="${on}" tabindex="0"><div class="sth">${artSvg("tt_slide",sl.c)}</div><div class="sbar"><span>${H(sl.name)}</span><span class="schk">${on?"✓":""}</span></div></div>`;
-  }).join("")+`</div>`;
- }
- $("#res").innerHTML=`<article class="rcard">
-  <div class="rhead">
-    <div class="rth">${artSvg(item.kind,item.color)}<span class="rdur">${H(item.dur)}</span></div>
-    <div class="rmeta">
-      <span class="rbdg"><i></i>${H(item.badge)}</span>
-      <h3>${H(item.title)}</h3>
-      <div class="rauthor">${H(item.author)}</div>
-      <div class="rstats">${item.stats.map(st=>`<span>${H(st)}</span>`).join("")}</div>
-    </div>
-  </div>
-  ${slidesHtml}
-  <div class="dl-list">
-    ${dls.map((d,idx)=>`<button type="button" class="dl-btn${idx===0?" pri":""}" data-dl="${H(d.id)}">
-      <span>${H(d.label)}<small>${H(d.sub)}</small></span>
-      <span class="dl-tag">${H(d.tag)}</span>
-    </button>`).join("")}
-  </div>
- </article>`;
-}
-
-function renderHis(){
- $("#mhis").textContent=his.length;
- $("#badge").hidden=!his.length;
- $("#badge").textContent=his.length;
- $("#nohis").hidden=his.length>0;
- $("#hlist").innerHTML=his.map((h,i)=>`<li class="hrow">
-  <div class="hth">${artSvg(h.kind,h.color)}</div>
-  <div class="htx">
-    <b>${H(h.title)}</b>
-    <small>${H(h.badge)} · ${H(h.author)}</small>
-  </div>
-  <div class="hacts">
-    <button type="button" data-hopen="${i}">Mở lại</button>
-    <button type="button" data-hdel="${i}" aria-label="Xóa">✕</button>
-  </div>
- </li>`).join("");
-}
-
-function triggerSampleDownload(dl,item){
- const content=`huuanh tool - File mô phỏng tải xuống\n-----------------------------------\nTiêu đề: ${item.title}\nPhân loại: ${item.badge}\nTác giả: ${item.author}\nĐịnh dạng yêu cầu: ${dl.label} (.${dl.ext})\nLiên kết gốc: ${item.url}\n\n(Khi bạn gắn API Endpoint thật trong mục Cài đặt, nút này sẽ tải trực tiếp luồng dữ liệu media gốc về máy.)`;
- const blob=new Blob([content],{type:"text/plain;charset=utf-8"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
- a.href=url;
- a.download=`huuanh-${item.kind}-${dl.id}.${dl.ext}.txt`;
- document.body.appendChild(a);
- a.click();
- a.remove();
- setTimeout(()=>URL.revokeObjectURL(url),1500);
-}
-
-/* Xử lý phân tích link */
-async function analyzeUrl(rawUrl,forcedKind){
- const u=rawUrl.trim();
- if(!u){toast("Dán liên kết TikTok hoặc YouTube vào ô trước nhé");$("#url").focus();return}
- const btn=$("#btn-go"),txt=$("#go-txt");
- btn.classList.add("busy");btn.disabled=true;txt.textContent="Đang bóc tách media không logo…";
- await new Promise(r=>setTimeout(r,550));
- const kind=forcedKind||detectKind(u,curMode);
- let item={...SAMPLES[kind]};
- item.url=u;
- if(!Object.values(SAMPLES).some(s=>s.url===u)){
-  item.title=`Media bóc tách từ liên kết (${u.slice(0,38)}…)`;
- }
- if(cfg.api){
-  try{
-   const res=await fetch(cfg.api,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:u,mode:kind})});
-   if(res.ok){const data=await res.json();if(data&&data.title)item={...item,...data}}
-  }catch(e){}
- }
- btn.classList.remove("busy");btn.disabled=false;txt.textContent="Phân tích & lấy link tải";
- selSlides=new Set([0,1,2,3]);
- renderResult(item);
- if(cfg.saveHis){
-  his=[item,...his.filter(x=>x.url!==item.url)].slice(0,20);
-  saveHis();renderHis();
- }
- toast("Đã bóc tách thành công!");
-}
-
-/* Sự kiện ô nhập URL, Dán, Xóa, Mẫu thử */
-const urlIn=$("#url"),btnClr=$("#btn-clr");
-urlIn.oninput=()=>{btnClr.hidden=!urlIn.value.trim()};
-btnClr.onclick=()=>{urlIn.value="";btnClr.hidden=true;urlIn.focus()};
-async function pasteClip(){
- try{
-  const t=await navigator.clipboard.readText();
-  if(t){urlIn.value=t.trim();btnClr.hidden=false;toast("Đã dán liên kết từ bộ nhớ tạm");analyzeUrl(urlIn.value);return}
- }catch(e){}
- urlIn.focus();
- toast("Nhấn giữ vào ô nhập để dán liên kết của bạn");
-}
-$("#btn-pst").onclick=pasteClip;
-$("#quick-paste").onclick=()=>{goto("dl");pasteClip()};
-
-$("#dlf").onsubmit=e=>{e.preventDefault();analyzeUrl(urlIn.value)};
-
-/* Sự kiện tương tác trên thẻ kết quả & lịch sử */
-document.body.addEventListener("click",e=>{
- const sl=e.target.closest("[data-sl]");
- if(sl&&curItem){
-  const i=+sl.dataset.sl;
-  if(selSlides.has(i))selSlides.delete(i);else selSlides.add(i);
-  renderResult(curItem);
-  return;
- }
- if(e.target.closest("#tog-all-sl")&&curItem&&curItem.slides){
-  if(selSlides.size===curItem.slides.length)selSlides.clear();
-  else curItem.slides.forEach((_,i)=>selSlides.add(i));
-  renderResult(curItem);
-  return;
- }
- const dlBtn=e.target.closest("[data-dl]");
- if(dlBtn&&curItem){
-  const id=dlBtn.dataset.dl;
-  if(id==="slide_sel"&&!selSlides.size){toast("Hãy chọn ít nhất 1 tấm ảnh để tải");return}
-  const dl=curItem.downloads.find(x=>x.id===id)||curItem.downloads[0];
-  toast(id==="slide_sel"?`Đang tải ${selSlides.size} ảnh không logo…`:`Bắt đầu tải: ${dl.label}`);
-  triggerSampleDownload(dl,curItem);
-  return;
- }
- const ho=e.target.closest("[data-hopen]");
- if(ho){
-  const item=his[+ho.dataset.hopen];
-  if(item){urlIn.value=item.url;btnClr.hidden=false;renderResult(item);goto("dl");toast("Đã mở lại thẻ tải xuống")}
-  return;
- }
- const hd=e.target.closest("[data-hdel]");
- if(hd){
-  his.splice(+hd.dataset.hdel,1);saveHis();renderHis();toast("Đã xóa mục khỏi lịch sử");
- }
-});
-
-/* Xóa lịch sử & Cài đặt */
-let clrHisArm=0;
-$("#clr-his").onclick=()=>{
- if(!his.length){toast("Lịch sử đang trống");return}
- if(!clrHisArm){clrHisArm=1;$("#clr-his").textContent="Bấm lần nữa để xóa";setTimeout(()=>{clrHisArm=0;$("#clr-his").textContent="Xóa tất cả"},3000);return}
- clrHisArm=0;his=[];saveHis();renderHis();$("#clr-his").textContent="Xóa tất cả";toast("Đã xóa toàn bộ lịch sử");
+// Core Player State
+const player = {
+  x: W / 2, y: H / 2,
+  size: 26,
+  hp: 100, maxHp: 100,
+  souls: 40, maxSouls: 100,
+  emeralds: 0,
+  weaponTier: 1,
+  speed: 3.5,
+  facing: { x: 1, y: 0 },
+  vx: 0, vy: 0,
+  rollTime: 0, rollCd: 0, maxRollCd: 55,
+  meleeCd: 0, bowCd: 0,
+  shroomBuff: 0,
+  beaconTime: 0,
+  cdArt1: 0, maxCdArt1: 420,
+  cdArt2: 0, maxCdArt2: 220,
+  cdArt3: 0, maxCdArt3: 320,
+  potCd: 0, maxPotCd: 450
 };
-$("#thm").onclick=e=>{const b=e.target.closest("[data-thm]");if(!b)return;cfg.theme=b.dataset.thm;saveCfg();applyCfg();toast("Đã cập nhật chế độ nền")};
-$("#fsz").onclick=e=>{const b=e.target.closest("[data-fs]");if(!b)return;cfg.font=b.dataset.fs;saveCfg();applyCfg();toast("Đã cập nhật cỡ chữ")};
-$("#tg-nwm").onclick=()=>{cfg.noWm=!cfg.noWm;saveCfg();applyCfg();if(curItem)renderResult(curItem);toast(cfg.noWm?"Ưu tiên bản Không logo lên đầu":"Đã tắt ưu tiên")};
-$("#tg-his").onclick=()=>{cfg.saveHis=!cfg.saveHis;saveCfg();applyCfg();toast(cfg.saveHis?"Đã bật lưu lịch sử tự động":"Đã tắt lưu lịch sử")};
-$("#tg-mot").onclick=()=>{cfg.motion=!cfg.motion;saveCfg();applyCfg();toast(cfg.motion?"Đã bật hiệu ứng chuyển động":"Đã tắt hiệu ứng chuyển động")};
-$("#save-api").onclick=()=>{cfg.api=$("#api-ep").value.trim();saveCfg();toast(cfg.api?"Đã lưu Endpoint API xử lý":"Đã chuyển về chế độ Demo")};
-$("#rst-cfg").onclick=()=>{cfg={...DEF_CFG};saveCfg();applyCfg();toast("Đã khôi phục cài đặt gốc")};
 
-/* Điều hướng Tabs & Menu */
-const V=["dl","his","hd","set"];
-let pi0=1;
-function placeInd(){
- const a=document.querySelector('.tabs a[aria-current="page"]'),i=$(".ind");if(!a)return;
- if(pi0)i.style.transition="none";
- i.style.width=a.offsetWidth+"px";i.style.height=a.offsetHeight+"px";i.style.transform="translate("+a.offsetLeft+"px,"+a.offsetTop+"px)";
- if(pi0){i.offsetWidth;i.style.transition="";pi0=0}
+let dungeonFloor = 1;
+let enemies = [];
+let projectiles = [];
+let particles = [];
+let drops = [];
+let slashArcs = [];
+let gameOver = false;
+
+// Auto-aim utility for touch screens
+function getClosestEnemy(maxDist = 9999) {
+  let closest = null;
+  let minDist = maxDist;
+  for (const en of enemies) {
+    const d = Math.hypot(en.x - player.x, en.y - player.y);
+    if (d < minDist) {
+      minDist = d;
+      closest = en;
+    }
+  }
+  return closest;
 }
-function route(n){
- n=n||location.hash.slice(1);if(!V.includes(n))n="dl";
- V.forEach(v=>{
-  $("#v-"+v).hidden=v!==n;
-  const a=document.querySelector('.tabs [data-t="'+v+'"]');
-  if(v===n)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
- });
- placeInd();scrollTo({top:0,behavior:"instant"});
+
+// Spawning Waves
+function spawnFloorWave() {
+  const count = 5 + dungeonFloor * 3;
+  for (let i = 0; i < count; i++) {
+    let ex, ey;
+    let attempts = 0;
+    do {
+      ex = Math.random() * (W - 120) + 60;
+      ey = Math.random() * (H - 120) + 60;
+      attempts++;
+    } while (attempts < 50 && Math.hypot(ex - player.x, ey - player.y) < 180);
+
+    const isBoss = (i === 0 && dungeonFloor % 2 === 0);
+    const rand = Math.random();
+
+    if (isBoss) {
+      enemies.push({
+        x: ex, y: ey, size: 46,
+        hp: 220 + dungeonFloor * 70, maxHp: 220 + dungeonFloor * 70,
+        speed: 1.4, type: 'boss', color: '#9b59b6', shootCd: 90
+      });
+    } else if (rand < 0.65) {
+      enemies.push({
+        x: ex, y: ey, size: 24,
+        hp: 35 + dungeonFloor * 14, maxHp: 35 + dungeonFloor * 14,
+        speed: 2.1, type: 'zombie', color: '#2ecc71'
+      });
+    } else {
+      enemies.push({
+        x: ex, y: ey, size: 22,
+        hp: 25 + dungeonFloor * 9, maxHp: 25 + dungeonFloor * 9,
+        speed: 1.5, type: 'skeleton', color: '#bdc3c7', shootCd: 85 + Math.random() * 50
+      });
+    }
+  }
 }
-function goto(n){if(location.hash.slice(1)!==n){try{history.pushState(null,"","#"+n)}catch(e){location.hash=n;return}}route(n)}
-addEventListener("hashchange",()=>route());
-addEventListener("resize",placeInd);
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(placeInd);
-document.querySelectorAll(".tabs a").forEach(a=>{
- const n=a.getAttribute("href").slice(1);
- a.addEventListener("pointerup",e=>{if(e.button===0){e.preventDefault();goto(n)}});
- a.addEventListener("click",e=>{e.preventDefault();if(e.detail===0)goto(n)});
+
+// Player Actions
+function doMelee() {
+  AudioEngine.init();
+  if (player.meleeCd > 0 || player.rollTime > 0) return;
+  player.meleeCd = player.shroomBuff > 0 ? 11 : 19;
+  AudioEngine.playSlash();
+
+  // Mobile auto-aim: prioritize target near player
+  let target = getClosestEnemy(190);
+  let aimAngle = Math.atan2(player.facing.y, player.facing.x);
+  if (target) {
+    aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
+    player.facing = { x: Math.cos(aimAngle), y: Math.sin(aimAngle) };
+  }
+
+  slashArcs.push({ x: player.x, y: player.y, angle: aimAngle, life: 9 });
+
+  enemies.forEach(en => {
+    const dist = Math.hypot(en.x - player.x, en.y - player.y);
+    const enAngle = Math.atan2(en.y - player.y, en.x - player.x);
+    let diff = Math.abs(enAngle - aimAngle);
+    if (diff > Math.PI) diff = Math.PI * 2 - diff;
+
+    if (dist < 80 && diff < 1.25) {
+      const dmg = 20 + player.weaponTier * 7;
+      en.hp -= dmg;
+      en.x += Math.cos(aimAngle) * 22;
+      en.y += Math.sin(aimAngle) * 22;
+      spawnParticles(en.x, en.y, '#f1c40f', 6);
+    }
+  });
+}
+
+function doBow() {
+  AudioEngine.init();
+  if (player.bowCd > 0 || player.rollTime > 0) return;
+  player.bowCd = 24;
+  AudioEngine.playBow();
+
+  let target = getClosestEnemy(600);
+  let aimAngle = Math.atan2(player.facing.y, player.facing.x);
+  if (target) {
+    aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
+    player.facing = { x: Math.cos(aimAngle), y: Math.sin(aimAngle) };
+  }
+
+  projectiles.push({
+    x: player.x, y: player.y,
+    vx: Math.cos(aimAngle) * 10, vy: Math.sin(aimAngle) * 10,
+    dmg: 16 + player.weaponTier * 6, friendly: true, color: '#f39c12'
+  });
+}
+
+function doRoll() {
+  if (player.rollCd > 0 || player.rollTime > 0) return;
+  let dx = joystickVector.x, dy = joystickVector.y;
+  if (dx === 0 && dy === 0) {
+    dx = player.facing.x;
+    dy = player.facing.y;
+  }
+  const len = Math.hypot(dx, dy) || 1;
+  player.vx = (dx / len) * 9.5;
+  player.vy = (dy / len) * 9.5;
+  player.rollTime = 13;
+  player.rollCd = player.maxRollCd;
+  spawnParticles(player.x, player.y, '#ffffff', 8);
+}
+
+function doPotion() {
+  AudioEngine.init();
+  if (player.potCd <= 0 && player.hp < player.maxHp) {
+    player.hp = Math.min(player.maxHp, player.hp + 60);
+    player.potCd = player.maxPotCd;
+    spawnParticles(player.x, player.y, '#e84393', 18);
+  }
+}
+
+function useArtifact(num) {
+  AudioEngine.init();
+  if (num === 1 && player.cdArt1 <= 0) {
+    player.shroomBuff = 250;
+    player.cdArt1 = player.maxCdArt1;
+    spawnParticles(player.x, player.y, '#e67e22', 15);
+  } else if (num === 2 && player.cdArt2 <= 0 && player.souls >= 20) {
+    player.souls -= 20;
+    player.cdArt2 = player.maxCdArt2;
+    AudioEngine.playBlast();
+    spawnParticles(player.x, player.y, '#00cec9', 36);
+    enemies.forEach(en => {
+      const d = Math.hypot(en.x - player.x, en.y - player.y);
+      if (d < 170) {
+        en.hp -= 60 + player.weaponTier * 16;
+        const a = Math.atan2(en.y - player.y, en.x - player.x);
+        en.x += Math.cos(a) * 50;
+        en.y += Math.sin(a) * 50;
+      }
+    });
+  } else if (num === 3 && player.cdArt3 <= 0 && player.souls >= 25) {
+    player.souls -= 25;
+    player.beaconTime = 100;
+    player.cdArt3 = player.maxCdArt3;
+  }
+}
+
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = Math.random() * 4 + 1;
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 22, color });
+  }
+}
+
+// Touch Virtual Joystick Logic
+const joyZone = document.getElementById('joystick-zone');
+const joyBase = document.getElementById('joystick-base');
+const joyKnob = document.getElementById('joystick-knob');
+let joystickTouchId = null;
+let joystickCenter = { x: 0, y: 0 };
+let joystickVector = { x: 0, y: 0 };
+const JOYSTICK_RADIUS = 50;
+
+joyZone.addEventListener('touchstart', e => {
+  e.preventDefault();
+  AudioEngine.init();
+  if (joystickTouchId !== null) return;
+  const touch = e.changedTouches[0];
+  joystickTouchId = touch.identifier;
+  joystickCenter = { x: touch.clientX, y: touch.clientY };
+  joyBase.style.left = joystickCenter.x + 'px';
+  joyBase.style.top = joystickCenter.y + 'px';
+  joyBase.style.display = 'block';
+  joyKnob.style.transform = `translate(-50%, -50%) translate(0px, 0px)`;
+  joystickVector = { x: 0, y: 0 };
+}, { passive: false });
+
+window.addEventListener('touchmove', e => {
+  if (joystickTouchId === null) return;
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const touch = e.changedTouches[i];
+    if (touch.identifier === joystickTouchId) {
+      let dx = touch.clientX - joystickCenter.x;
+      let dy = touch.clientY - joystickCenter.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > JOYSTICK_RADIUS) {
+        dx = (dx / dist) * JOYSTICK_RADIUS;
+        dy = (dy / dist) * JOYSTICK_RADIUS;
+      }
+      joyKnob.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px)`;
+      joystickVector = { x: dx / JOYSTICK_RADIUS, y: dy / JOYSTICK_RADIUS };
+      if (dist > 8) {
+        player.facing = { x: dx / dist, y: dy / dist };
+      }
+      break;
+    }
+  }
+}, { passive: false });
+
+function resetJoystick() {
+  joystickTouchId = null;
+  joyBase.style.display = 'none';
+  joystickVector = { x: 0, y: 0 };
+}
+window.addEventListener('touchend', e => {
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    if (e.changedTouches[i].identifier === joystickTouchId) {
+      resetJoystick();
+      break;
+    }
+  }
 });
-$("#brand").onclick=e=>{e.preventDefault();goto("dl")};
+window.addEventListener('touchcancel', resetJoystick);
 
-const mb=$("#mb"),sh=$("#sheet");
-function menu(o){
- sh.classList.toggle("open",o);
- mb.setAttribute("aria-expanded",o);
- mb.setAttribute("aria-label",o?"Đóng menu":"Mở menu");
- if(!o) clearTouchActive();
-}
-mb.onclick=()=>menu(!sh.classList.contains("open"));
-
-/* Xử lý cảm ứng chạm & lướt ngón tay: luôn chỉ làm sáng đúng 1 mục duy nhất */
-let curTouchItem=null;
-function setTouchActive(el){
- sh.querySelectorAll(".active").forEach(x=>{if(x!==el)x.classList.remove("active")});
- if(document.activeElement&&sh.contains(document.activeElement)&&document.activeElement!==el){
-  document.activeElement.blur();
- }
- curTouchItem=el||null;
- if(curTouchItem)curTouchItem.classList.add("active");
-}
-function clearTouchActive(){
- sh.querySelectorAll(".active").forEach(x=>x.classList.remove("active"));
- curTouchItem=null;
-}
-function getItemUnderPoint(x,y){
- const el=document.elementFromPoint(x,y);
- if(!el)return{inSheet:false,item:null};
- return{
-  inSheet:!!el.closest("#sheet"),
-  item:el.closest(".sheet a, .sheet button")
- };
+// Button Listeners (Touch + Click)
+function attachBtn(id, action) {
+  const el = document.getElementById(id);
+  const handler = e => {
+    e.preventDefault();
+    action();
+  };
+  el.addEventListener('touchstart', handler, { passive: false });
+  el.addEventListener('mousedown', handler);
 }
 
-sh.addEventListener("touchstart",e=>{
- if(e.touches.length!==1)return;
- const t=e.touches[0];
- const {item}=getItemUnderPoint(t.clientX,t.clientY);
- if(item)setTouchActive(item);
-},{passive:true});
+attachBtn('btn-melee', doMelee);
+attachBtn('btn-bow', doBow);
+attachBtn('btn-roll', doRoll);
+attachBtn('btn-potion', doPotion);
+attachBtn('art-1', () => useArtifact(1));
+attachBtn('art-2', () => useArtifact(2));
+attachBtn('art-3', () => useArtifact(3));
 
-sh.addEventListener("touchmove",e=>{
- if(e.touches.length!==1)return;
- const t=e.touches[0];
- const {inSheet,item}=getItemUnderPoint(t.clientX,t.clientY);
- if(!inSheet){
-  clearTouchActive();
-  return;
- }
- if(item)setTouchActive(item);
-},{passive:true});
-
-sh.addEventListener("touchcancel",()=>{
- clearTouchActive();
-},{passive:true});
-
-sh.addEventListener("pointermove",e=>{
- if(e.pointerType==="mouse"){
-  setTouchActive(e.target.closest(".sheet a, .sheet button"));
- }
+// Keyboard support for PC testing
+window.addEventListener('keydown', e => {
+  AudioEngine.init();
+  if (e.code === 'KeyW') joystickVector.y = -1;
+  if (e.code === 'KeyS') joystickVector.y = 1;
+  if (e.code === 'KeyA') joystickVector.x = -1;
+  if (e.code === 'KeyD') joystickVector.x = 1;
+  if (e.code === 'Space') doRoll();
+  if (e.code === 'KeyJ') doMelee();
+  if (e.code === 'KeyK') doBow();
+  if (e.code === 'KeyE') doPotion();
+  if (e.code === 'Digit1') useArtifact(1);
+  if (e.code === 'Digit2') useArtifact(2);
+  if (e.code === 'Digit3') useArtifact(3);
+  if (e.code === 'KeyR' && gameOver) revivePlayer();
 });
-sh.addEventListener("pointerleave",e=>{
- if(e.pointerType==="mouse"){
-  clearTouchActive();
- }
+window.addEventListener('keyup', e => {
+  if (['KeyW','KeyS'].includes(e.code)) joystickVector.y = 0;
+  if (['KeyA','KeyD'].includes(e.code)) joystickVector.x = 0;
 });
 
-sh.addEventListener("click",e=>{
- const m=e.target.closest("[data-m]");
- if(m){
-  const k=m.dataset.m;
+function revivePlayer() {
+  gameOver = false;
+  player.hp = player.maxHp;
+  player.souls = 30;
+  player.weaponTier = 1;
+  player.emeralds = 0;
+  dungeonFloor = 1;
+  enemies = [];
+  drops = [];
+  projectiles = [];
+  document.getElementById('modal-overlay').style.display = 'none';
+  spawnFloorWave();
+}
+document.getElementById('btn-revive').addEventListener('click', revivePlayer);
 
-  goto("dl");menu(false);
-  urlIn.value=SAMPLES[k].url;btnClr.hidden=false;
-  analyzeUrl(SAMPLES[k].url,k);
-  return;
- }
- if(e.target.closest("a,button"))menu(false);
-});
-addEventListener("keydown",e=>{if(e.key==="Escape")menu(false)});
-document.addEventListener("click",e=>{if(!e.target.closest("#sheet,#mb"))menu(false)});
-document.addEventListener("touchstart",e=>{if(!e.target.closest("#sheet,#mb")&&sh.classList.contains("open"))menu(false)},{passive:true});
+// Main Game Loop Update
+function update() {
+  if (gameOver) return;
 
-/* Khởi chạy */
-applyCfg();
-renderHis();
-route();
+  if (player.hp <= 0) {
+    gameOver = true;
+    document.getElementById('modal-summary').innerText =
+      `Bạn đã chiến đấu dũng cảm đến Tầng ${dungeonFloor} và thu thập được ${player.emeralds} Ngọc Lục Bảo!`;
+    document.getElementById('modal-overlay').style.display = 'flex';
+    return;
+  }
+
+  // Cooldown ticks
+  if (player.meleeCd > 0) player.meleeCd--;
+  if (player.bowCd > 0) player.bowCd--;
+  if (player.rollCd > 0) player.rollCd--;
+  if (player.shroomBuff > 0) player.shroomBuff--;
+  if (player.beaconTime > 0) player.beaconTime--;
+  if (player.cdArt1 > 0) player.cdArt1--;
+  if (player.cdArt2 > 0) player.cdArt2--;
+  if (player.cdArt3 > 0) player.cdArt3--;
+  if (player.potCd > 0) player.potCd--;
+
+  // Movement
+  const curSpeed = player.speed * (player.shroomBuff > 0 ? 1.45 : 1);
+  if (player.rollTime > 0) {
+    player.x += player.vx;
+    player.y += player.vy;
+    player.rollTime--;
+  } else {
+    player.x += joystickVector.x * curSpeed;
+    player.y += joystickVector.y * curSpeed;
+  }
+
+  // Arena bounds clamp
+  player.x = Math.max(player.size, Math.min(W - player.size, player.x));
+  player.y = Math.max(player.size, Math.min(H - player.size, player.y));
+
+  // Artifact 3: Beacon Beam
+  if (player.beaconTime > 0) {
+    let target = getClosestEnemy(420);
+    let aimAngle = Math.atan2(player.facing.y, player.facing.x);
+    if (target) aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
+
+    enemies.forEach(en => {
+      const dist = Math.hypot(en.x - player.x, en.y - player.y);
+      const enAngle = Math.atan2(en.y - player.y, en.x - player.x);
+      let diff = Math.abs(enAngle - aimAngle);
+      if (diff > Math.PI) diff = Math.PI * 2 - diff;
+      if (dist < 420 && diff < 0.22) {
+        en.hp -= 2.4 + player.weaponTier * 0.6;
+        spawnParticles(en.x, en.y, '#a29bfe', 1);
+      }
+    });
+  }
+
+  // Projectiles
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const p = projectiles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+
+    if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) {
+      projectiles.splice(i, 1);
+      continue;
+    }
+
+    if (p.friendly) {
+      for (let j = enemies.length - 1; j >= 0; j--) {
+        const en = enemies[j];
+        if (Math.hypot(p.x - en.x, p.y - en.y) < en.size / 2 + 6) {
+          en.hp -= p.dmg;
+          spawnParticles(en.x, en.y, '#ffffff', 5);
+          projectiles.splice(i, 1);
+          break;
+        }
+      }
+    } else {
+      if (player.rollTime <= 0 && Math.hypot(p.x - player.x, p.y - player.y) < player.size / 2 + 5) {
+        player.hp -= p.dmg;
+        spawnParticles(player.x, player.y, '#e74c3c', 7);
+        projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  // Enemies update
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    const en = enemies[i];
+    if (en.hp <= 0) {
+      player.souls = Math.min(player.maxSouls, player.souls + 14);
+      if (Math.random() < 0.65) drops.push({ x: en.x, y: en.y, type: 'emerald' });
+      if (Math.random() < 0.22 || en.type === 'boss') drops.push({ x: en.x + 8, y: en.y, type: 'weapon' });
+      spawnParticles(en.x, en.y, en.color, 12);
+      enemies.splice(i, 1);
+      continue;
+    }
+
+    const dist = Math.hypot(player.x - en.x, player.y - en.y);
+    const angle = Math.atan2(player.y - en.y, player.x - en.x);
+
+    if (en.type === 'skeleton') {
+      if (dist > 180) {
+        en.x += Math.cos(angle) * en.speed;
+        en.y += Math.sin(angle) * en.speed;
+      }
+      en.shootCd--;
+      if (en.shootCd <= 0) {
+        en.shootCd = 100;
+        projectiles.push({
+          x: en.x, y: en.y,
+          vx: Math.cos(angle) * 5.6, vy: Math.sin(angle) * 5.6,
+          dmg: 9 + dungeonFloor * 2, friendly: false, color: '#ff7675'
+        });
+      }
+    } else {
+      en.x += Math.cos(angle) * en.speed;
+      en.y += Math.sin(angle) * en.speed;
+
+      if (en.type === 'boss') {
+        en.shootCd--;
+        if (en.shootCd <= 0) {
+          en.shootCd = 90;
+          for (let k = -1; k <= 1; k++) {
+            projectiles.push({
+              x: en.x, y: en.y,
+              vx: Math.cos(angle + k * 0.28) * 6, vy: Math.sin(angle + k * 0.28) * 6,
+              dmg: 13 + dungeonFloor * 2, friendly: false, color: '#a29bfe'
+            });
+          }
+        }
+      }
+    }
+
+    // Touch collision damage
+    if (player.rollTime <= 0 && dist < (player.size + en.size) / 2) {
+      player.hp -= 0.5 + dungeonFloor * 0.08;
+    }
+  }
+
+  // Drops pickup
+  for (let i = drops.length - 1; i >= 0; i--) {
+    const d = drops[i];
+    if (Math.hypot(player.x - d.x, player.y - d.y) < 36) {
+      AudioEngine.playPickup();
+      if (d.type === 'emerald') player.emeralds += 5;
+      if (d.type === 'weapon') player.weaponTier++;
+      spawnParticles(d.x, d.y, '#2ecc71', 8);
+      drops.splice(i, 1);
+    }
+  }
+
+  // Next Floor
+  if (enemies.length === 0) {
+    dungeonFloor++;
+    spawnFloorWave();
+  }
+
+  // Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].x += particles[i].vx;
+    particles[i].y += particles[i].vy;
+    particles[i].life--;
+    if (particles[i].life <= 0) particles.splice(i, 1);
+  }
+  for (let i = slashArcs.length - 1; i >= 0; i--) {
+    slashArcs[i].life--;
+    if (slashArcs[i].life <= 0) slashArcs.splice(i, 1);
+  }
+
+  // Update DOM HUDs
+  document.getElementById('hp-bar').style.width = Math.max(0, (player.hp / player.maxHp * 100)) + '%';
+  document.getElementById('soul-bar').style.width = Math.max(0, (player.souls / player.maxSouls * 100)) + '%';
+  document.getElementById('txt-floor').innerText = dungeonFloor;
+  document.getElementById('txt-emerald').innerText = player.emeralds;
+  document.getElementById('txt-tier').innerText = player.weaponTier;
+
+  document.getElementById('cd-roll').style.height = (player.rollCd / player.maxRollCd * 100) + '%';
+  document.getElementById('cd-pot').style.height = (player.potCd / player.maxPotCd * 100) + '%';
+  document.getElementById('cd-art-1').style.height = (player.cdArt1 / player.maxCdArt1 * 100) + '%';
+  document.getElementById('cd-art-2').style.height = (player.cdArt2 / player.maxCdArt2 * 100) + '%';
+  document.getElementById('cd-art-3').style.height = (player.cdArt3 / player.maxCdArt3 * 100) + '%';
+}
+
+// Render Loop
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Isometric Grid Tiles
+  ctx.strokeStyle = '#222730';
+  ctx.lineWidth = 1.5;
+  const gridSize = 50;
+  for (let x = 0; x < W; x += gridSize) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += gridSize) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Drops
+  drops.forEach(d => {
+    ctx.fillStyle = d.type === 'emerald' ? '#2ecc71' : '#f1c40f';
+    ctx.fillRect(d.x - 8, d.y - 8, 16, 16);
+    ctx.strokeStyle = '#fff';
+    ctx.strokeRect(d.x - 8, d.y - 8, 16, 16);
+  });
+
+  // Artifact 3: Beacon Beam visual
+  if (player.beaconTime > 0) {
+    let target = getClosestEnemy(420);
+    let aimAngle = Math.atan2(player.facing.y, player.facing.x);
+    if (target) aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(162, 155, 254, 0.85)';
+    ctx.lineWidth = 16;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(player.x, player.y);
+    ctx.lineTo(player.x + Math.cos(aimAngle) * 420, player.y + Math.sin(aimAngle) * 420);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Slash Arcs
+  slashArcs.forEach(s => {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, 50, s.angle - 0.85, s.angle + 0.85);
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // Player
+  ctx.fillStyle = player.rollTime > 0 ? '#74b9ff' : (player.shroomBuff > 0 ? '#e67e22' : '#0984e3');
+  ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
+  // Facing indicator dot
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(player.x + player.facing.x * 12 - 2, player.y + player.facing.y * 12 - 2, 5, 5);
+
+  // Enemies
+  enemies.forEach(en => {
+    ctx.fillStyle = en.color;
+    ctx.fillRect(en.x - en.size / 2, en.y - en.size / 2, en.size, en.size);
+    // HP Mini Bar
+    ctx.fillStyle = '#000';
+    ctx.fillRect(en.x - 16, en.y - en.size / 2 - 8, 32, 4);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(en.x - 16, en.y - en.size / 2 - 8, 32 * Math.max(0, en.hp / en.maxHp), 4);
+  });
+
+  // Projectiles
+  projectiles.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x - 4, p.y - 4, 8, 8);
+  });
+
+  // Particles
+  particles.forEach(pt => {
+    ctx.fillStyle = pt.color;
+    ctx.fillRect(pt.x - 3, pt.y - 3, 6, 6);
+  });
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+spawnFloorWave();
+gameLoop();
 </script>
 </body>
 </html>
