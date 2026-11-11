@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Blockborne: Dungeons II - Ultimate Edition (15+ Skills)</title>
+<title>Blockborne: Dungeons II - 3D Three.js Edition</title>
 <style>
   * {
     box-sizing: border-box;
@@ -17,24 +17,20 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #080a0e;
+    background: #05070a;
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     color: #f1f2f6;
     touch-action: none;
   }
-  #game-wrapper {
+  #game-container {
     position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
-  canvas {
-    display: block;
+  #webgl-canvas {
     width: 100%;
     height: 100%;
-    background: #11141a;
+    display: block;
   }
 
   /* HUD Top Bar */
@@ -50,12 +46,12 @@
     z-index: 10;
   }
   .hud-panel {
-    background: rgba(14, 18, 26, 0.92);
-    border: 2px solid #363e4f;
+    background: rgba(12, 16, 24, 0.92);
+    border: 2px solid #3c465a;
     border-radius: 10px;
     padding: 7px 12px;
     backdrop-filter: blur(6px);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.65);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.75);
   }
   .bar-container {
     display: flex;
@@ -68,10 +64,10 @@
   .bar-track {
     width: 125px;
     height: 10px;
-    background: #1a1e27;
+    background: #171b24;
     border-radius: 5px;
     overflow: hidden;
-    border: 1px solid #3d4659;
+    border: 1px solid #3a4456;
   }
   .bar-fill {
     height: 100%;
@@ -93,7 +89,6 @@
   .stat-floor { color: #70a1ff; }
   .stat-emerald { color: #2ecc71; text-shadow: 0 0 6px rgba(46,204,113,0.5); }
 
-  /* Active Perks Tray */
   #perks-tray {
     position: absolute;
     top: env(safe-area-inset-top, 74px);
@@ -106,7 +101,7 @@
     z-index: 15;
   }
   .perk-badge {
-    background: rgba(18, 22, 32, 0.88);
+    background: rgba(18, 22, 32, 0.9);
     border: 1px solid #f1c40f;
     border-radius: 6px;
     padding: 3px 6px;
@@ -117,7 +112,7 @@
     white-space: nowrap;
   }
 
-  /* Mobile Controls Layer */
+  /* Controls Layer */
   #controls-layer {
     position: absolute;
     inset: 0;
@@ -139,7 +134,7 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(20,25,35,0.7) 100%);
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(20,25,35,0.75) 100%);
     border: 2px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0 0 15px rgba(0,0,0,0.6);
     transform: translate(-50%, -50%);
@@ -273,11 +268,33 @@
     transition: height 0.08s linear;
   }
 
+  /* Damage Floaters Overlay */
+  #damage-floater-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 18;
+  }
+  .damage-text {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-weight: 900;
+    font-size: 15px;
+    text-shadow: 0 0 6px rgba(0,0,0,0.9);
+    animation: floatUp 0.8s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+    100% { opacity: 0; transform: translate(-50%, -40px) scale(0.85); }
+  }
+
   /* Modals */
   .modal-screen {
     position: absolute;
     inset: 0;
-    background: rgba(6, 8, 12, 0.9);
+    background: rgba(6, 8, 12, 0.92);
     backdrop-filter: blur(10px);
     display: none;
     flex-direction: column;
@@ -287,8 +304,6 @@
     text-align: center;
     padding: 16px;
   }
-
-  /* Level Up Cards */
   #levelup-title {
     font-size: 26px;
     font-weight: 900;
@@ -390,11 +405,14 @@
     transform: scale(0.95);
   }
 </style>
+<!-- Three.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div id="game-wrapper">
-  <canvas id="gameCanvas"></canvas>
+<div id="game-container">
+  <canvas id="webgl-canvas"></canvas>
+  <div id="damage-floater-layer"></div>
 
   <!-- Top HUD -->
   <div id="top-hud">
@@ -419,10 +437,9 @@
     </div>
   </div>
 
-  <!-- Active Perks Tray -->
   <div id="perks-tray"></div>
 
-  <!-- Mobile Controls Layer -->
+  <!-- Mobile Controls -->
   <div id="controls-layer">
     <div id="joystick-zone">
       <div id="joystick-base">
@@ -470,14 +487,13 @@
     </div>
   </div>
 
-  <!-- Level Up Modal -->
+  <!-- Modals -->
   <div id="modal-levelup" class="modal-screen">
     <div id="levelup-title">LÊN CẤP CHIẾN BINH!</div>
     <div id="levelup-subtitle">Chọn 1 trong 3 kỹ năng cổ xưa để cường hóa:</div>
     <div id="cards-container"></div>
   </div>
 
-  <!-- Game Over Modal -->
   <div id="modal-gameover" class="modal-screen">
     <div id="modal-gameover-title">BẠN ĐÃ GỤC NGÃ!</div>
     <div id="modal-gameover-desc">Quái vật quá hung hãn. Hãy thử lại nào!</div>
@@ -486,7 +502,7 @@
 </div>
 
 <script>
-// Sound Engine
+// --- Audio Synth Engine ---
 const AudioEngine = {
   ctx: null,
   init() {
@@ -561,124 +577,408 @@ const AudioEngine = {
   }
 };
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-let W = 0, H = 0;
-
-function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
-
-// 15+ EPIC SKILLS DATABASE
+// --- 15+ Skills Database ---
 const SKILL_DATABASE = [
-  {
-    id: 'multishot',
-    title: 'Mũi Tên Đa Hướng (Multishot)',
-    icon: '🏹',
-    desc: 'Cung tên bắn 3 mũi tên tỏa rộng theo hình quạt.'
-  },
-  {
-    id: 'firework',
-    title: 'Tên Pháo Hoa (Firework Arrow)',
-    icon: '🎆',
-    desc: 'Mũi tên phát nổ pháo hoa cực lớn, sát thương diện rộng khi va chạm.'
-  },
-  {
-    id: 'thunder',
-    title: 'Sấm Sét Cổ Đại (Thundering)',
-    icon: '⚡',
-    desc: 'Mỗi cú chém cận chiến giật tia sét xích lan sang kẻ địch kế bên.'
-  },
-  {
-    id: 'stormCall',
-    title: 'Thiên Lôi Giáng Lâm (Call of Storm)',
-    icon: '⛈️',
-    desc: 'Cứ mỗi 3 giây tự động giáng một cột sét tử thần xuống đầu quái gần nhất.'
-  },
-  {
-    id: 'swirling',
-    title: 'Lốc Xoáy Cuồng Nộ (Swirling Blade)',
-    icon: '🌀',
-    desc: 'Mỗi cú chém tạo vòng bão kiếm 360 độ quét sạch quái vật xung quanh.'
-  },
-  {
-    id: 'crit',
-    title: 'Trảm Kích Chí Mạng (Critical Strike)',
-    icon: '💥',
-    desc: '25% tỷ lệ gây sát thương x3 cực lớn với hiệu ứng nổ cam.'
-  },
-  {
-    id: 'glaive',
-    title: 'Phi Kiếm Hộ Thân (Spectral Glaive)',
-    icon: '🪓',
-    desc: 'Triệu hồi thanh ma kiếm bay xoay tròn liên tục quanh bạn, chém quái lại gần.'
-  },
-  {
-    id: 'corpseExplode',
-    title: 'Xác Nổ Liên Hoàn (Corpse Explosion)',
-    icon: '💣',
-    desc: 'Quái vật chết sẽ phát nổ tung xác gây sát thương lớn cho quái xung quanh.'
-  },
-  {
-    id: 'freezing',
-    title: 'Băng Phong Hàn Băng (Frost Aspect)',
-    icon: '❄️',
-    desc: 'Đòn đánh đóng băng làm chậm 65% tốc độ di chuyển và bắn của quái.'
-  },
-  {
-    id: 'fire',
-    title: 'Lửa Địa Ngục (Fire Aspect)',
-    icon: '🔥',
-    desc: 'Vũ khí thiêu đốt kẻ địch, rút máu liên tục trong 3 giây.'
-  },
-  {
-    id: 'poisonCloud',
-    title: 'Mây Độc Tử Thần (Poison Cloud)',
-    icon: '☠️',
-    desc: 'Đòn đánh có 35% tạo vùng khí độc xanh lục rút máu liên hồi.'
-  },
-  {
-    id: 'leech',
-    title: 'Quang Năng Hồi Phục (Radiance)',
-    icon: '💖',
-    desc: 'Đòn đánh có 35% tạo hào quang ánh sáng hồi ngay 14 HP.'
-  },
-  {
-    id: 'swiftness',
-    title: 'Giày Phong Thần (Swiftfooted)',
-    icon: '👟',
-    desc: 'Tăng 22% tốc độ chạy và giảm 35% thời gian hồi chiêu Lộn nhào.'
-  },
-  {
-    id: 'thorns',
-    title: 'Giáp Kim Cương (Iron Hide)',
-    icon: '🛡️',
-    desc: 'Giảm 25% sát thương gánh chịu và phản 18 sát thương lên kẻ va chạm.'
-  },
-  {
-    id: 'soulHarvest',
-    title: 'Hút Linh Hồn (Soul Siphon)',
-    icon: '🔮',
-    desc: 'Thu thập gấp đôi Linh Hồn và hồi ngay 20 HP mỗi khi dùng Cổ vật.'
-  }
+  { id: 'multishot', title: 'Mũi Tên Đa Hướng (Multishot)', icon: '🏹', desc: 'Cung tên bắn 3 mũi tên tỏa rộng theo hình quạt.' },
+  { id: 'firework', title: 'Tên Pháo Hoa (Firework Arrow)', icon: '🎆', desc: 'Mũi tên phát nổ pháo hoa cực lớn, sát thương diện rộng khi va chạm.' },
+  { id: 'thunder', title: 'Sấm Sét Cổ Đại (Thundering)', icon: '⚡', desc: 'Mỗi cú chém cận chiến giật tia sét xích lan sang kẻ địch kế bên.' },
+  { id: 'stormCall', title: 'Thiên Lôi Giáng Lâm (Call of Storm)', icon: '⛈️', desc: 'Cứ mỗi 3 giây tự động giáng một cột sét tử thần xuống đầu quái gần nhất.' },
+  { id: 'swirling', title: 'Lốc Xoáy Cuồng Nộ (Swirling Blade)', icon: '🌀', desc: 'Mỗi cú chém tạo vòng bão kiếm 360 độ quét sạch quái vật xung quanh.' },
+  { id: 'crit', title: 'Trảm Kích Chí Mạng (Critical Strike)', icon: '💥', desc: '25% tỷ lệ gây sát thương x3 cực lớn với hiệu ứng nổ cam.' },
+  { id: 'glaive', title: 'Phi Kiếm Hộ Thân (Spectral Glaive)', icon: '🪓', desc: 'Triệu hồi ma kiếm 3D bay xoay tròn liên tục quanh bạn, chém quái lại gần.' },
+  { id: 'corpseExplode', title: 'Xác Nổ Liên Hoàn (Corpse Explosion)', icon: '💣', desc: 'Quái vật chết sẽ phát nổ tung xác gây sát thương lớn cho quái xung quanh.' },
+  { id: 'freezing', title: 'Băng Phong Hàn Băng (Frost Aspect)', icon: '❄️', desc: 'Đòn đánh đóng băng làm chậm 65% tốc độ di chuyển và bắn của quái.' },
+  { id: 'fire', title: 'Lửa Địa Ngục (Fire Aspect)', icon: '🔥', desc: 'Vũ khí thiêu đốt kẻ địch, rút máu liên tục trong 3 giây.' },
+  { id: 'poisonCloud', title: 'Mây Độc Tử Thần (Poison Cloud)', icon: '☠️', desc: 'Đòn đánh có 35% tạo vùng khí độc xanh lục rút máu liên hồi.' },
+  { id: 'leech', title: 'Quang Năng Hồi Phục (Radiance)', icon: '💖', desc: 'Đòn đánh có 35% tạo hào quang ánh sáng hồi ngay 14 HP.' },
+  { id: 'swiftness', title: 'Giày Phong Thần (Swiftfooted)', icon: '👟', desc: 'Tăng 22% tốc độ chạy và giảm 35% thời gian hồi chiêu Lộn nhào.' },
+  { id: 'thorns', title: 'Giáp Kim Cương (Iron Hide)', icon: '🛡️', desc: 'Giảm 25% sát thương gánh chịu và phản 18 sát thương lên kẻ va chạm.' },
+  { id: 'soulHarvest', title: 'Hút Linh Hồn (Soul Siphon)', icon: '🔮', desc: 'Thu thập gấp đôi Linh Hồn và hồi ngay 20 HP mỗi khi dùng Cổ vật.' }
 ];
 
-// Player State & Talents
+// --- Three.js Setup & World Variables ---
+const canvas = document.getElementById('webgl-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0d14);
+scene.fog = new THREE.FogExp2(0x0a0d14, 0.018);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 300);
+camera.position.set(0, 36, 26);
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0x8892b0, 0.6);
+scene.add(ambientLight);
+
+const dirLight = new THREE.DirectionalLight(0xfff5ea, 0.85);
+dirLight.position.set(25, 45, 20);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 1024;
+dirLight.shadow.mapSize.height = 1024;
+dirLight.shadow.camera.near = 10;
+dirLight.shadow.camera.far = 100;
+dirLight.shadow.camera.left = -40;
+dirLight.shadow.camera.right = 40;
+dirLight.shadow.camera.top = 40;
+dirLight.shadow.camera.bottom = -40;
+scene.add(dirLight);
+
+// Shared Geometry and Materials
+const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+const materials = {
+  skin: new THREE.MeshLambertMaterial({ color: 0xf3a683 }),
+  ironArmor: new THREE.MeshLambertMaterial({ color: 0x95a5a6 }),
+  ironDark: new THREE.MeshLambertMaterial({ color: 0x7f8c8d }),
+  bluePants: new THREE.MeshLambertMaterial({ color: 0x2c3e50 }),
+  diamond: new THREE.MeshLambertMaterial({ color: 0x00cec9, emissive: 0x00cec9, emissiveIntensity: 0.2 }),
+  gold: new THREE.MeshLambertMaterial({ color: 0xf1c40f }),
+  wood: new THREE.MeshLambertMaterial({ color: 0x8c5027 }),
+  zombieSkin: new THREE.MeshLambertMaterial({ color: 0x10ac84 }),
+  zombieShirt: new THREE.MeshLambertMaterial({ color: 0x00d2d3 }),
+  skeletonBone: new THREE.MeshLambertMaterial({ color: 0xf5f6fa }),
+  obsidian: new THREE.MeshLambertMaterial({ color: 0x1e272e }),
+  redstone: new THREE.MeshLambertMaterial({ color: 0xff3838, emissive: 0xff3838, emissiveIntensity: 0.6 }),
+  torchWood: new THREE.MeshLambertMaterial({ color: 0x573312 }),
+  torchFire: new THREE.MeshBasicMaterial({ color: 0xffa502 }),
+  emerald: new THREE.MeshLambertMaterial({ color: 0x2ecc71, emissive: 0x2ecc71, emissiveIntensity: 0.35 }),
+  weaponOrb: new THREE.MeshLambertMaterial({ color: 0x9b59b6, emissive: 0x9b59b6, emissiveIntensity: 0.4 })
+};
+
+// --- Dungeon Environment Generation (3D Cobblestone Floor, Walls, Pillars, Torches) ---
+const ARENA_SIZE = 56;
+
+// Floor
+const floorTexCanvas = document.createElement('canvas');
+floorTexCanvas.width = floorTexCanvas.height = 256;
+const fCtx = floorTexCanvas.getContext('2d');
+fCtx.fillStyle = '#151922';
+fCtx.fillRect(0, 0, 256, 256);
+fCtx.strokeStyle = '#0d1017';
+fCtx.lineWidth = 4;
+for (let x = 0; x < 256; x += 32) {
+  for (let y = 0; y < 256; y += 32) {
+    if ((x + y) % 64 === 0) fCtx.fillStyle = '#181e28';
+    else fCtx.fillStyle = '#141820';
+    fCtx.fillRect(x, y, 32, 32);
+    fCtx.strokeRect(x, y, 32, 32);
+  }
+}
+const floorTex = new THREE.CanvasTexture(floorTexCanvas);
+floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+floorTex.repeat.set(14, 14);
+
+const floorMat = new THREE.MeshLambertMaterial({ map: floorTex });
+const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(ARENA_SIZE, ARENA_SIZE), floorMat);
+floorMesh.rotation.x = -Math.PI / 2;
+floorMesh.receiveShadow = true;
+scene.add(floorMesh);
+
+// 3D Dungeon Outer Walls
+const wallMat = new THREE.MeshLambertMaterial({ color: 0x161a22 });
+function createWall(x, z, w, d, h = 6) {
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+  wall.position.set(x, h / 2, z);
+  wall.castShadow = true;
+  wall.receiveShadow = true;
+  scene.add(wall);
+}
+createWall(0, -ARENA_SIZE / 2, ARENA_SIZE, 3); // North
+createWall(0, ARENA_SIZE / 2, ARENA_SIZE, 3);  // South
+createWall(-ARENA_SIZE / 2, 0, 3, ARENA_SIZE); // West
+createWall(ARENA_SIZE / 2, 0, 3, ARENA_SIZE);  // East
+
+// 3D Stone Pillars with Rune Trims
+const pillarMat = new THREE.MeshLambertMaterial({ color: 0x222a36 });
+const pillarPositions = [
+  [-14, -14], [14, -14], [-14, 14], [14, 14]
+];
+pillarPositions.forEach(([px, pz]) => {
+  const pMesh = new THREE.Mesh(new THREE.BoxGeometry(3.5, 9, 3.5), pillarMat);
+  pMesh.position.set(px, 4.5, pz);
+  pMesh.castShadow = true;
+  pMesh.receiveShadow = true;
+  scene.add(pMesh);
+
+  const topTrim = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.2, 4.2), materials.ironDark);
+  topTrim.position.set(px, 8.8, pz);
+  topTrim.castShadow = true;
+  scene.add(topTrim);
+});
+
+// 3D Torches with Dynamic PointLights
+const torchPositions = [
+  [-ARENA_SIZE / 2 + 1.8, 4, -10],
+  [ARENA_SIZE / 2 - 1.8, 4, -10],
+  [-ARENA_SIZE / 2 + 1.8, 4, 10],
+  [ARENA_SIZE / 2 - 1.8, 4, 10],
+  [0, 4, -ARENA_SIZE / 2 + 1.8]
+];
+const torchLights = [];
+torchPositions.forEach(([tx, ty, tz]) => {
+  const tGroup = new THREE.Group();
+  tGroup.position.set(tx, ty, tz);
+
+  const post = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.5, 0.4), materials.torchWood);
+  const flame = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), materials.torchFire);
+  flame.position.y = 0.9;
+  tGroup.add(post);
+  tGroup.add(flame);
+
+  const pLight = new THREE.PointLight(0xffa502, 1.2, 22);
+  pLight.position.set(tx, ty + 1, tz);
+  scene.add(pLight);
+  torchLights.push(pLight);
+
+  scene.add(tGroup);
+});
+
+// ==========================================
+// 3D PROCEDURAL BLOCKY MODELS
+// ==========================================
+
+// 1. Hero Knight 3D Model
+function createHero3D() {
+  const root = new THREE.Group();
+
+  // Torso
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.8, 0.9), materials.ironArmor);
+  torso.position.y = 1.9;
+  torso.castShadow = true;
+  root.add(torso);
+
+  // Belt
+  const belt = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.35, 0.95), materials.gold);
+  belt.position.y = 1.15;
+  root.add(belt);
+
+  // Head
+  const headGroup = new THREE.Group();
+  headGroup.position.y = 3.2;
+  const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), materials.skin);
+  head.castShadow = true;
+  headGroup.add(head);
+
+  // Knight Helmet
+  const helmet = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.5, 1.3), materials.ironDark);
+  helmet.position.y = 0.45;
+  headGroup.add(helmet);
+  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.25, 0.3), materials.bluePants);
+  visor.position.set(0, 0, 0.55);
+  headGroup.add(visor);
+  root.add(headGroup);
+
+  // Legs
+  const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), materials.bluePants);
+  leftLeg.position.set(-0.38, 0.6, 0);
+  leftLeg.castShadow = true;
+  root.add(leftLeg);
+
+  const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), materials.bluePants);
+  rightLeg.position.set(0.38, 0.6, 0);
+  rightLeg.castShadow = true;
+  root.add(rightLeg);
+
+  // Left Arm (Bow)
+  const leftArm = new THREE.Group();
+  leftArm.position.set(-0.95, 2.3, 0);
+  const leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.3, 0.5), materials.ironArmor);
+  leftArmMesh.position.y = -0.5;
+  leftArm.add(leftArmMesh);
+  const bowMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.4, 0.4), materials.wood);
+  bowMesh.position.set(0, -0.6, 0.4);
+  leftArm.add(bowMesh);
+  root.add(leftArm);
+
+  // Right Arm (Diamond Sword)
+  const rightArm = new THREE.Group();
+  rightArm.position.set(0.95, 2.3, 0);
+  const rightArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.3, 0.5), materials.ironArmor);
+  rightArmMesh.position.y = -0.5;
+  rightArm.add(rightArmMesh);
+
+  // Sword
+  const swordGroup = new THREE.Group();
+  swordGroup.position.set(0, -0.9, 0.4);
+  swordGroup.rotation.x = Math.PI / 3;
+  const blade = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.2, 0.1), materials.diamond);
+  blade.position.y = 1.0;
+  blade.castShadow = true;
+  const guard = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.18, 0.2), materials.gold);
+  guard.position.y = 0.05;
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.5, 0.18), materials.wood);
+  handle.position.y = -0.25;
+  swordGroup.add(blade);
+  swordGroup.add(guard);
+  swordGroup.add(handle);
+  rightArm.add(swordGroup);
+  root.add(rightArm);
+
+  return { root, leftLeg, rightLeg, leftArm, rightArm, blade, torso };
+}
+
+// 2. Zombie 3D Model
+function createZombie3D() {
+  const root = new THREE.Group();
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.7, 0.9), materials.zombieShirt);
+  torso.position.y = 1.85;
+  torso.castShadow = true;
+  root.add(torso);
+
+  const head = new THREE.Mesh(new THREE.BoxGeometry(1.15, 1.15, 1.15), materials.zombieSkin);
+  head.position.y = 3.1;
+  head.castShadow = true;
+  root.add(head);
+
+  const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.58, 1.15, 0.58), materials.bluePants);
+  leftLeg.position.set(-0.36, 0.58, 0);
+  leftLeg.castShadow = true;
+  root.add(leftLeg);
+
+  const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.58, 1.15, 0.58), materials.bluePants);
+  rightLeg.position.set(0.36, 0.58, 0);
+  rightLeg.castShadow = true;
+  root.add(rightLeg);
+
+  // Outstretched Arms
+  const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 1.4), materials.zombieSkin);
+  leftArm.position.set(-0.95, 2.2, 0.65);
+  leftArm.castShadow = true;
+  root.add(leftArm);
+
+  const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 1.4), materials.zombieSkin);
+  rightArm.position.set(0.95, 2.2, 0.65);
+  rightArm.castShadow = true;
+  root.add(rightArm);
+
+  return { root, leftLeg, rightLeg, leftArm, rightArm, torso };
+}
+
+// 3. Skeleton 3D Model
+function createSkeleton3D() {
+  const root = new THREE.Group();
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.6, 0.7), materials.skeletonBone);
+  torso.position.y = 1.8;
+  torso.castShadow = true;
+  root.add(torso);
+
+  const head = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), materials.skeletonBone);
+  head.position.y = 3.0;
+  head.castShadow = true;
+  root.add(head);
+
+  const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.1, 0.35), materials.skeletonBone);
+  leftLeg.position.set(-0.32, 0.55, 0);
+  leftLeg.castShadow = true;
+  root.add(leftLeg);
+
+  const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.1, 0.35), materials.skeletonBone);
+  rightLeg.position.set(0.32, 0.55, 0);
+  rightLeg.castShadow = true;
+  root.add(rightLeg);
+
+  const bow = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.6, 0.5), materials.wood);
+  bow.position.set(0, 2.0, 0.7);
+  root.add(bow);
+
+  return { root, leftLeg, rightLeg, torso };
+}
+
+// 4. Redstone Golem Boss 3D Model
+function createBoss3D() {
+  const root = new THREE.Group();
+  root.scale.set(2.2, 2.2, 2.2);
+
+  // Massive Torso
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.2, 1.8), materials.obsidian);
+  torso.position.y = 2.4;
+  torso.castShadow = true;
+  root.add(torso);
+
+  // Glowing Redstone Heart Core
+  const heart = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.9), materials.redstone);
+  heart.position.set(0, 2.4, 0.05);
+  root.add(heart);
+
+  // Big Obsidian Head with Horns
+  const head = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.3, 1.4), materials.obsidian);
+  head.position.set(0, 3.8, 0.3);
+  head.castShadow = true;
+  root.add(head);
+
+  const leftHorn = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.4), materials.redstone);
+  leftHorn.position.set(-0.85, 4.3, 0.3);
+  root.add(leftHorn);
+
+  const rightHorn = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.4), materials.redstone);
+  rightHorn.position.set(0.85, 4.3, 0.3);
+  root.add(rightHorn);
+
+  // Massive Fists & Arms
+  const leftArm = new THREE.Group();
+  leftArm.position.set(-1.6, 2.7, 0);
+  const lFist = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 1.1), materials.obsidian);
+  lFist.position.y = -0.9;
+  lFist.castShadow = true;
+  leftArm.add(lFist);
+  root.add(leftArm);
+
+  const rightArm = new THREE.Group();
+  rightArm.position.set(1.6, 2.7, 0);
+  const rFist = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 1.1), materials.obsidian);
+  rFist.position.y = -0.9;
+  rFist.castShadow = true;
+  rightArm.add(rFist);
+  root.add(rightArm);
+
+  // Legs
+  const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 1.0), materials.obsidian);
+  leftLeg.position.set(-0.65, 0.65, 0);
+  leftLeg.castShadow = true;
+  root.add(leftLeg);
+
+  const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 1.0), materials.obsidian);
+  rightLeg.position.set(0.65, 0.65, 0);
+  rightLeg.castShadow = true;
+  root.add(rightLeg);
+
+  return { root, leftLeg, rightLeg, leftArm, rightArm, heart, torso };
+}
+
+// 5. 3D Spectral Glaive (Orbiting Blade)
+const glaiveMesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 1.8), new THREE.MeshLambertMaterial({ color: 0x70a1ff, emissive: 0x70a1ff, emissiveIntensity: 0.6 }));
+glaiveMesh.visible = false;
+scene.add(glaiveMesh);
+
+// 6. 3D Beacon Beam
+const beamMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 30, 8), new THREE.MeshBasicMaterial({ color: 0xa29bfe, transparent: true, opacity: 0.8 }));
+beamMesh.rotation.x = Math.PI / 2;
+beamMesh.visible = false;
+scene.add(beamMesh);
+
+// Instantiate Player 3D
+const player3D = createHero3D();
+scene.add(player3D.root);
+
+// ==========================================
+// GAMEPLAY STATE & SYSTEMS
+// ==========================================
 const player = {
-  x: W / 2, y: H / 2,
-  size: 26,
+  pos: new THREE.Vector3(0, 0, 0),
   hp: 150, maxHp: 150,
   souls: 50, maxSouls: 100,
   exp: 0, maxExp: 40, level: 1,
   emeralds: 0,
   weaponTier: 1,
-  speed: 3.8,
-  facing: { x: 1, y: 0 },
-  vx: 0, vy: 0,
+  speed: 0.18,
+  facingAngle: 0,
+  walkCycle: 0,
   rollTime: 0, rollCd: 0, maxRollCd: 40,
+  rollDir: new THREE.Vector3(),
   invulnTime: 0,
   meleeCd: 0, bowCd: 0,
   shroomBuff: 0,
@@ -691,68 +991,158 @@ const player = {
   glaiveAngle: 0,
   perks: {}
 };
-
-// Initialize perks object
 SKILL_DATABASE.forEach(s => player.perks[s.id] = 0);
 
 let dungeonFloor = 1;
 let enemies = [];
 let projectiles = [];
-let particles = [];
 let drops = [];
-let slashArcs = [];
-let lightningArcs = [];
 let poisonClouds = [];
-let floatingTexts = [];
+let slashMeshes = [];
+let particles = [];
 let gameOver = false;
 let isLevelingUp = false;
 
-function getClosestEnemy(maxDist = 9999) {
-  let closest = null;
-  let minDist = maxDist;
-  for (const en of enemies) {
-    const d = Math.hypot(en.x - player.x, en.y - player.y);
-    if (d < minDist) {
-      minDist = d;
-      closest = en;
-    }
-  }
-  return closest;
+// 3D Damage text floater helper (using screen projection)
+function spawnFloatingText(pos3D, text, color = '#ffd32a') {
+  const container = document.getElementById('damage-floater-layer');
+  const div = document.createElement('div');
+  div.className = 'damage-text';
+  div.style.color = color;
+  div.innerText = text;
+
+  // Screen space projection
+  const tempV = pos3D.clone();
+  tempV.y += 2.8;
+  tempV.project(camera);
+  const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-(tempV.y * 0.5) + 0.5) * window.innerHeight;
+  div.style.left = `${x}px`;
+  div.style.top = `${y}px`;
+
+  container.appendChild(div);
+  setTimeout(() => div.remove(), 780);
 }
 
-function spawnFloorWave() {
-  const count = 3 + dungeonFloor * 2;
+// Particle Helper
+function spawn3DParticles(pos, colorHex, count = 10) {
   for (let i = 0; i < count; i++) {
-    let ex, ey;
+    const pMesh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: colorHex }));
+    pMesh.position.copy(pos);
+    const vel = new THREE.Vector3(
+      (Math.random() - 0.5) * 0.35,
+      Math.random() * 0.3 + 0.1,
+      (Math.random() - 0.5) * 0.35
+    );
+    scene.add(pMesh);
+    particles.push({ mesh: pMesh, vel, life: 25 });
+  }
+}
+
+// Spawning Waves
+function spawnFloorWave() {
+  const scalingLevel = (dungeonFloor - 1) * 1.5 + (player.level - 1) * 1.2;
+  const count = 3 + Math.floor(dungeonFloor * 1.5 + player.level * 0.8);
+
+  for (let i = 0; i < count; i++) {
+    let ex, ez;
     let attempts = 0;
     do {
-      ex = Math.random() * (W - 140) + 70;
-      ey = Math.random() * (H - 140) + 70;
+      ex = (Math.random() - 0.5) * (ARENA_SIZE - 12);
+      ez = (Math.random() - 0.5) * (ARENA_SIZE - 12);
       attempts++;
-    } while (attempts < 50 && Math.hypot(ex - player.x, ey - player.y) < 220);
+    } while (attempts < 50 && Math.hypot(ex - player.pos.x, ez - player.pos.z) < 12);
 
     const isBoss = (i === 0 && dungeonFloor % 3 === 0);
     const rand = Math.random();
 
+    let enemyObj;
     if (isBoss) {
-      enemies.push({
-        x: ex, y: ey, size: 48,
-        hp: 190 + dungeonFloor * 45, maxHp: 190 + dungeonFloor * 45,
-        speed: 1.2, type: 'boss', color: '#9b59b6', shootCd: 110, burn: 0, freeze: 0
-      });
-    } else if (rand < 0.7) {
-      enemies.push({
-        x: ex, y: ey, size: 24,
-        hp: 25 + dungeonFloor * 8, maxHp: 25 + dungeonFloor * 8,
-        speed: 1.6, type: 'zombie', color: '#2ecc71', burn: 0, freeze: 0
-      });
+      const bossModel = createBoss3D();
+      scene.add(bossModel.root);
+      const bossHp = Math.round(240 + scalingLevel * 85);
+      enemyObj = {
+        model: bossModel,
+        pos: new THREE.Vector3(ex, 0, ez),
+        size: 3.2,
+        hp: bossHp, maxHp: bossHp,
+        speed: Math.min(0.09, 0.05 + scalingLevel * 0.003),
+        type: 'boss',
+        shootCd: Math.max(65, 110 - Math.floor(scalingLevel * 3)),
+        burn: 0, freeze: 0, walkCycle: 0
+      };
+    } else if (rand < 0.65) {
+      const zModel = createZombie3D();
+      scene.add(zModel.root);
+      const zHp = Math.round(28 + scalingLevel * 14);
+      enemyObj = {
+        model: zModel,
+        pos: new THREE.Vector3(ex, 0, ez),
+        size: 1.6,
+        hp: zHp, maxHp: zHp,
+        speed: Math.min(0.12, 0.07 + scalingLevel * 0.004),
+        type: 'zombie',
+        burn: 0, freeze: 0, walkCycle: 0
+      };
     } else {
-      enemies.push({
-        x: ex, y: ey, size: 22,
-        hp: 20 + dungeonFloor * 6, maxHp: 20 + dungeonFloor * 6,
-        speed: 1.3, type: 'skeleton', color: '#bdc3c7', shootCd: 130 + Math.random() * 40, burn: 0, freeze: 0
-      });
+      const sModel = createSkeleton3D();
+      scene.add(sModel.root);
+      const sHp = Math.round(22 + scalingLevel * 10);
+      enemyObj = {
+        model: sModel,
+        pos: new THREE.Vector3(ex, 0, ez),
+        size: 1.5,
+        hp: sHp, maxHp: sHp,
+        speed: Math.min(0.09, 0.06 + scalingLevel * 0.003),
+        type: 'skeleton',
+        shootCd: Math.max(70, 130 - Math.floor(scalingLevel * 4)) + Math.random() * 25,
+        burn: 0, freeze: 0, walkCycle: 0
+      };
     }
+    enemies.push(enemyObj);
+  }
+}
+
+// Closest enemy helper
+function getClosestEnemy(maxDist = 999) {
+  let closest = null;
+  let minDist = maxDist;
+  enemies.forEach(en => {
+    const d = en.pos.distanceTo(player.pos);
+    if (d < minDist) {
+      minDist = d;
+      closest = en;
+    }
+  });
+  return closest;
+}
+
+// Damage Application
+function applyDamage(en, baseDmg) {
+  let isCrit = false;
+  let dmg = baseDmg;
+
+  if (player.perks.crit > 0 && Math.random() < 0.25) {
+    isCrit = true;
+    dmg *= 3;
+    spawnFloatingText(en.pos, 'CHÍ MẠNG! ' + Math.round(dmg), '#ff3838');
+    spawn3DParticles(en.pos, 0xff4757, 14);
+  } else {
+    spawnFloatingText(en.pos, Math.round(dmg), isCrit ? '#ff4757' : '#ffd32a');
+  }
+
+  en.hp -= dmg;
+  if (player.perks.freezing > 0) en.freeze = 90;
+  if (player.perks.fire > 0) en.burn = 90;
+
+  if (player.perks.poisonCloud > 0 && Math.random() < 0.35) {
+    const pCloud = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.4, 2.4, 0.2, 16),
+      new THREE.MeshBasicMaterial({ color: 0x2ecc71, transparent: true, opacity: 0.35 })
+    );
+    pCloud.position.set(en.pos.x, 0.1, en.pos.z);
+    scene.add(pCloud);
+    poisonClouds.push({ mesh: pCloud, pos: pCloud.position.clone(), radius: 2.4, life: 120 });
   }
 }
 
@@ -805,8 +1195,11 @@ function chooseSkill(skillId) {
   document.getElementById('modal-levelup').style.display = 'none';
 
   if (skillId === 'swiftness') {
-    player.speed = 3.8 * 1.22;
+    player.speed = 0.18 * 1.22;
     player.maxRollCd = 26;
+  }
+  if (skillId === 'glaive') {
+    glaiveMesh.visible = true;
   }
   updatePerksTray();
 }
@@ -827,99 +1220,76 @@ function updatePerksTray() {
   }
 }
 
-function spawnFloatingText(x, y, text, color = '#ffd32a') {
-  floatingTexts.push({ x, y, text, color, life: 30, vy: -1.2 });
-}
-
-function applyDamage(en, baseDmg, source = 'melee') {
-  let isCrit = false;
-  let dmg = baseDmg;
-
-  // Talent: Critical Hit (25% chance for 3x)
-  if (player.perks.crit > 0 && Math.random() < 0.25) {
-    isCrit = true;
-    dmg *= 3;
-    spawnFloatingText(en.x, en.y - 12, 'CHÍ MẠNG! ' + Math.round(dmg), '#ff3838');
-    spawnParticles(en.x, en.y, '#ff4757', 12);
-  } else {
-    spawnFloatingText(en.x, en.y - 8, Math.round(dmg), isCrit ? '#ff4757' : '#f1c40f');
-  }
-
-  en.hp -= dmg;
-
-  // Talent: Freezing
-  if (player.perks.freezing > 0) {
-    en.freeze = 90;
-  }
-
-  // Talent: Fire Aspect
-  if (player.perks.fire > 0) {
-    en.burn = 90;
-  }
-
-  // Talent: Poison Cloud
-  if (player.perks.poisonCloud > 0 && Math.random() < 0.35) {
-    poisonClouds.push({ x: en.x, y: en.y, radius: 45, life: 120 });
-  }
-
-  return isCrit;
-}
-
+// Combat Actions
 function doMelee() {
   AudioEngine.init();
   if (player.meleeCd > 0 || player.rollTime > 0 || isLevelingUp) return;
   player.meleeCd = player.shroomBuff > 0 ? 10 : 16;
   AudioEngine.playSlash();
 
-  let target = getClosestEnemy(200);
-  let aimAngle = Math.atan2(player.facing.y, player.facing.x);
+  const target = getClosestEnemy(9);
   if (target) {
-    aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
-    player.facing = { x: Math.cos(aimAngle), y: Math.sin(aimAngle) };
+    player.facingAngle = Math.atan2(target.pos.x - player.pos.x, target.pos.z - player.pos.z);
   }
 
-  slashArcs.push({ x: player.x, y: player.y, angle: aimAngle, life: 10, swirling: false });
+  // 3D Slash Wave Mesh
+  const slashGeo = new THREE.RingGeometry(2.2, 3.4, 16, 1, -Math.PI * 0.4, Math.PI * 0.8);
+  const slashMat = new THREE.MeshBasicMaterial({
+    color: player.perks.fire > 0 ? 0xff793f : 0xffffff,
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.85
+  });
+  const slashMesh = new THREE.Mesh(slashGeo, slashMat);
+  slashMesh.rotation.x = Math.PI / 2;
+  slashMesh.rotation.z = -player.facingAngle + Math.PI / 2;
+  slashMesh.position.set(player.pos.x, 1.5, player.pos.z);
+  scene.add(slashMesh);
+  slashMeshes.push({ mesh: slashMesh, life: 8 });
 
-  // Talent: Swirling (Full 360 circle slash)
+  // Swirling 360 Perk
   if (player.perks.swirling > 0) {
-    slashArcs.push({ x: player.x, y: player.y, angle: 0, life: 12, swirling: true });
+    const swGeo = new THREE.RingGeometry(2.4, 3.6, 24);
+    const swMesh = new THREE.Mesh(swGeo, slashMat);
+    swMesh.rotation.x = Math.PI / 2;
+    swMesh.position.set(player.pos.x, 1.4, player.pos.z);
+    scene.add(swMesh);
+    slashMeshes.push({ mesh: swMesh, life: 10 });
   }
 
   let hitAny = false;
   enemies.forEach(en => {
-    const dist = Math.hypot(en.x - player.x, en.y - player.y);
-    const enAngle = Math.atan2(en.y - player.y, en.x - player.x);
-    let diff = Math.abs(enAngle - aimAngle);
-    if (diff > Math.PI) diff = Math.PI * 2 - diff;
+    const d = en.pos.distanceTo(player.pos);
+    const toEn = en.pos.clone().sub(player.pos).normalize();
+    const forward = new THREE.Vector3(Math.sin(player.facingAngle), 0, Math.cos(player.facingAngle));
+    const dot = forward.dot(toEn);
 
-    const inRange = (player.perks.swirling > 0 && dist < 100) || (dist < 90 && diff < 1.3);
-
+    const inRange = (player.perks.swirling > 0 && d < 4.8) || (d < 4.2 && dot > 0.35);
     if (inRange) {
       hitAny = true;
       const baseDmg = 34 + player.weaponTier * 10;
-      applyDamage(en, baseDmg, 'melee');
+      applyDamage(en, baseDmg);
 
-      en.x += Math.cos(aimAngle) * 35;
-      en.y += Math.sin(aimAngle) * 35;
-      spawnParticles(en.x, en.y, '#f1c40f', 6);
+      // Knockback
+      en.pos.add(toEn.multiplyScalar(1.6));
+      spawn3DParticles(en.pos, 0xf1c40f, 6);
 
-      // Talent: Thundering Chain
+      // Thundering Chain Perk
       if (player.perks.thunder > 0) {
         enemies.forEach(other => {
-          if (other !== en && Math.hypot(other.x - en.x, other.y - en.y) < 140) {
-            other.hp -= 20 * player.perks.thunder;
-            lightningArcs.push({ x1: en.x, y1: en.y, x2: other.x, y2: other.y, life: 6 });
+          if (other !== en && other.pos.distanceTo(en.pos) < 6.5) {
+            applyDamage(other, 20 * player.perks.thunder);
+            spawn3DParticles(other.pos, 0xffd32a, 4);
           }
         });
       }
     }
   });
 
-  // Talent: Radiance
   if (hitAny && player.perks.leech > 0 && Math.random() < 0.35) {
     player.hp = Math.min(player.maxHp, player.hp + 14 * player.perks.leech);
-    spawnParticles(player.x, player.y, '#2ed573', 12);
-    spawnFloatingText(player.x, player.y - 20, '+HỒI MÁU', '#2ed573');
+    spawn3DParticles(player.pos, 0x2ed573, 10);
+    spawnFloatingText(player.pos, '+HỒI MÁU', '#2ed573');
   }
 }
 
@@ -929,23 +1299,35 @@ function doBow() {
   player.bowCd = 20;
   AudioEngine.playBow();
 
-  let target = getClosestEnemy(600);
-  let aimAngle = Math.atan2(player.facing.y, player.facing.x);
+  const target = getClosestEnemy(22);
   if (target) {
-    aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
-    player.facing = { x: Math.cos(aimAngle), y: Math.sin(aimAngle) };
+    player.facingAngle = Math.atan2(target.pos.x - player.pos.x, target.pos.z - player.pos.z);
   }
 
   const count = player.perks.multishot > 0 ? 3 : 1;
   const spread = 0.22;
   for (let i = 0; i < count; i++) {
     const angleOffset = count === 1 ? 0 : (i - 1) * spread;
-    const finalAngle = aimAngle + angleOffset;
+    const finalAngle = player.facingAngle + angleOffset;
+
+    const arrowGroup = new THREE.Group();
+    const arrowShaft = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.4), materials.wood);
+    const arrowTip = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.24, 0.35), materials.ironDark);
+    arrowTip.position.z = 0.7;
+    arrowGroup.add(arrowShaft);
+    arrowGroup.add(arrowTip);
+
+    arrowGroup.position.set(player.pos.x, 1.8, player.pos.z);
+    arrowGroup.rotation.y = finalAngle;
+    scene.add(arrowGroup);
+
+    const dir = new THREE.Vector3(Math.sin(finalAngle), 0, Math.cos(finalAngle));
     projectiles.push({
-      x: player.x, y: player.y,
-      vx: Math.cos(finalAngle) * 12, vy: Math.sin(finalAngle) * 12,
-      dmg: 28 + player.weaponTier * 9, friendly: true,
-      color: player.perks.firework > 0 ? '#ff4757' : '#f39c12',
+      mesh: arrowGroup,
+      dir,
+      speed: 0.65,
+      dmg: 28 + player.weaponTier * 9,
+      friendly: true,
       isFirework: player.perks.firework > 0
     });
   }
@@ -953,18 +1335,17 @@ function doBow() {
 
 function doRoll() {
   if (player.rollCd > 0 || player.rollTime > 0 || isLevelingUp) return;
-  let dx = joystickVector.x, dy = joystickVector.y;
-  if (dx === 0 && dy === 0) {
-    dx = player.facing.x;
-    dy = player.facing.y;
+  let dx = joystickVector.x, dz = joystickVector.y;
+  if (dx === 0 && dz === 0) {
+    dx = Math.sin(player.facingAngle);
+    dz = Math.cos(player.facingAngle);
   }
-  const len = Math.hypot(dx, dy) || 1;
-  player.vx = (dx / len) * 11;
-  player.vy = (dy / len) * 11;
+  const len = Math.hypot(dx, dz) || 1;
+  player.rollDir.set(dx / len, 0, dz / len);
   player.rollTime = 14;
   player.rollCd = player.maxRollCd;
   player.invulnTime = 20;
-  spawnParticles(player.x, player.y, '#ffffff', 8);
+  spawn3DParticles(player.pos, 0xffffff, 8);
 }
 
 function doPotion() {
@@ -972,8 +1353,8 @@ function doPotion() {
   if (player.potCd <= 0 && player.hp < player.maxHp && !isLevelingUp) {
     player.hp = Math.min(player.maxHp, player.hp + 80);
     player.potCd = player.maxPotCd;
-    spawnParticles(player.x, player.y, '#2ed573', 20);
-    spawnFloatingText(player.x, player.y - 20, '+80 HP', '#2ed573');
+    spawn3DParticles(player.pos, 0x2ed573, 18);
+    spawnFloatingText(player.pos, '+80 HP', '#2ed573');
   }
 }
 
@@ -983,43 +1364,36 @@ function useArtifact(num) {
 
   if (player.perks.soulHarvest > 0) {
     player.hp = Math.min(player.maxHp, player.hp + 20);
-    spawnParticles(player.x, player.y, '#00cec9', 10);
+    spawn3DParticles(player.pos, 0x00cec9, 10);
   }
 
   if (num === 1 && player.cdArt1 <= 0) {
     player.shroomBuff = 300;
     player.cdArt1 = player.maxCdArt1;
-    spawnParticles(player.x, player.y, '#e67e22', 15);
+    spawn3DParticles(player.pos, 0xe67e22, 16);
   } else if (num === 2 && player.cdArt2 <= 0 && player.souls >= 15) {
     player.souls -= 15;
     player.cdArt2 = player.maxCdArt2;
     AudioEngine.playBlast();
-    spawnParticles(player.x, player.y, '#00cec9', 40);
+    spawn3DParticles(player.pos, 0x00cec9, 36);
+
     enemies.forEach(en => {
-      const d = Math.hypot(en.x - player.x, en.y - player.y);
-      if (d < 190) {
-        applyDamage(en, 80 + player.weaponTier * 20, 'artifact');
-        const a = Math.atan2(en.y - player.y, en.x - player.x);
-        en.x += Math.cos(a) * 65;
-        en.y += Math.sin(a) * 65;
+      const d = en.pos.distanceTo(player.pos);
+      if (d < 7.5) {
+        applyDamage(en, 80 + player.weaponTier * 20);
+        const knock = en.pos.clone().sub(player.pos).normalize().multiplyScalar(3.2);
+        en.pos.add(knock);
       }
     });
   } else if (num === 3 && player.cdArt3 <= 0 && player.souls >= 20) {
     player.souls -= 20;
     player.beaconTime = 120;
     player.cdArt3 = player.maxCdArt3;
+    beamMesh.visible = true;
   }
 }
 
-function spawnParticles(x, y, color, count) {
-  for (let i = 0; i < count; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const s = Math.random() * 4 + 1;
-    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 22, color });
-  }
-}
-
-// Joystick
+// Touch Virtual Joystick
 const joyZone = document.getElementById('joystick-zone');
 const joyBase = document.getElementById('joystick-base');
 const joyKnob = document.getElementById('joystick-knob');
@@ -1057,7 +1431,7 @@ window.addEventListener('touchmove', e => {
       joyKnob.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px)`;
       joystickVector = { x: dx / JOYSTICK_RADIUS, y: dy / JOYSTICK_RADIUS };
       if (dist > 8) {
-        player.facing = { x: dx / dist, y: dy / dist };
+        player.facingAngle = Math.atan2(joystickVector.x, joystickVector.y);
       }
       break;
     }
@@ -1105,17 +1479,29 @@ function revivePlayer() {
   player.weaponTier = 1;
   SKILL_DATABASE.forEach(s => player.perks[s.id] = 0);
   dungeonFloor = 1;
+
+  // Clean enemies & drops
+  enemies.forEach(en => scene.remove(en.model.root));
   enemies = [];
+  drops.forEach(d => scene.remove(d.mesh));
   drops = [];
+  projectiles.forEach(p => scene.remove(p.mesh));
   projectiles = [];
+
+  player.pos.set(0, 0, 0);
   updatePerksTray();
   document.getElementById('modal-gameover').style.display = 'none';
   spawnFloorWave();
 }
 document.getElementById('btn-revive').addEventListener('click', revivePlayer);
 
+// ==========================================
+// MAIN LOOP & ANIMATIONS
+// ==========================================
 function update() {
   if (gameOver || isLevelingUp) return;
+
+  const scalingLevel = (dungeonFloor - 1) * 1.5 + (player.level - 1) * 1.2;
 
   if (player.hp <= 0) {
     gameOver = true;
@@ -1131,67 +1517,83 @@ function update() {
   if (player.rollCd > 0) player.rollCd--;
   if (player.invulnTime > 0) player.invulnTime--;
   if (player.shroomBuff > 0) player.shroomBuff--;
-  if (player.beaconTime > 0) player.beaconTime--;
+  if (player.beaconTime > 0) {
+    player.beaconTime--;
+    if (player.beaconTime <= 0) beamMesh.visible = false;
+  }
   if (player.cdArt1 > 0) player.cdArt1--;
   if (player.cdArt2 > 0) player.cdArt2--;
   if (player.cdArt3 > 0) player.cdArt3--;
   if (player.potCd > 0) player.potCd--;
 
-  // Talent: Call of Storm (Every 3 seconds auto strike)
-  if (player.perks.stormCall > 0) {
-    player.stormTimer++;
-    if (player.stormTimer >= 180) {
-      player.stormTimer = 0;
-      const target = getClosestEnemy(500);
-      if (target) {
-        lightningArcs.push({ x1: target.x, y1: 0, x2: target.x, y2: target.y, life: 10 });
-        applyDamage(target, 60 + player.weaponTier * 15, 'storm');
-        spawnParticles(target.x, target.y, '#f1c40f', 16);
-      }
+  // Player Movement & Bounds
+  const curSpeed = player.speed * (player.shroomBuff > 0 ? 1.45 : 1);
+  if (player.rollTime > 0) {
+    player.pos.add(player.rollDir.clone().multiplyScalar(0.48));
+    player.rollTime--;
+  } else {
+    player.pos.x += joystickVector.x * curSpeed;
+    player.pos.z += joystickVector.y * curSpeed;
+    if (Math.hypot(joystickVector.x, joystickVector.y) > 0.1) {
+      player.walkCycle += 0.22;
     }
   }
 
-  // Talent: Orbiting Spectral Glaive rotation & collision
+  // Arena wall limits
+  const halfA = ARENA_SIZE / 2 - 2.5;
+  player.pos.x = Math.max(-halfA, Math.min(halfA, player.pos.x));
+  player.pos.z = Math.max(-halfA, Math.min(halfA, player.pos.z));
+
+  // Sync Player 3D mesh
+  player3D.root.position.copy(player.pos);
+  player3D.root.rotation.y = player.facingAngle;
+
+  // Walk leg animations
+  const legAngle = Math.sin(player.walkCycle) * 0.45;
+  player3D.leftLeg.rotation.x = legAngle;
+  player3D.rightLeg.rotation.x = -legAngle;
+
+  // Invulnerability blink
+  player3D.root.visible = (player.invulnTime % 4 < 2);
+
+  // Spectral Glaive 3D rotation
   if (player.perks.glaive > 0) {
     player.glaiveAngle += 0.08;
-    const gx = player.x + Math.cos(player.glaiveAngle) * 65;
-    const gy = player.y + Math.sin(player.glaiveAngle) * 65;
+    glaiveMesh.position.set(
+      player.pos.x + Math.sin(player.glaiveAngle) * 3.5,
+      1.6,
+      player.pos.z + Math.cos(player.glaiveAngle) * 3.5
+    );
+    glaiveMesh.rotation.y = player.glaiveAngle + Math.PI / 2;
+
     enemies.forEach(en => {
-      if (Math.hypot(en.x - gx, en.y - gy) < 26) {
-        applyDamage(en, 3.5 + player.weaponTier * 0.8, 'glaive');
-        spawnParticles(gx, gy, '#70a1ff', 1);
+      if (en.pos.distanceTo(glaiveMesh.position) < 1.8) {
+        applyDamage(en, 3.5 + player.weaponTier * 0.8);
+        spawn3DParticles(glaiveMesh.position, 0x70a1ff, 1);
       }
     });
   }
 
-  // Movement
-  const curSpeed = player.speed * (player.shroomBuff > 0 ? 1.45 : 1);
-  if (player.rollTime > 0) {
-    player.x += player.vx;
-    player.y += player.vy;
-    player.rollTime--;
-  } else {
-    player.x += joystickVector.x * curSpeed;
-    player.y += joystickVector.y * curSpeed;
-  }
-
-  player.x = Math.max(player.size, Math.min(W - player.size, player.x));
-  player.y = Math.max(player.size, Math.min(H - player.size, player.y));
-
-  // Beacon Beam
+  // Beacon Beam 3D Positioning
   if (player.beaconTime > 0) {
-    let target = getClosestEnemy(420);
-    let aimAngle = Math.atan2(player.facing.y, player.facing.x);
-    if (target) aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
+    const target = getClosestEnemy(20);
+    if (target) {
+      player.facingAngle = Math.atan2(target.pos.x - player.pos.x, target.pos.z - player.pos.z);
+    }
+    beamMesh.position.set(
+      player.pos.x + Math.sin(player.facingAngle) * 15,
+      1.5,
+      player.pos.z + Math.cos(player.facingAngle) * 15
+    );
+    beamMesh.rotation.y = player.facingAngle;
 
     enemies.forEach(en => {
-      const dist = Math.hypot(en.x - player.x, en.y - player.y);
-      const enAngle = Math.atan2(en.y - player.y, en.x - player.x);
-      let diff = Math.abs(enAngle - aimAngle);
-      if (diff > Math.PI) diff = Math.PI * 2 - diff;
-      if (dist < 420 && diff < 0.22) {
-        en.hp -= 3.5 + player.weaponTier * 0.8;
-        spawnParticles(en.x, en.y, '#a29bfe', 1);
+      const d = en.pos.distanceTo(player.pos);
+      const toEn = en.pos.clone().sub(player.pos).normalize();
+      const forward = new THREE.Vector3(Math.sin(player.facingAngle), 0, Math.cos(player.facingAngle));
+      if (d < 18 && forward.dot(toEn) > 0.88) {
+        applyDamage(en, 3.2 + player.weaponTier * 0.8);
+        spawn3DParticles(en.pos, 0xa29bfe, 1);
       }
     });
   }
@@ -1199,10 +1601,10 @@ function update() {
   // Projectiles
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const p = projectiles[i];
-    p.x += p.vx;
-    p.y += p.vy;
+    p.mesh.position.add(p.dir.clone().multiplyScalar(p.speed));
 
-    if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) {
+    if (Math.abs(p.mesh.position.x) > halfA + 2 || Math.abs(p.mesh.position.z) > halfA + 2) {
+      scene.remove(p.mesh);
       projectiles.splice(i, 1);
       continue;
     }
@@ -1210,50 +1612,51 @@ function update() {
     if (p.friendly) {
       for (let j = enemies.length - 1; j >= 0; j--) {
         const en = enemies[j];
-        if (Math.hypot(p.x - en.x, p.y - en.y) < en.size / 2 + 8) {
-          applyDamage(en, p.dmg, 'bow');
-          spawnParticles(en.x, en.y, '#ffffff', 5);
+        if (en.pos.distanceTo(p.mesh.position) < en.size) {
+          applyDamage(en, p.dmg);
+          spawn3DParticles(p.mesh.position, 0xffffff, 5);
 
-          // Talent: Firework explosion
           if (p.isFirework) {
             AudioEngine.playBlast();
             enemies.forEach(other => {
-              if (Math.hypot(other.x - en.x, other.y - en.y) < 85) {
-                applyDamage(other, p.dmg * 0.75, 'firework');
+              if (other.pos.distanceTo(p.mesh.position) < 5.0) {
+                applyDamage(other, p.dmg * 0.75);
               }
             });
-            spawnParticles(en.x, en.y, '#ff4757', 24);
-            spawnParticles(en.x, en.y, '#ffd32a', 16);
+            spawn3DParticles(p.mesh.position, 0xff4757, 20);
           }
 
+          scene.remove(p.mesh);
           projectiles.splice(i, 1);
           break;
         }
       }
     } else {
-      if (player.rollTime <= 0 && player.invulnTime <= 0 && Math.hypot(p.x - player.x, p.y - player.y) < player.size / 2 + 5) {
+      if (player.rollTime <= 0 && player.invulnTime <= 0 && player.pos.distanceTo(p.mesh.position) < 1.6) {
         let dmg = p.dmg;
         if (player.perks.thorns > 0) dmg *= 0.75;
         player.hp -= dmg;
         player.invulnTime = 25;
-        spawnParticles(player.x, player.y, '#e74c3c', 7);
+        spawn3DParticles(player.pos, 0xe74c3c, 8);
+        scene.remove(p.mesh);
         projectiles.splice(i, 1);
       }
     }
   }
 
-  // Poison Clouds Tick
+  // Poison Clouds
   for (let i = poisonClouds.length - 1; i >= 0; i--) {
     const pc = poisonClouds[i];
     pc.life--;
     if (pc.life <= 0) {
+      scene.remove(pc.mesh);
       poisonClouds.splice(i, 1);
       continue;
     }
     enemies.forEach(en => {
-      if (Math.hypot(en.x - pc.x, en.y - pc.y) < pc.radius) {
+      if (en.pos.distanceTo(pc.pos) < pc.radius) {
         en.hp -= 0.35;
-        if (Math.random() < 0.1) spawnParticles(en.x, en.y, '#2ecc71', 1);
+        if (Math.random() < 0.1) spawn3DParticles(en.pos, 0x2ecc71, 1);
       }
     });
   }
@@ -1262,128 +1665,160 @@ function update() {
   for (let i = enemies.length - 1; i >= 0; i--) {
     const en = enemies[i];
 
-    // Burn
-    if (en.burn > 0) {
-      en.burn--;
-      en.hp -= 0.4;
-      if (Math.random() < 0.2) spawnParticles(en.x, en.y, '#e67e22', 1);
-    }
-    // Freeze
+    if (en.burn > 0) en.hp -= 0.4;
     if (en.freeze > 0) en.freeze--;
 
     if (en.hp <= 0) {
       const soulGain = player.perks.soulHarvest > 0 ? 30 : 16;
       player.souls = Math.min(player.maxSouls, player.souls + soulGain);
-      addExp(en.type === 'boss' ? 45 : 15);
+      addExp(en.type === 'boss' ? 40 : 10);
 
-      // Talent: Corpse Explosion
       if (player.perks.corpseExplode > 0) {
         AudioEngine.playBlast();
-        spawnParticles(en.x, en.y, '#e74c3c', 25);
+        spawn3DParticles(en.pos, 0xe74c3c, 25);
         enemies.forEach(other => {
-          if (other !== en && Math.hypot(other.x - en.x, other.y - en.y) < 95) {
-            applyDamage(other, 35 + player.weaponTier * 10, 'explosion');
+          if (other !== en && other.pos.distanceTo(en.pos) < 5.2) {
+            applyDamage(other, 35 + player.weaponTier * 10);
           }
         });
       }
 
-      if (Math.random() < 0.75) drops.push({ x: en.x, y: en.y, type: 'emerald' });
-      if (Math.random() < 0.35 || en.type === 'boss') drops.push({ x: en.x + 8, y: en.y, type: 'weapon' });
-      spawnParticles(en.x, en.y, en.color, 12);
+      // 3D Emerald / Weapon Drop
+      if (Math.random() < 0.75) {
+        const em = new THREE.Mesh(new THREE.OctahedronGeometry(0.55), materials.emerald);
+        em.position.set(en.pos.x, 0.6, en.pos.z);
+        scene.add(em);
+        drops.push({ mesh: em, pos: em.position, type: 'emerald' });
+      }
+      if (Math.random() < 0.35 || en.type === 'boss') {
+        const wp = new THREE.Mesh(new THREE.SphereGeometry(0.55, 8, 8), materials.weaponOrb);
+        wp.position.set(en.pos.x + 0.6, 0.6, en.pos.z);
+        scene.add(wp);
+        drops.push({ mesh: wp, pos: wp.position, type: 'weapon' });
+      }
+
+      spawn3DParticles(en.pos, en.type === 'boss' ? 0x9b59b6 : 0x2ecc71, 14);
+      scene.remove(en.model.root);
       enemies.splice(i, 1);
       continue;
     }
 
-    const dist = Math.hypot(player.x - en.x, player.y - en.y);
-    const angle = Math.atan2(player.y - en.y, player.x - en.x);
+    const dist = en.pos.distanceTo(player.pos);
+    const toPlayer = player.pos.clone().sub(en.pos).normalize();
     const effectiveSpeed = en.freeze > 0 ? en.speed * 0.45 : en.speed;
 
+    en.walkCycle += 0.16;
+    const legA = Math.sin(en.walkCycle) * 0.45;
+    en.model.leftLeg.rotation.x = legA;
+    en.model.rightLeg.rotation.x = -legA;
+    en.model.root.rotation.y = Math.atan2(toPlayer.x, toPlayer.z);
+
     if (en.type === 'skeleton') {
-      if (dist > 190) {
-        en.x += Math.cos(angle) * effectiveSpeed;
-        en.y += Math.sin(angle) * effectiveSpeed;
+      if (dist > 8) {
+        en.pos.add(toPlayer.multiplyScalar(effectiveSpeed));
       }
       en.shootCd--;
       if (en.shootCd <= 0) {
-        en.shootCd = en.freeze > 0 ? 190 : 135;
+        en.shootCd = en.freeze > 0 ? 190 : Math.max(65, 130 - Math.floor(scalingLevel * 4));
+        const arr = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.2), materials.ironDark);
+        arr.position.set(en.pos.x, 1.8, en.pos.z);
+        arr.rotation.y = Math.atan2(toPlayer.x, toPlayer.z);
+        scene.add(arr);
         projectiles.push({
-          x: en.x, y: en.y,
-          vx: Math.cos(angle) * 4.8, vy: Math.sin(angle) * 4.8,
-          dmg: 6 + dungeonFloor * 1.5, friendly: false, color: '#ff7675'
+          mesh: arr,
+          dir: toPlayer.clone(),
+          speed: 0.32 + scalingLevel * 0.008,
+          dmg: 7 + Math.floor(scalingLevel * 2.2),
+          friendly: false
         });
       }
     } else {
-      en.x += Math.cos(angle) * effectiveSpeed;
-      en.y += Math.sin(angle) * effectiveSpeed;
-
+      en.pos.add(toPlayer.multiplyScalar(effectiveSpeed));
       if (en.type === 'boss') {
         en.shootCd--;
         if (en.shootCd <= 0) {
-          en.shootCd = 110;
+          en.shootCd = Math.max(65, 110 - Math.floor(scalingLevel * 3));
           for (let k = -1; k <= 1; k++) {
+            const bBall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), materials.redstone);
+            bBall.position.set(en.pos.x, 2.4, en.pos.z);
+            scene.add(bBall);
+            const bDir = toPlayer.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), k * 0.3);
             projectiles.push({
-              x: en.x, y: en.y,
-              vx: Math.cos(angle + k * 0.28) * 5, vy: Math.sin(angle + k * 0.28) * 5,
-              dmg: 10 + dungeonFloor * 1.5, friendly: false, color: '#a29bfe'
+              mesh: bBall,
+              dir: bDir,
+              speed: 0.3 + scalingLevel * 0.008,
+              dmg: 12 + Math.floor(scalingLevel * 2.8),
+              friendly: false
             });
           }
         }
       }
     }
 
-    // Touch Collision
-    if (player.rollTime <= 0 && player.invulnTime <= 0 && dist < (player.size + en.size) / 2) {
-      let dmg = (8 + dungeonFloor * 1.2);
+    en.model.root.position.copy(en.pos);
+
+    // Touch collision
+    if (player.rollTime <= 0 && player.invulnTime <= 0 && dist < en.size + 0.8) {
+      let dmg = (9 + scalingLevel * 2.2);
       if (player.perks.thorns > 0) {
         dmg *= 0.75;
         en.hp -= 18;
       }
       player.hp -= dmg;
       player.invulnTime = 30;
-      player.x += Math.cos(angle + Math.PI) * 15;
-      player.y += Math.sin(angle + Math.PI) * 15;
-      spawnParticles(player.x, player.y, '#e74c3c', 5);
+      const push = player.pos.clone().sub(en.pos).normalize().multiplyScalar(1.2);
+      player.pos.add(push);
+      spawn3DParticles(player.pos, 0xe74c3c, 6);
     }
   }
 
-  // Drops
+  // Drops pickup
   for (let i = drops.length - 1; i >= 0; i--) {
     const d = drops[i];
-    if (Math.hypot(player.x - d.x, player.y - d.y) < 38) {
+    d.mesh.rotation.y += 0.04;
+    if (player.pos.distanceTo(d.pos) < 2.0) {
       AudioEngine.playPickup();
       if (d.type === 'emerald') player.emeralds += 8;
       if (d.type === 'weapon') player.weaponTier++;
-      spawnParticles(d.x, d.y, '#2ecc71', 8);
+      spawn3DParticles(d.pos, 0x2ecc71, 8);
+      scene.remove(d.mesh);
       drops.splice(i, 1);
     }
   }
 
+  // Next Floor
   if (enemies.length === 0) {
     dungeonFloor++;
     player.hp = Math.min(player.maxHp, player.hp + 25);
     spawnFloorWave();
   }
 
-  // FX & Texts
+  // Slashes life
+  for (let i = slashMeshes.length - 1; i >= 0; i--) {
+    const s = slashMeshes[i];
+    s.life--;
+    s.mesh.material.opacity = s.life / 10;
+    if (s.life <= 0) {
+      scene.remove(s.mesh);
+      slashMeshes.splice(i, 1);
+    }
+  }
+
+  // Particles update
   for (let i = particles.length - 1; i >= 0; i--) {
-    particles[i].x += particles[i].vx;
-    particles[i].y += particles[i].vy;
-    particles[i].life--;
-    if (particles[i].life <= 0) particles.splice(i, 1);
+    const p = particles[i];
+    p.mesh.position.add(p.vel);
+    p.life--;
+    if (p.life <= 0) {
+      scene.remove(p.mesh);
+      particles.splice(i, 1);
+    }
   }
-  for (let i = slashArcs.length - 1; i >= 0; i--) {
-    slashArcs[i].life--;
-    if (slashArcs[i].life <= 0) slashArcs.splice(i, 1);
-  }
-  for (let i = lightningArcs.length - 1; i >= 0; i--) {
-    lightningArcs[i].life--;
-    if (lightningArcs[i].life <= 0) lightningArcs.splice(i, 1);
-  }
-  for (let i = floatingTexts.length - 1; i >= 0; i--) {
-    floatingTexts[i].y += floatingTexts[i].vy;
-    floatingTexts[i].life--;
-    if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
-  }
+
+  // Smooth 3D Camera Follow
+  camera.position.x = THREE.MathUtils.lerp(camera.position.x, player.pos.x, 0.08);
+  camera.position.z = THREE.MathUtils.lerp(camera.position.z, player.pos.z + 24, 0.08);
+  camera.lookAt(player.pos.x, 1.2, player.pos.z);
 
   // Update HUD
   document.getElementById('hp-bar').style.width = Math.max(0, (player.hp / player.maxHp * 100)) + '%';
@@ -1400,146 +1835,21 @@ function update() {
   document.getElementById('cd-art-3').style.height = (player.cdArt3 / player.maxCdArt3 * 100) + '%';
 }
 
-function draw() {
-  ctx.clearRect(0, 0, W, H);
-
-  // Background Grid
-  ctx.strokeStyle = '#1d222b';
-  ctx.lineWidth = 1.5;
-  const gridSize = 50;
-  for (let x = 0; x < W; x += gridSize) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-  }
-  for (let y = 0; y < H; y += gridSize) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
-
-  // Poison Clouds
-  poisonClouds.forEach(pc => {
-    ctx.save();
-    ctx.fillStyle = 'rgba(46, 204, 113, 0.25)';
-    ctx.beginPath();
-    ctx.arc(pc.x, pc.y, pc.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  });
-
-  // Drops
-  drops.forEach(d => {
-    ctx.fillStyle = d.type === 'emerald' ? '#2ecc71' : '#f1c40f';
-    ctx.fillRect(d.x - 8, d.y - 8, 16, 16);
-    ctx.strokeStyle = '#fff';
-    ctx.strokeRect(d.x - 8, d.y - 8, 16, 16);
-  });
-
-  // Beacon Beam
-  if (player.beaconTime > 0) {
-    let target = getClosestEnemy(420);
-    let aimAngle = Math.atan2(player.facing.y, player.facing.x);
-    if (target) aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
-
-    ctx.save();
-    ctx.strokeStyle = 'rgba(162, 155, 254, 0.85)';
-    ctx.lineWidth = 16;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(player.x, player.y);
-    ctx.lineTo(player.x + Math.cos(aimAngle) * 420, player.y + Math.sin(aimAngle) * 420);
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  // Lightning Arcs
-  lightningArcs.forEach(l => {
-    ctx.save();
-    ctx.strokeStyle = '#ffd32a';
-    ctx.lineWidth = 3.5;
-    ctx.beginPath();
-    ctx.moveTo(l.x1, l.y1);
-    ctx.lineTo((l.x1 + l.x2) / 2 + (Math.random() - 0.5) * 25, (l.y1 + l.y2) / 2 + (Math.random() - 0.5) * 25);
-    ctx.lineTo(l.x2, l.y2);
-    ctx.stroke();
-    ctx.restore();
-  });
-
-  // Slash Arcs
-  slashArcs.forEach(s => {
-    ctx.save();
-    ctx.strokeStyle = player.perks.fire > 0 ? 'rgba(230, 126, 34, 0.9)' : 'rgba(255, 255, 255, 0.9)';
-    ctx.lineWidth = 8;
-    ctx.beginPath();
-    if (s.swirling) {
-      ctx.arc(s.x, s.y, 65, 0, Math.PI * 2);
-    } else {
-      ctx.arc(s.x, s.y, 52, s.angle - 0.85, s.angle + 0.85);
-    }
-    ctx.stroke();
-    ctx.restore();
-  });
-
-  // Orbiting Glaive
-  if (player.perks.glaive > 0) {
-    const gx = player.x + Math.cos(player.glaiveAngle) * 65;
-    const gy = player.y + Math.sin(player.glaiveAngle) * 65;
-    ctx.save();
-    ctx.fillStyle = '#70a1ff';
-    ctx.shadowColor = '#70a1ff';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.arc(gx, gy, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  // Player
-  if (player.invulnTime % 4 < 2) {
-    ctx.fillStyle = player.rollTime > 0 ? '#74b9ff' : (player.shroomBuff > 0 ? '#e67e22' : '#0984e3');
-    ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(player.x + player.facing.x * 12 - 2, player.y + player.facing.y * 12 - 2, 5, 5);
-  }
-
-  // Enemies
-  enemies.forEach(en => {
-    ctx.fillStyle = en.freeze > 0 ? '#74b9ff' : (en.burn > 0 ? '#e67e22' : en.color);
-    ctx.fillRect(en.x - en.size / 2, en.y - en.size / 2, en.size, en.size);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(en.x - 16, en.y - en.size / 2 - 8, 32, 4);
-    ctx.fillStyle = '#e74c3c';
-    ctx.fillRect(en.x - 16, en.y - en.size / 2 - 8, 32 * Math.max(0, en.hp / en.maxHp), 4);
-  });
-
-  // Projectiles
-  projectiles.forEach(p => {
-    ctx.fillStyle = p.color;
-    ctx.fillRect(p.x - 4, p.y - 4, 8, 8);
-  });
-
-  // Particles
-  particles.forEach(pt => {
-    ctx.fillStyle = pt.color;
-    ctx.fillRect(pt.x - 3, pt.y - 3, 6, 6);
-  });
-
-  // Floating Texts
-  floatingTexts.forEach(ft => {
-    ctx.save();
-    ctx.fillStyle = ft.color;
-    ctx.font = 'bold 12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(ft.text, ft.x, ft.y);
-    ctx.restore();
-  });
-}
-
-function gameLoop() {
+function animate() {
+  requestAnimationFrame(animate);
   update();
-  draw();
-  requestAnimationFrame(gameLoop);
+  renderer.render(scene, camera);
 }
+
+// Window resize
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 spawnFloorWave();
-gameLoop();
+animate();
 </script>
 </body>
 </html>
