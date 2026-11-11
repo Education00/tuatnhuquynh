@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Blockborne: Dungeons II - 3D Three.js Edition</title>
+<title>Blockborne: Pixel Dungeons - 2D Meadow & Forest Edition</title>
 <style>
   * {
     box-sizing: border-box;
@@ -17,20 +17,27 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #05070a;
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-    color: #f1f2f6;
+    background: #27ae60;
+    font-family: 'Courier New', monospace, sans-serif;
+    color: #ffffff;
     touch-action: none;
   }
-  #game-container {
+  #game-wrapper {
     position: relative;
     width: 100%;
     height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1e824c;
   }
-  #webgl-canvas {
+  canvas {
+    display: block;
     width: 100%;
     height: 100%;
-    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    background: #55efc4;
   }
 
   /* HUD Top Bar */
@@ -46,49 +53,50 @@
     z-index: 10;
   }
   .hud-panel {
-    background: rgba(12, 16, 24, 0.92);
-    border: 2px solid #3c465a;
-    border-radius: 10px;
-    padding: 7px 12px;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.75);
+    background: rgba(24, 38, 28, 0.92);
+    border: 3px solid #2ecc71;
+    border-radius: 8px;
+    padding: 6px 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
   }
   .bar-container {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 900;
   }
   .bar-track {
     width: 125px;
     height: 10px;
-    background: #171b24;
-    border-radius: 5px;
+    background: #111e15;
+    border-radius: 4px;
     overflow: hidden;
-    border: 1px solid #3a4456;
+    border: 1px solid #27ae60;
   }
   .bar-fill {
     height: 100%;
     width: 100%;
     transition: width 0.15s ease-out;
   }
-  .hp-fill { background: linear-gradient(90deg, #2ed573, #7bed9f); }
+  .hp-fill { background: linear-gradient(90deg, #e74c3c, #ff7675); }
   .soul-fill { background: linear-gradient(90deg, #0984e3, #00cec9); }
-  .exp-fill { background: linear-gradient(90deg, #f1c40f, #ff9f43); }
+  .exp-fill { background: linear-gradient(90deg, #f1c40f, #f39c12); }
 
   .stats-info {
     font-size: 12px;
-    font-weight: 800;
-    color: #f5f6fa;
+    font-weight: 900;
+    color: #fff;
     display: flex;
     gap: 12px;
+    text-shadow: 1px 1px 0 #000;
   }
-  .stat-lvl { color: #ffd32a; text-shadow: 0 0 8px rgba(255, 211, 42, 0.6); }
-  .stat-floor { color: #70a1ff; }
-  .stat-emerald { color: #2ecc71; text-shadow: 0 0 6px rgba(46,204,113,0.5); }
+  .stat-lvl { color: #f1c40f; }
+  .stat-floor { color: #74b9ff; }
+  .stat-emerald { color: #2ecc71; }
 
+  /* Perks Tray */
   #perks-tray {
     position: absolute;
     top: env(safe-area-inset-top, 74px);
@@ -101,18 +109,18 @@
     z-index: 15;
   }
   .perk-badge {
-    background: rgba(18, 22, 32, 0.9);
-    border: 1px solid #f1c40f;
+    background: rgba(20, 36, 25, 0.92);
+    border: 2px solid #f1c40f;
     border-radius: 6px;
     padding: 3px 6px;
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 900;
     color: #ffd32a;
     box-shadow: 0 2px 6px rgba(0,0,0,0.5);
     white-space: nowrap;
   }
 
-  /* Controls Layer */
+  /* Mobile Controls Layer */
   #controls-layer {
     position: absolute;
     inset: 0;
@@ -134,21 +142,21 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(20,25,35,0.75) 100%);
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 0 15px rgba(0,0,0,0.6);
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(20,40,25,0.7) 100%);
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
     transform: translate(-50%, -50%);
     display: none;
     pointer-events: none;
   }
   #joystick-knob {
     position: absolute;
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: radial-gradient(circle, #74b9ff, #0984e3);
-    border: 2px solid #dfe6e9;
-    box-shadow: 0 0 12px rgba(9,132,227,0.8);
+    background: radial-gradient(circle, #55efc4, #00b894);
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 12px rgba(0,184,148,0.8);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -171,19 +179,20 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
+    font-weight: 900;
     color: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
     pointer-events: auto;
     touch-action: none;
     overflow: hidden;
+    text-shadow: 1px 1px 0 #000;
   }
   .ctrl-btn:active {
     transform: scale(0.91);
     filter: brightness(1.2);
   }
   .ctrl-btn span.label {
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.5px;
     pointer-events: none;
   }
@@ -238,9 +247,9 @@
   .art-btn {
     width: 52px;
     height: 52px;
-    border-radius: 12px;
-    background: rgba(30, 35, 48, 0.92);
-    border: 2px solid #485460;
+    border-radius: 10px;
+    background: rgba(22, 38, 28, 0.92);
+    border: 2px solid #2ecc71;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -250,6 +259,7 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 0 #000;
   }
   .art-btn:active {
     transform: scale(0.92);
@@ -268,34 +278,12 @@
     transition: height 0.08s linear;
   }
 
-  /* Damage Floaters Overlay */
-  #damage-floater-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 18;
-  }
-  .damage-text {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    font-weight: 900;
-    font-size: 15px;
-    text-shadow: 0 0 6px rgba(0,0,0,0.9);
-    animation: floatUp 0.8s ease-out forwards;
-    pointer-events: none;
-  }
-  @keyframes floatUp {
-    0% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
-    100% { opacity: 0; transform: translate(-50%, -40px) scale(0.85); }
-  }
-
   /* Modals */
   .modal-screen {
     position: absolute;
     inset: 0;
-    background: rgba(6, 8, 12, 0.92);
-    backdrop-filter: blur(10px);
+    background: rgba(14, 28, 18, 0.92);
+    backdrop-filter: blur(8px);
     display: none;
     flex-direction: column;
     align-items: center;
@@ -308,7 +296,7 @@
     font-size: 26px;
     font-weight: 900;
     color: #ffd32a;
-    text-shadow: 0 0 18px rgba(255, 211, 42, 0.85);
+    text-shadow: 0 0 16px rgba(255, 211, 42, 0.85);
     margin-bottom: 4px;
     letter-spacing: 1px;
   }
@@ -334,9 +322,9 @@
     }
   }
   .skill-card {
-    background: linear-gradient(145deg, #1b202c, #121620);
-    border: 2px solid #4b586e;
-    border-radius: 14px;
+    background: linear-gradient(145deg, #233e2b, #15261a);
+    border: 2px solid #2ecc71;
+    border-radius: 12px;
     padding: 14px 16px;
     display: flex;
     align-items: center;
@@ -359,15 +347,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
     flex-shrink: 0;
   }
   .card-content h3 {
     font-size: 15px;
-    font-weight: 800;
+    font-weight: 900;
     color: #f1f2f6;
     margin-bottom: 4px;
+    text-shadow: 1px 1px 0 #000;
   }
   .card-content p {
     font-size: 12px;
@@ -391,28 +380,25 @@
     line-height: 1.5;
   }
   .big-btn {
-    background: linear-gradient(135deg, #0984e3, #6c5ce7);
+    background: linear-gradient(135deg, #00b894, #0984e3);
     color: white;
     border: none;
     padding: 14px 34px;
     font-size: 17px;
-    font-weight: 800;
+    font-weight: 900;
     border-radius: 30px;
-    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
+    box-shadow: 0 6px 20px rgba(0, 184, 148, 0.5);
     cursor: pointer;
   }
   .big-btn:active {
     transform: scale(0.95);
   }
 </style>
-<!-- Three.js CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div id="game-container">
-  <canvas id="webgl-canvas"></canvas>
-  <div id="damage-floater-layer"></div>
+<div id="game-wrapper">
+  <canvas id="gameCanvas"></canvas>
 
   <!-- Top HUD -->
   <div id="top-hud">
@@ -496,7 +482,7 @@
 
   <div id="modal-gameover" class="modal-screen">
     <div id="modal-gameover-title">BẠN ĐÃ GỤC NGÃ!</div>
-    <div id="modal-gameover-desc">Quái vật quá hung hãn. Hãy thử lại nào!</div>
+    <div id="modal-gameover-desc">Quái vật quá đông. Hãy thử lại nào!</div>
     <button class="big-btn" id="btn-revive">HỒI SINH & TIẾP TỤC</button>
   </div>
 </div>
@@ -517,9 +503,9 @@ const AudioEngine = {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(320, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(340, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(90, this.ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
     osc.connect(gain); gain.connect(this.ctx.destination);
     osc.start(); osc.stop(this.ctx.currentTime + 0.1);
@@ -529,9 +515,9 @@ const AudioEngine = {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(220, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(540, this.ctx.currentTime + 0.12);
-    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(240, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(580, this.ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.22, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
     osc.connect(gain); gain.connect(this.ctx.destination);
     osc.start(); osc.stop(this.ctx.currentTime + 0.12);
@@ -541,9 +527,9 @@ const AudioEngine = {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'square';
-    osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.25);
-    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(35, this.ctx.currentTime + 0.25);
+    gain.gain.setValueAtTime(0.26, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
     osc.connect(gain); gain.connect(this.ctx.destination);
     osc.start(); osc.stop(this.ctx.currentTime + 0.25);
@@ -555,7 +541,7 @@ const AudioEngine = {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(580, this.ctx.currentTime);
     osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.16, this.ctx.currentTime);
+    gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.16);
     osc.connect(gain); gain.connect(this.ctx.destination);
     osc.start(); osc.stop(this.ctx.currentTime + 0.16);
@@ -585,7 +571,7 @@ const SKILL_DATABASE = [
   { id: 'stormCall', title: 'Thiên Lôi Giáng Lâm (Call of Storm)', icon: '⛈️', desc: 'Cứ mỗi 3 giây tự động giáng một cột sét tử thần xuống đầu quái gần nhất.' },
   { id: 'swirling', title: 'Lốc Xoáy Cuồng Nộ (Swirling Blade)', icon: '🌀', desc: 'Mỗi cú chém tạo vòng bão kiếm 360 độ quét sạch quái vật xung quanh.' },
   { id: 'crit', title: 'Trảm Kích Chí Mạng (Critical Strike)', icon: '💥', desc: '25% tỷ lệ gây sát thương x3 cực lớn với hiệu ứng nổ cam.' },
-  { id: 'glaive', title: 'Phi Kiếm Hộ Thân (Spectral Glaive)', icon: '🪓', desc: 'Triệu hồi ma kiếm 3D bay xoay tròn liên tục quanh bạn, chém quái lại gần.' },
+  { id: 'glaive', title: 'Phi Kiếm Hộ Thân (Spectral Glaive)', icon: '🪓', desc: 'Triệu hồi ma kiếm pixel bay xoay tròn liên tục quanh bạn, chém quái lại gần.' },
   { id: 'corpseExplode', title: 'Xác Nổ Liên Hoàn (Corpse Explosion)', icon: '💣', desc: 'Quái vật chết sẽ phát nổ tung xác gây sát thương lớn cho quái xung quanh.' },
   { id: 'freezing', title: 'Băng Phong Hàn Băng (Frost Aspect)', icon: '❄️', desc: 'Đòn đánh đóng băng làm chậm 65% tốc độ di chuyển và bắn của quái.' },
   { id: 'fire', title: 'Lửa Địa Ngục (Fire Aspect)', icon: '🔥', desc: 'Vũ khí thiêu đốt kẻ địch, rút máu liên tục trong 3 giây.' },
@@ -596,389 +582,31 @@ const SKILL_DATABASE = [
   { id: 'soulHarvest', title: 'Hút Linh Hồn (Soul Siphon)', icon: '🔮', desc: 'Thu thập gấp đôi Linh Hồn và hồi ngay 20 HP mỗi khi dùng Cổ vật.' }
 ];
 
-// --- Three.js Setup & World Variables ---
-const canvas = document.getElementById('webgl-canvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0;
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0d14);
-scene.fog = new THREE.FogExp2(0x0a0d14, 0.018);
-
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 300);
-camera.position.set(0, 36, 26);
-
-// Lights
-const ambientLight = new THREE.AmbientLight(0x8892b0, 0.6);
-scene.add(ambientLight);
-
-const dirLight = new THREE.DirectionalLight(0xfff5ea, 0.85);
-dirLight.position.set(25, 45, 20);
-dirLight.castShadow = true;
-dirLight.shadow.mapSize.width = 1024;
-dirLight.shadow.mapSize.height = 1024;
-dirLight.shadow.camera.near = 10;
-dirLight.shadow.camera.far = 100;
-dirLight.shadow.camera.left = -40;
-dirLight.shadow.camera.right = 40;
-dirLight.shadow.camera.top = 40;
-dirLight.shadow.camera.bottom = -40;
-scene.add(dirLight);
-
-// Shared Geometry and Materials
-const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-const materials = {
-  skin: new THREE.MeshLambertMaterial({ color: 0xf3a683 }),
-  ironArmor: new THREE.MeshLambertMaterial({ color: 0x95a5a6 }),
-  ironDark: new THREE.MeshLambertMaterial({ color: 0x7f8c8d }),
-  bluePants: new THREE.MeshLambertMaterial({ color: 0x2c3e50 }),
-  diamond: new THREE.MeshLambertMaterial({ color: 0x00cec9, emissive: 0x00cec9, emissiveIntensity: 0.2 }),
-  gold: new THREE.MeshLambertMaterial({ color: 0xf1c40f }),
-  wood: new THREE.MeshLambertMaterial({ color: 0x8c5027 }),
-  zombieSkin: new THREE.MeshLambertMaterial({ color: 0x10ac84 }),
-  zombieShirt: new THREE.MeshLambertMaterial({ color: 0x00d2d3 }),
-  skeletonBone: new THREE.MeshLambertMaterial({ color: 0xf5f6fa }),
-  obsidian: new THREE.MeshLambertMaterial({ color: 0x1e272e }),
-  redstone: new THREE.MeshLambertMaterial({ color: 0xff3838, emissive: 0xff3838, emissiveIntensity: 0.6 }),
-  torchWood: new THREE.MeshLambertMaterial({ color: 0x573312 }),
-  torchFire: new THREE.MeshBasicMaterial({ color: 0xffa502 }),
-  emerald: new THREE.MeshLambertMaterial({ color: 0x2ecc71, emissive: 0x2ecc71, emissiveIntensity: 0.35 }),
-  weaponOrb: new THREE.MeshLambertMaterial({ color: 0x9b59b6, emissive: 0x9b59b6, emissiveIntensity: 0.4 })
-};
-
-// --- Dungeon Environment Generation (3D Cobblestone Floor, Walls, Pillars, Torches) ---
-const ARENA_SIZE = 56;
-
-// Floor
-const floorTexCanvas = document.createElement('canvas');
-floorTexCanvas.width = floorTexCanvas.height = 256;
-const fCtx = floorTexCanvas.getContext('2d');
-fCtx.fillStyle = '#151922';
-fCtx.fillRect(0, 0, 256, 256);
-fCtx.strokeStyle = '#0d1017';
-fCtx.lineWidth = 4;
-for (let x = 0; x < 256; x += 32) {
-  for (let y = 0; y < 256; y += 32) {
-    if ((x + y) % 64 === 0) fCtx.fillStyle = '#181e28';
-    else fCtx.fillStyle = '#141820';
-    fCtx.fillRect(x, y, 32, 32);
-    fCtx.strokeRect(x, y, 32, 32);
-  }
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  initMapDecoration();
 }
-const floorTex = new THREE.CanvasTexture(floorTexCanvas);
-floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
-floorTex.repeat.set(14, 14);
+window.addEventListener('resize', resize);
 
-const floorMat = new THREE.MeshLambertMaterial({ map: floorTex });
-const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(ARENA_SIZE, ARENA_SIZE), floorMat);
-floorMesh.rotation.x = -Math.PI / 2;
-floorMesh.receiveShadow = true;
-scene.add(floorMesh);
-
-// 3D Dungeon Outer Walls
-const wallMat = new THREE.MeshLambertMaterial({ color: 0x161a22 });
-function createWall(x, z, w, d, h = 6) {
-  const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
-  wall.position.set(x, h / 2, z);
-  wall.castShadow = true;
-  wall.receiveShadow = true;
-  scene.add(wall);
-}
-createWall(0, -ARENA_SIZE / 2, ARENA_SIZE, 3); // North
-createWall(0, ARENA_SIZE / 2, ARENA_SIZE, 3);  // South
-createWall(-ARENA_SIZE / 2, 0, 3, ARENA_SIZE); // West
-createWall(ARENA_SIZE / 2, 0, 3, ARENA_SIZE);  // East
-
-// 3D Stone Pillars with Rune Trims
-const pillarMat = new THREE.MeshLambertMaterial({ color: 0x222a36 });
-const pillarPositions = [
-  [-14, -14], [14, -14], [-14, 14], [14, 14]
-];
-pillarPositions.forEach(([px, pz]) => {
-  const pMesh = new THREE.Mesh(new THREE.BoxGeometry(3.5, 9, 3.5), pillarMat);
-  pMesh.position.set(px, 4.5, pz);
-  pMesh.castShadow = true;
-  pMesh.receiveShadow = true;
-  scene.add(pMesh);
-
-  const topTrim = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.2, 4.2), materials.ironDark);
-  topTrim.position.set(px, 8.8, pz);
-  topTrim.castShadow = true;
-  scene.add(topTrim);
-});
-
-// 3D Torches with Dynamic PointLights
-const torchPositions = [
-  [-ARENA_SIZE / 2 + 1.8, 4, -10],
-  [ARENA_SIZE / 2 - 1.8, 4, -10],
-  [-ARENA_SIZE / 2 + 1.8, 4, 10],
-  [ARENA_SIZE / 2 - 1.8, 4, 10],
-  [0, 4, -ARENA_SIZE / 2 + 1.8]
-];
-const torchLights = [];
-torchPositions.forEach(([tx, ty, tz]) => {
-  const tGroup = new THREE.Group();
-  tGroup.position.set(tx, ty, tz);
-
-  const post = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.5, 0.4), materials.torchWood);
-  const flame = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), materials.torchFire);
-  flame.position.y = 0.9;
-  tGroup.add(post);
-  tGroup.add(flame);
-
-  const pLight = new THREE.PointLight(0xffa502, 1.2, 22);
-  pLight.position.set(tx, ty + 1, tz);
-  scene.add(pLight);
-  torchLights.push(pLight);
-
-  scene.add(tGroup);
-});
-
-// ==========================================
-// 3D PROCEDURAL BLOCKY MODELS
-// ==========================================
-
-// 1. Hero Knight 3D Model
-function createHero3D() {
-  const root = new THREE.Group();
-
-  // Torso
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.8, 0.9), materials.ironArmor);
-  torso.position.y = 1.9;
-  torso.castShadow = true;
-  root.add(torso);
-
-  // Belt
-  const belt = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.35, 0.95), materials.gold);
-  belt.position.y = 1.15;
-  root.add(belt);
-
-  // Head
-  const headGroup = new THREE.Group();
-  headGroup.position.y = 3.2;
-  const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), materials.skin);
-  head.castShadow = true;
-  headGroup.add(head);
-
-  // Knight Helmet
-  const helmet = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.5, 1.3), materials.ironDark);
-  helmet.position.y = 0.45;
-  headGroup.add(helmet);
-  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.25, 0.3), materials.bluePants);
-  visor.position.set(0, 0, 0.55);
-  headGroup.add(visor);
-  root.add(headGroup);
-
-  // Legs
-  const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), materials.bluePants);
-  leftLeg.position.set(-0.38, 0.6, 0);
-  leftLeg.castShadow = true;
-  root.add(leftLeg);
-
-  const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), materials.bluePants);
-  rightLeg.position.set(0.38, 0.6, 0);
-  rightLeg.castShadow = true;
-  root.add(rightLeg);
-
-  // Left Arm (Bow)
-  const leftArm = new THREE.Group();
-  leftArm.position.set(-0.95, 2.3, 0);
-  const leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.3, 0.5), materials.ironArmor);
-  leftArmMesh.position.y = -0.5;
-  leftArm.add(leftArmMesh);
-  const bowMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.4, 0.4), materials.wood);
-  bowMesh.position.set(0, -0.6, 0.4);
-  leftArm.add(bowMesh);
-  root.add(leftArm);
-
-  // Right Arm (Diamond Sword)
-  const rightArm = new THREE.Group();
-  rightArm.position.set(0.95, 2.3, 0);
-  const rightArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.3, 0.5), materials.ironArmor);
-  rightArmMesh.position.y = -0.5;
-  rightArm.add(rightArmMesh);
-
-  // Sword
-  const swordGroup = new THREE.Group();
-  swordGroup.position.set(0, -0.9, 0.4);
-  swordGroup.rotation.x = Math.PI / 3;
-  const blade = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.2, 0.1), materials.diamond);
-  blade.position.y = 1.0;
-  blade.castShadow = true;
-  const guard = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.18, 0.2), materials.gold);
-  guard.position.y = 0.05;
-  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.5, 0.18), materials.wood);
-  handle.position.y = -0.25;
-  swordGroup.add(blade);
-  swordGroup.add(guard);
-  swordGroup.add(handle);
-  rightArm.add(swordGroup);
-  root.add(rightArm);
-
-  return { root, leftLeg, rightLeg, leftArm, rightArm, blade, torso };
-}
-
-// 2. Zombie 3D Model
-function createZombie3D() {
-  const root = new THREE.Group();
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.7, 0.9), materials.zombieShirt);
-  torso.position.y = 1.85;
-  torso.castShadow = true;
-  root.add(torso);
-
-  const head = new THREE.Mesh(new THREE.BoxGeometry(1.15, 1.15, 1.15), materials.zombieSkin);
-  head.position.y = 3.1;
-  head.castShadow = true;
-  root.add(head);
-
-  const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.58, 1.15, 0.58), materials.bluePants);
-  leftLeg.position.set(-0.36, 0.58, 0);
-  leftLeg.castShadow = true;
-  root.add(leftLeg);
-
-  const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.58, 1.15, 0.58), materials.bluePants);
-  rightLeg.position.set(0.36, 0.58, 0);
-  rightLeg.castShadow = true;
-  root.add(rightLeg);
-
-  // Outstretched Arms
-  const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 1.4), materials.zombieSkin);
-  leftArm.position.set(-0.95, 2.2, 0.65);
-  leftArm.castShadow = true;
-  root.add(leftArm);
-
-  const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 1.4), materials.zombieSkin);
-  rightArm.position.set(0.95, 2.2, 0.65);
-  rightArm.castShadow = true;
-  root.add(rightArm);
-
-  return { root, leftLeg, rightLeg, leftArm, rightArm, torso };
-}
-
-// 3. Skeleton 3D Model
-function createSkeleton3D() {
-  const root = new THREE.Group();
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.6, 0.7), materials.skeletonBone);
-  torso.position.y = 1.8;
-  torso.castShadow = true;
-  root.add(torso);
-
-  const head = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), materials.skeletonBone);
-  head.position.y = 3.0;
-  head.castShadow = true;
-  root.add(head);
-
-  const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.1, 0.35), materials.skeletonBone);
-  leftLeg.position.set(-0.32, 0.55, 0);
-  leftLeg.castShadow = true;
-  root.add(leftLeg);
-
-  const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.1, 0.35), materials.skeletonBone);
-  rightLeg.position.set(0.32, 0.55, 0);
-  rightLeg.castShadow = true;
-  root.add(rightLeg);
-
-  const bow = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.6, 0.5), materials.wood);
-  bow.position.set(0, 2.0, 0.7);
-  root.add(bow);
-
-  return { root, leftLeg, rightLeg, torso };
-}
-
-// 4. Redstone Golem Boss 3D Model
-function createBoss3D() {
-  const root = new THREE.Group();
-  root.scale.set(2.2, 2.2, 2.2);
-
-  // Massive Torso
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.2, 1.8), materials.obsidian);
-  torso.position.y = 2.4;
-  torso.castShadow = true;
-  root.add(torso);
-
-  // Glowing Redstone Heart Core
-  const heart = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.9), materials.redstone);
-  heart.position.set(0, 2.4, 0.05);
-  root.add(heart);
-
-  // Big Obsidian Head with Horns
-  const head = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.3, 1.4), materials.obsidian);
-  head.position.set(0, 3.8, 0.3);
-  head.castShadow = true;
-  root.add(head);
-
-  const leftHorn = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.4), materials.redstone);
-  leftHorn.position.set(-0.85, 4.3, 0.3);
-  root.add(leftHorn);
-
-  const rightHorn = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.4), materials.redstone);
-  rightHorn.position.set(0.85, 4.3, 0.3);
-  root.add(rightHorn);
-
-  // Massive Fists & Arms
-  const leftArm = new THREE.Group();
-  leftArm.position.set(-1.6, 2.7, 0);
-  const lFist = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 1.1), materials.obsidian);
-  lFist.position.y = -0.9;
-  lFist.castShadow = true;
-  leftArm.add(lFist);
-  root.add(leftArm);
-
-  const rightArm = new THREE.Group();
-  rightArm.position.set(1.6, 2.7, 0);
-  const rFist = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 1.1), materials.obsidian);
-  rFist.position.y = -0.9;
-  rFist.castShadow = true;
-  rightArm.add(rFist);
-  root.add(rightArm);
-
-  // Legs
-  const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 1.0), materials.obsidian);
-  leftLeg.position.set(-0.65, 0.65, 0);
-  leftLeg.castShadow = true;
-  root.add(leftLeg);
-
-  const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 1.0), materials.obsidian);
-  rightLeg.position.set(0.65, 0.65, 0);
-  rightLeg.castShadow = true;
-  root.add(rightLeg);
-
-  return { root, leftLeg, rightLeg, leftArm, rightArm, heart, torso };
-}
-
-// 5. 3D Spectral Glaive (Orbiting Blade)
-const glaiveMesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 1.8), new THREE.MeshLambertMaterial({ color: 0x70a1ff, emissive: 0x70a1ff, emissiveIntensity: 0.6 }));
-glaiveMesh.visible = false;
-scene.add(glaiveMesh);
-
-// 6. 3D Beacon Beam
-const beamMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 30, 8), new THREE.MeshBasicMaterial({ color: 0xa29bfe, transparent: true, opacity: 0.8 }));
-beamMesh.rotation.x = Math.PI / 2;
-beamMesh.visible = false;
-scene.add(beamMesh);
-
-// Instantiate Player 3D
-const player3D = createHero3D();
-scene.add(player3D.root);
-
-// ==========================================
-// GAMEPLAY STATE & SYSTEMS
-// ==========================================
+// Player State
 const player = {
-  pos: new THREE.Vector3(0, 0, 0),
+  x: 0, y: 0,
+  size: 26,
   hp: 150, maxHp: 150,
   souls: 50, maxSouls: 100,
   exp: 0, maxExp: 40, level: 1,
   emeralds: 0,
   weaponTier: 1,
-  speed: 0.18,
-  facingAngle: 0,
+  speed: 3.6,
+  facing: { x: 1, y: 0 },
+  vx: 0, vy: 0,
   walkCycle: 0,
   rollTime: 0, rollCd: 0, maxRollCd: 40,
-  rollDir: new THREE.Vector3(),
   invulnTime: 0,
   meleeCd: 0, bowCd: 0,
   shroomBuff: 0,
@@ -993,160 +621,179 @@ const player = {
 };
 SKILL_DATABASE.forEach(s => player.perks[s.id] = 0);
 
+// World State
 let dungeonFloor = 1;
+let trees = [];
+let flowers = [];
+let stones = [];
 let enemies = [];
 let projectiles = [];
-let drops = [];
-let poisonClouds = [];
-let slashMeshes = [];
 let particles = [];
+let drops = [];
+let slashArcs = [];
+let lightningArcs = [];
+let poisonClouds = [];
+let floatingTexts = [];
 let gameOver = false;
 let isLevelingUp = false;
 
-// 3D Damage text floater helper (using screen projection)
-function spawnFloatingText(pos3D, text, color = '#ffd32a') {
-  const container = document.getElementById('damage-floater-layer');
-  const div = document.createElement('div');
-  div.className = 'damage-text';
-  div.style.color = color;
-  div.innerText = text;
+// BRIGHT SUNNY MEADOW / FOREST DECORATIONS
+function initMapDecoration() {
+  trees = [];
+  flowers = [];
+  stones = [];
 
-  // Screen space projection
-  const tempV = pos3D.clone();
-  tempV.y += 2.8;
-  tempV.project(camera);
-  const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-(tempV.y * 0.5) + 0.5) * window.innerHeight;
-  div.style.left = `${x}px`;
-  div.style.top = `${y}px`;
+  // Generate trees with healthy green foliage
+  const treeCount = Math.floor((W * H) / 38000) + 8;
+  for (let i = 0; i < treeCount; i++) {
+    const tx = Math.random() * (W - 140) + 70;
+    const ty = Math.random() * (H - 140) + 70;
+    trees.push({
+      x: tx, y: ty,
+      size: Math.random() > 0.5 ? 36 : 28,
+      shade: Math.random() > 0.5 ? '#27ae60' : '#2ecc71',
+      darkShade: '#1e824c'
+    });
+  }
 
-  container.appendChild(div);
-  setTimeout(() => div.remove(), 780);
-}
+  // Generate cute pixel flowers and grass tufts
+  const flowerCount = Math.floor((W * H) / 12000) + 20;
+  for (let i = 0; i < flowerCount; i++) {
+    flowers.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      type: Math.floor(Math.random() * 4), // 0: yellow, 1: red, 2: white, 3: tall grass
+      color: ['#ffd32a', '#ff4757', '#ffffff', '#26de81'][Math.floor(Math.random() * 4)]
+    });
+  }
 
-// Particle Helper
-function spawn3DParticles(pos, colorHex, count = 10) {
-  for (let i = 0; i < count; i++) {
-    const pMesh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: colorHex }));
-    pMesh.position.copy(pos);
-    const vel = new THREE.Vector3(
-      (Math.random() - 0.5) * 0.35,
-      Math.random() * 0.3 + 0.1,
-      (Math.random() - 0.5) * 0.35
-    );
-    scene.add(pMesh);
-    particles.push({ mesh: pMesh, vel, life: 25 });
+  // Small cobblestone patches
+  const stoneCount = Math.floor((W * H) / 45000) + 5;
+  for (let i = 0; i < stoneCount; i++) {
+    stones.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      w: Math.random() * 20 + 16,
+      h: Math.random() * 14 + 12
+    });
   }
 }
+resize();
+player.x = W / 2;
+player.y = H / 2;
 
-// Spawning Waves
-function spawnFloorWave() {
-  const scalingLevel = (dungeonFloor - 1) * 1.5 + (player.level - 1) * 1.2;
-  const count = 3 + Math.floor(dungeonFloor * 1.5 + player.level * 0.8);
-
-  for (let i = 0; i < count; i++) {
-    let ex, ez;
-    let attempts = 0;
-    do {
-      ex = (Math.random() - 0.5) * (ARENA_SIZE - 12);
-      ez = (Math.random() - 0.5) * (ARENA_SIZE - 12);
-      attempts++;
-    } while (attempts < 50 && Math.hypot(ex - player.pos.x, ez - player.pos.z) < 12);
-
-    const isBoss = (i === 0 && dungeonFloor % 3 === 0);
-    const rand = Math.random();
-
-    let enemyObj;
-    if (isBoss) {
-      const bossModel = createBoss3D();
-      scene.add(bossModel.root);
-      const bossHp = Math.round(240 + scalingLevel * 85);
-      enemyObj = {
-        model: bossModel,
-        pos: new THREE.Vector3(ex, 0, ez),
-        size: 3.2,
-        hp: bossHp, maxHp: bossHp,
-        speed: Math.min(0.09, 0.05 + scalingLevel * 0.003),
-        type: 'boss',
-        shootCd: Math.max(65, 110 - Math.floor(scalingLevel * 3)),
-        burn: 0, freeze: 0, walkCycle: 0
-      };
-    } else if (rand < 0.65) {
-      const zModel = createZombie3D();
-      scene.add(zModel.root);
-      const zHp = Math.round(28 + scalingLevel * 14);
-      enemyObj = {
-        model: zModel,
-        pos: new THREE.Vector3(ex, 0, ez),
-        size: 1.6,
-        hp: zHp, maxHp: zHp,
-        speed: Math.min(0.12, 0.07 + scalingLevel * 0.004),
-        type: 'zombie',
-        burn: 0, freeze: 0, walkCycle: 0
-      };
-    } else {
-      const sModel = createSkeleton3D();
-      scene.add(sModel.root);
-      const sHp = Math.round(22 + scalingLevel * 10);
-      enemyObj = {
-        model: sModel,
-        pos: new THREE.Vector3(ex, 0, ez),
-        size: 1.5,
-        hp: sHp, maxHp: sHp,
-        speed: Math.min(0.09, 0.06 + scalingLevel * 0.003),
-        type: 'skeleton',
-        shootCd: Math.max(70, 130 - Math.floor(scalingLevel * 4)) + Math.random() * 25,
-        burn: 0, freeze: 0, walkCycle: 0
-      };
-    }
-    enemies.push(enemyObj);
-  }
-}
-
-// Closest enemy helper
-function getClosestEnemy(maxDist = 999) {
+function getClosestEnemy(maxDist = 9999) {
   let closest = null;
   let minDist = maxDist;
-  enemies.forEach(en => {
-    const d = en.pos.distanceTo(player.pos);
+  for (const en of enemies) {
+    const d = Math.hypot(en.x - player.x, en.y - player.y);
     if (d < minDist) {
       minDist = d;
       closest = en;
     }
-  });
+  }
   return closest;
 }
 
-// Damage Application
-function applyDamage(en, baseDmg) {
-  let isCrit = false;
-  let dmg = baseDmg;
+// ==========================================
+// SPAWN MORE DIVERSE MONSTERS
+// 1. Zombie
+// 2. Skeleton Archer
+// 3. Slime (Hop & Fast)
+// 4. Creeper (Explodes when close!)
+// 5. Spider (Fast jumping)
+// 6. Witch / Necromancer (Shoots magic orbs)
+// 7. Boss Golem
+// ==========================================
+function spawnFloorWave() {
+  const scalingLevel = (dungeonFloor - 1) * 1.5 + (player.level - 1) * 1.2;
+  const count = 4 + Math.floor(dungeonFloor * 1.6 + player.level * 0.9);
 
-  if (player.perks.crit > 0 && Math.random() < 0.25) {
-    isCrit = true;
-    dmg *= 3;
-    spawnFloatingText(en.pos, 'CHÍ MẠNG! ' + Math.round(dmg), '#ff3838');
-    spawn3DParticles(en.pos, 0xff4757, 14);
-  } else {
-    spawnFloatingText(en.pos, Math.round(dmg), isCrit ? '#ff4757' : '#ffd32a');
-  }
+  for (let i = 0; i < count; i++) {
+    let ex, ey;
+    let attempts = 0;
+    do {
+      ex = Math.random() * (W - 140) + 70;
+      ey = Math.random() * (H - 140) + 70;
+      attempts++;
+    } while (attempts < 50 && Math.hypot(ex - player.x, ey - player.y) < 200);
 
-  en.hp -= dmg;
-  if (player.perks.freezing > 0) en.freeze = 90;
-  if (player.perks.fire > 0) en.burn = 90;
+    const isBoss = (i === 0 && dungeonFloor % 3 === 0);
+    const randType = Math.random();
 
-  if (player.perks.poisonCloud > 0 && Math.random() < 0.35) {
-    const pCloud = new THREE.Mesh(
-      new THREE.CylinderGeometry(2.4, 2.4, 0.2, 16),
-      new THREE.MeshBasicMaterial({ color: 0x2ecc71, transparent: true, opacity: 0.35 })
-    );
-    pCloud.position.set(en.pos.x, 0.1, en.pos.z);
-    scene.add(pCloud);
-    poisonClouds.push({ mesh: pCloud, pos: pCloud.position.clone(), radius: 2.4, life: 120 });
+    if (isBoss) {
+      const bossHp = Math.round(250 + scalingLevel * 85);
+      enemies.push({
+        x: ex, y: ey, size: 54,
+        hp: bossHp, maxHp: bossHp,
+        speed: Math.min(2.1, 1.3 + scalingLevel * 0.06),
+        type: 'boss',
+        shootCd: Math.max(65, 110 - Math.floor(scalingLevel * 3)),
+        burn: 0, freeze: 0, walkCycle: 0, facing: { x: -1, y: 0 }
+      });
+    } else if (randType < 0.25) {
+      // 1. Grass Zombie
+      const zHp = Math.round(28 + scalingLevel * 14);
+      enemies.push({
+        x: ex, y: ey, size: 26,
+        hp: zHp, maxHp: zHp,
+        speed: Math.min(2.6, 1.6 + scalingLevel * 0.08),
+        type: 'zombie', burn: 0, freeze: 0, walkCycle: 0, facing: { x: -1, y: 0 }
+      });
+    } else if (randType < 0.45) {
+      // 2. Skeleton Archer
+      const sHp = Math.round(22 + scalingLevel * 10);
+      enemies.push({
+        x: ex, y: ey, size: 24,
+        hp: sHp, maxHp: sHp,
+        speed: Math.min(2.2, 1.35 + scalingLevel * 0.05),
+        type: 'skeleton',
+        shootCd: Math.max(70, 130 - Math.floor(scalingLevel * 4)) + Math.random() * 25,
+        burn: 0, freeze: 0, walkCycle: 0, facing: { x: -1, y: 0 }
+      });
+    } else if (randType < 0.65) {
+      // 3. Green Slime (Hops and bouncy)
+      const slHp = Math.round(20 + scalingLevel * 9);
+      enemies.push({
+        x: ex, y: ey, size: 22,
+        hp: slHp, maxHp: slHp,
+        speed: Math.min(3.1, 2.0 + scalingLevel * 0.09),
+        type: 'slime', hopTimer: 0, burn: 0, freeze: 0, walkCycle: 0, facing: { x: -1, y: 0 }
+      });
+    } else if (randType < 0.80) {
+      // 4. Creeper (Explodes when getting close!)
+      const cpHp = Math.round(24 + scalingLevel * 11);
+      enemies.push({
+        x: ex, y: ey, size: 26,
+        hp: cpHp, maxHp: cpHp,
+        speed: Math.min(2.8, 1.8 + scalingLevel * 0.08),
+        type: 'creeper', fuse: 0, burn: 0, freeze: 0, walkCycle: 0, facing: { x: -1, y: 0 }
+      });
+    } else if (randType < 0.92) {
+      // 5. Cave Spider (Fast lunging)
+      const spHp = Math.round(18 + scalingLevel * 8);
+      enemies.push({
+        x: ex, y: ey, size: 22,
+        hp: spHp, maxHp: spHp,
+        speed: Math.min(3.4, 2.3 + scalingLevel * 0.1),
+        type: 'spider', burn: 0, freeze: 0, walkCycle: 0, facing: { x: -1, y: 0 }
+      });
+    } else {
+      // 6. Dark Witch / Necromancer (Spells from distance)
+      const wHp = Math.round(26 + scalingLevel * 12);
+      enemies.push({
+        x: ex, y: ey, size: 26,
+        hp: wHp, maxHp: wHp,
+        speed: Math.min(2.0, 1.3 + scalingLevel * 0.04),
+        type: 'witch',
+        shootCd: Math.max(75, 120 - Math.floor(scalingLevel * 3)),
+        burn: 0, freeze: 0, walkCycle: 0, facing: { x: -1, y: 0 }
+      });
+    }
   }
 }
 
-// Exp & Level Up
+// Exp & Level Up (-5 exp as requested: 10 per mob, 40 per boss)
 function addExp(amount) {
   player.exp += amount;
   if (player.exp >= player.maxExp) {
@@ -1195,11 +842,8 @@ function chooseSkill(skillId) {
   document.getElementById('modal-levelup').style.display = 'none';
 
   if (skillId === 'swiftness') {
-    player.speed = 0.18 * 1.22;
+    player.speed = 3.6 * 1.22;
     player.maxRollCd = 26;
-  }
-  if (skillId === 'glaive') {
-    glaiveMesh.visible = true;
   }
   updatePerksTray();
 }
@@ -1220,66 +864,72 @@ function updatePerksTray() {
   }
 }
 
-// Combat Actions
+function spawnFloatingText(x, y, text, color = '#ffd32a') {
+  floatingTexts.push({ x, y, text, color, life: 30, vy: -1.2 });
+}
+
+function applyDamage(en, baseDmg) {
+  let isCrit = false;
+  let dmg = baseDmg;
+
+  if (player.perks.crit > 0 && Math.random() < 0.25) {
+    isCrit = true;
+    dmg *= 3;
+    spawnFloatingText(en.x, en.y - 18, 'CHÍ MẠNG! ' + Math.round(dmg), '#ff3838');
+    spawnParticles(en.x, en.y, '#ff4757', 14);
+  } else {
+    spawnFloatingText(en.x, en.y - 12, Math.round(dmg), isCrit ? '#ff4757' : '#ffd32a');
+  }
+
+  en.hp -= dmg;
+  if (player.perks.freezing > 0) en.freeze = 90;
+  if (player.perks.fire > 0) en.burn = 90;
+  if (player.perks.poisonCloud > 0 && Math.random() < 0.35) {
+    poisonClouds.push({ x: en.x, y: en.y, radius: 46, life: 120 });
+  }
+  return isCrit;
+}
+
 function doMelee() {
   AudioEngine.init();
   if (player.meleeCd > 0 || player.rollTime > 0 || isLevelingUp) return;
   player.meleeCd = player.shroomBuff > 0 ? 10 : 16;
   AudioEngine.playSlash();
 
-  const target = getClosestEnemy(9);
+  let target = getClosestEnemy(200);
+  let aimAngle = Math.atan2(player.facing.y, player.facing.x);
   if (target) {
-    player.facingAngle = Math.atan2(target.pos.x - player.pos.x, target.pos.z - player.pos.z);
+    aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
+    player.facing = { x: Math.cos(aimAngle), y: Math.sin(aimAngle) };
   }
 
-  // 3D Slash Wave Mesh
-  const slashGeo = new THREE.RingGeometry(2.2, 3.4, 16, 1, -Math.PI * 0.4, Math.PI * 0.8);
-  const slashMat = new THREE.MeshBasicMaterial({
-    color: player.perks.fire > 0 ? 0xff793f : 0xffffff,
-    side: THREE.DoubleSide,
-    transparent: true,
-    opacity: 0.85
-  });
-  const slashMesh = new THREE.Mesh(slashGeo, slashMat);
-  slashMesh.rotation.x = Math.PI / 2;
-  slashMesh.rotation.z = -player.facingAngle + Math.PI / 2;
-  slashMesh.position.set(player.pos.x, 1.5, player.pos.z);
-  scene.add(slashMesh);
-  slashMeshes.push({ mesh: slashMesh, life: 8 });
-
-  // Swirling 360 Perk
+  slashArcs.push({ x: player.x, y: player.y, angle: aimAngle, life: 10, swirling: false });
   if (player.perks.swirling > 0) {
-    const swGeo = new THREE.RingGeometry(2.4, 3.6, 24);
-    const swMesh = new THREE.Mesh(swGeo, slashMat);
-    swMesh.rotation.x = Math.PI / 2;
-    swMesh.position.set(player.pos.x, 1.4, player.pos.z);
-    scene.add(swMesh);
-    slashMeshes.push({ mesh: swMesh, life: 10 });
+    slashArcs.push({ x: player.x, y: player.y, angle: 0, life: 12, swirling: true });
   }
 
   let hitAny = false;
   enemies.forEach(en => {
-    const d = en.pos.distanceTo(player.pos);
-    const toEn = en.pos.clone().sub(player.pos).normalize();
-    const forward = new THREE.Vector3(Math.sin(player.facingAngle), 0, Math.cos(player.facingAngle));
-    const dot = forward.dot(toEn);
+    const dist = Math.hypot(en.x - player.x, en.y - player.y);
+    const enAngle = Math.atan2(en.y - player.y, en.x - player.x);
+    let diff = Math.abs(enAngle - aimAngle);
+    if (diff > Math.PI) diff = Math.PI * 2 - diff;
 
-    const inRange = (player.perks.swirling > 0 && d < 4.8) || (d < 4.2 && dot > 0.35);
+    const inRange = (player.perks.swirling > 0 && dist < 105) || (dist < 92 && diff < 1.3);
     if (inRange) {
       hitAny = true;
       const baseDmg = 34 + player.weaponTier * 10;
       applyDamage(en, baseDmg);
 
-      // Knockback
-      en.pos.add(toEn.multiplyScalar(1.6));
-      spawn3DParticles(en.pos, 0xf1c40f, 6);
+      en.x += Math.cos(aimAngle) * 36;
+      en.y += Math.sin(aimAngle) * 36;
+      spawnParticles(en.x, en.y, '#f1c40f', 6);
 
-      // Thundering Chain Perk
       if (player.perks.thunder > 0) {
         enemies.forEach(other => {
-          if (other !== en && other.pos.distanceTo(en.pos) < 6.5) {
-            applyDamage(other, 20 * player.perks.thunder);
-            spawn3DParticles(other.pos, 0xffd32a, 4);
+          if (other !== en && Math.hypot(other.x - en.x, other.y - en.y) < 140) {
+            other.hp -= 20 * player.perks.thunder;
+            lightningArcs.push({ x1: en.x, y1: en.y, x2: other.x, y2: other.y, life: 6 });
           }
         });
       }
@@ -1288,8 +938,8 @@ function doMelee() {
 
   if (hitAny && player.perks.leech > 0 && Math.random() < 0.35) {
     player.hp = Math.min(player.maxHp, player.hp + 14 * player.perks.leech);
-    spawn3DParticles(player.pos, 0x2ed573, 10);
-    spawnFloatingText(player.pos, '+HỒI MÁU', '#2ed573');
+    spawnParticles(player.x, player.y, '#2ed573', 12);
+    spawnFloatingText(player.x, player.y - 20, '+HỒI MÁU', '#2ed573');
   }
 }
 
@@ -1299,35 +949,23 @@ function doBow() {
   player.bowCd = 20;
   AudioEngine.playBow();
 
-  const target = getClosestEnemy(22);
+  let target = getClosestEnemy(600);
+  let aimAngle = Math.atan2(player.facing.y, player.facing.x);
   if (target) {
-    player.facingAngle = Math.atan2(target.pos.x - player.pos.x, target.pos.z - player.pos.z);
+    aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
+    player.facing = { x: Math.cos(aimAngle), y: Math.sin(aimAngle) };
   }
 
   const count = player.perks.multishot > 0 ? 3 : 1;
   const spread = 0.22;
   for (let i = 0; i < count; i++) {
     const angleOffset = count === 1 ? 0 : (i - 1) * spread;
-    const finalAngle = player.facingAngle + angleOffset;
-
-    const arrowGroup = new THREE.Group();
-    const arrowShaft = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.4), materials.wood);
-    const arrowTip = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.24, 0.35), materials.ironDark);
-    arrowTip.position.z = 0.7;
-    arrowGroup.add(arrowShaft);
-    arrowGroup.add(arrowTip);
-
-    arrowGroup.position.set(player.pos.x, 1.8, player.pos.z);
-    arrowGroup.rotation.y = finalAngle;
-    scene.add(arrowGroup);
-
-    const dir = new THREE.Vector3(Math.sin(finalAngle), 0, Math.cos(finalAngle));
+    const finalAngle = aimAngle + angleOffset;
     projectiles.push({
-      mesh: arrowGroup,
-      dir,
-      speed: 0.65,
-      dmg: 28 + player.weaponTier * 9,
-      friendly: true,
+      x: player.x, y: player.y,
+      vx: Math.cos(finalAngle) * 12, vy: Math.sin(finalAngle) * 12,
+      dmg: 28 + player.weaponTier * 9, friendly: true,
+      color: player.perks.firework > 0 ? '#ff4757' : '#f39c12',
       isFirework: player.perks.firework > 0
     });
   }
@@ -1335,17 +973,18 @@ function doBow() {
 
 function doRoll() {
   if (player.rollCd > 0 || player.rollTime > 0 || isLevelingUp) return;
-  let dx = joystickVector.x, dz = joystickVector.y;
-  if (dx === 0 && dz === 0) {
-    dx = Math.sin(player.facingAngle);
-    dz = Math.cos(player.facingAngle);
+  let dx = joystickVector.x, dy = joystickVector.y;
+  if (dx === 0 && dy === 0) {
+    dx = player.facing.x;
+    dy = player.facing.y;
   }
-  const len = Math.hypot(dx, dz) || 1;
-  player.rollDir.set(dx / len, 0, dz / len);
+  const len = Math.hypot(dx, dy) || 1;
+  player.vx = (dx / len) * 11;
+  player.vy = (dy / len) * 11;
   player.rollTime = 14;
   player.rollCd = player.maxRollCd;
   player.invulnTime = 20;
-  spawn3DParticles(player.pos, 0xffffff, 8);
+  spawnParticles(player.x, player.y, '#ffffff', 8);
 }
 
 function doPotion() {
@@ -1353,8 +992,8 @@ function doPotion() {
   if (player.potCd <= 0 && player.hp < player.maxHp && !isLevelingUp) {
     player.hp = Math.min(player.maxHp, player.hp + 80);
     player.potCd = player.maxPotCd;
-    spawn3DParticles(player.pos, 0x2ed573, 18);
-    spawnFloatingText(player.pos, '+80 HP', '#2ed573');
+    spawnParticles(player.x, player.y, '#2ed573', 20);
+    spawnFloatingText(player.x, player.y - 20, '+80 HP', '#2ed573');
   }
 }
 
@@ -1364,32 +1003,39 @@ function useArtifact(num) {
 
   if (player.perks.soulHarvest > 0) {
     player.hp = Math.min(player.maxHp, player.hp + 20);
-    spawn3DParticles(player.pos, 0x00cec9, 10);
+    spawnParticles(player.x, player.y, '#00cec9', 10);
   }
 
   if (num === 1 && player.cdArt1 <= 0) {
     player.shroomBuff = 300;
     player.cdArt1 = player.maxCdArt1;
-    spawn3DParticles(player.pos, 0xe67e22, 16);
+    spawnParticles(player.x, player.y, '#e67e22', 15);
   } else if (num === 2 && player.cdArt2 <= 0 && player.souls >= 15) {
     player.souls -= 15;
     player.cdArt2 = player.maxCdArt2;
     AudioEngine.playBlast();
-    spawn3DParticles(player.pos, 0x00cec9, 36);
-
+    spawnParticles(player.x, player.y, '#00cec9', 40);
     enemies.forEach(en => {
-      const d = en.pos.distanceTo(player.pos);
-      if (d < 7.5) {
+      const d = Math.hypot(en.x - player.x, en.y - player.y);
+      if (d < 190) {
         applyDamage(en, 80 + player.weaponTier * 20);
-        const knock = en.pos.clone().sub(player.pos).normalize().multiplyScalar(3.2);
-        en.pos.add(knock);
+        const a = Math.atan2(en.y - player.y, en.x - player.x);
+        en.x += Math.cos(a) * 65;
+        en.y += Math.sin(a) * 65;
       }
     });
   } else if (num === 3 && player.cdArt3 <= 0 && player.souls >= 20) {
     player.souls -= 20;
     player.beaconTime = 120;
     player.cdArt3 = player.maxCdArt3;
-    beamMesh.visible = true;
+  }
+}
+
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = Math.random() * 4 + 1;
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 22, color });
   }
 }
 
@@ -1431,7 +1077,7 @@ window.addEventListener('touchmove', e => {
       joyKnob.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px)`;
       joystickVector = { x: dx / JOYSTICK_RADIUS, y: dy / JOYSTICK_RADIUS };
       if (dist > 8) {
-        player.facingAngle = Math.atan2(joystickVector.x, joystickVector.y);
+        player.facing = { x: dx / dist, y: dy / dist };
       }
       break;
     }
@@ -1468,6 +1114,27 @@ attachBtn('art-1', () => useArtifact(1));
 attachBtn('art-2', () => useArtifact(2));
 attachBtn('art-3', () => useArtifact(3));
 
+// Keyboard support
+window.addEventListener('keydown', e => {
+  AudioEngine.init();
+  if (e.code === 'KeyW' || e.code === 'ArrowUp') joystickVector.y = -1;
+  if (e.code === 'KeyS' || e.code === 'ArrowDown') joystickVector.y = 1;
+  if (e.code === 'KeyA' || e.code === 'ArrowLeft') joystickVector.x = -1;
+  if (e.code === 'KeyD' || e.code === 'ArrowRight') joystickVector.x = 1;
+  if (e.code === 'Space') doRoll();
+  if (e.code === 'KeyJ') doMelee();
+  if (e.code === 'KeyK') doBow();
+  if (e.code === 'KeyE') doPotion();
+  if (e.code === 'Digit1') useArtifact(1);
+  if (e.code === 'Digit2') useArtifact(2);
+  if (e.code === 'Digit3') useArtifact(3);
+  if (e.code === 'KeyR' && gameOver) revivePlayer();
+});
+window.addEventListener('keyup', e => {
+  if (['KeyW','KeyS','ArrowUp','ArrowDown'].includes(e.code)) joystickVector.y = 0;
+  if (['KeyA','KeyD','ArrowLeft','ArrowRight'].includes(e.code)) joystickVector.x = 0;
+});
+
 function revivePlayer() {
   gameOver = false;
   isLevelingUp = false;
@@ -1479,16 +1146,9 @@ function revivePlayer() {
   player.weaponTier = 1;
   SKILL_DATABASE.forEach(s => player.perks[s.id] = 0);
   dungeonFloor = 1;
-
-  // Clean enemies & drops
-  enemies.forEach(en => scene.remove(en.model.root));
   enemies = [];
-  drops.forEach(d => scene.remove(d.mesh));
   drops = [];
-  projectiles.forEach(p => scene.remove(p.mesh));
   projectiles = [];
-
-  player.pos.set(0, 0, 0);
   updatePerksTray();
   document.getElementById('modal-gameover').style.display = 'none';
   spawnFloorWave();
@@ -1496,7 +1156,356 @@ function revivePlayer() {
 document.getElementById('btn-revive').addEventListener('click', revivePlayer);
 
 // ==========================================
-// MAIN LOOP & ANIMATIONS
+// 2D PIXEL ART DRAWING ROUTINES
+// ==========================================
+
+function drawPixelHero(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+
+  // Drop shadow
+  ctx.fillStyle = 'rgba(0, 30, 10, 0.35)';
+  ctx.beginPath();
+  ctx.ellipse(0, 10, 14, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const angle = Math.atan2(p.facing.y, p.facing.x);
+  const isMoving = Math.hypot(joystickVector.x, joystickVector.y) > 0.1 || p.rollTime > 0;
+  const bob = isMoving ? Math.sin(p.walkCycle) * 3 : 0;
+  const leg = isMoving ? Math.sin(p.walkCycle) * 5 : 0;
+
+  // Blue Pants & Boots
+  ctx.fillStyle = '#2980b9';
+  ctx.fillRect(-8 + leg, 6, 6, 8);
+  ctx.fillRect(2 - leg, 6, 6, 8);
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(-8 + leg, 12, 6, 4);
+  ctx.fillRect(2 - leg, 12, 6, 4);
+
+  // Torso / Iron Knight Armor
+  ctx.fillStyle = p.shroomBuff > 0 ? '#e67e22' : '#bdc3c7';
+  ctx.fillRect(-10, -8 + bob * 0.5, 20, 16);
+  ctx.fillStyle = p.shroomBuff > 0 ? '#d35400' : '#7f8c8d';
+  ctx.fillRect(-6, -4 + bob * 0.5, 12, 10);
+  // Gold Belt
+  ctx.fillStyle = '#f1c40f';
+  ctx.fillRect(-8, 4 + bob * 0.5, 16, 4);
+
+  // Knight Helmet & Face
+  ctx.fillStyle = '#f5cd79'; // skin
+  ctx.fillRect(-8, -20 + bob, 16, 14);
+  ctx.fillStyle = '#7f8c8d'; // helmet
+  ctx.fillRect(-9, -22 + bob, 18, 6);
+  ctx.fillStyle = '#2c3e50'; // visor eye slit
+  ctx.fillRect(-5 + (p.facing.x > 0 ? 3 : -3), -15 + bob, 8, 3);
+  // Red feather on top of helmet
+  ctx.fillStyle = '#e74c3c';
+  ctx.fillRect(-2, -26 + bob, 4, 5);
+
+  // Sword Hand
+  ctx.save();
+  ctx.translate(p.facing.x * 12, p.facing.y * 12);
+  ctx.rotate(angle);
+  // Diamond Blade
+  ctx.fillStyle = p.perks.fire > 0 ? '#e67e22' : (p.weaponTier > 2 ? '#9b59b6' : '#00cec9');
+  ctx.fillRect(2, -3, 16, 6);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(4, -1, 12, 2);
+  // Guard & Hilt
+  ctx.fillStyle = '#f1c40f';
+  ctx.fillRect(0, -6, 3, 12);
+  ctx.fillStyle = '#795548';
+  ctx.fillRect(-4, -2, 4, 4);
+  ctx.restore();
+
+  ctx.restore();
+}
+
+// 2D PIXEL MONSTERS
+function drawPixelZombie(en) {
+  ctx.save();
+  ctx.translate(en.x, en.y);
+  ctx.fillStyle = 'rgba(0, 30, 10, 0.35)';
+  ctx.beginPath(); ctx.ellipse(0, 9, 13, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  const bob = Math.sin(en.walkCycle) * 2;
+  const leg = Math.sin(en.walkCycle) * 4;
+
+  ctx.fillStyle = en.freeze > 0 ? '#3498db' : '#222f3e';
+  ctx.fillRect(-7 + leg, 6, 5, 7);
+  ctx.fillRect(2 - leg, 6, 5, 7);
+
+  // Cyan shirt
+  ctx.fillStyle = en.burn > 0 ? '#e67e22' : (en.freeze > 0 ? '#74b9ff' : '#00cec9');
+  ctx.fillRect(-8, -6 + bob * 0.5, 16, 14);
+
+  // Green arms stretched forward
+  ctx.fillStyle = en.burn > 0 ? '#d35400' : '#2ecc71';
+  const dirX = en.facing.x >= 0 ? 1 : -1;
+  ctx.fillRect(dirX * 6, -4 + bob * 0.5, dirX * 12, 5);
+
+  // Head
+  ctx.fillStyle = en.burn > 0 ? '#d35400' : '#2ecc71';
+  ctx.fillRect(-7, -18 + bob, 14, 13);
+  ctx.fillStyle = '#1e3799'; // dark hair
+  ctx.fillRect(-7, -19 + bob, 14, 4);
+  ctx.fillStyle = '#000'; // eyes
+  ctx.fillRect(-4 + dirX * 2, -13 + bob, 3, 3);
+  ctx.fillRect(2 + dirX * 2, -13 + bob, 3, 3);
+  ctx.restore();
+}
+
+function drawPixelSkeleton(en) {
+  ctx.save();
+  ctx.translate(en.x, en.y);
+  ctx.fillStyle = 'rgba(0, 30, 10, 0.35)';
+  ctx.beginPath(); ctx.ellipse(0, 8, 12, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  const bob = Math.sin(en.walkCycle) * 2;
+  const leg = Math.sin(en.walkCycle) * 4;
+
+  ctx.fillStyle = en.freeze > 0 ? '#74b9ff' : '#dcdde1';
+  ctx.fillRect(-6 + leg, 6, 4, 6);
+  ctx.fillRect(2 - leg, 6, 4, 6);
+
+  // Ribcage
+  ctx.fillStyle = en.freeze > 0 ? '#74b9ff' : '#f5f6fa';
+  ctx.fillRect(-7, -6 + bob * 0.5, 14, 12);
+  ctx.fillStyle = '#2f3542';
+  ctx.fillRect(-5, -3 + bob * 0.5, 10, 2);
+  ctx.fillRect(-5, 1 + bob * 0.5, 10, 2);
+
+  // Bow
+  ctx.strokeStyle = '#8c5027';
+  ctx.lineWidth = 2;
+  const dirX = en.facing.x >= 0 ? 1 : -1;
+  ctx.beginPath();
+  ctx.arc(dirX * 8, 0, 8, -Math.PI * 0.45, Math.PI * 0.45);
+  ctx.stroke();
+
+  // Skull
+  ctx.fillStyle = en.freeze > 0 ? '#74b9ff' : '#f5f6fa';
+  ctx.fillRect(-7, -18 + bob, 14, 13);
+  ctx.fillStyle = '#2f3542';
+  ctx.fillRect(-5 + dirX * 2, -13 + bob, 3, 3);
+  ctx.fillRect(1 + dirX * 2, -13 + bob, 3, 3);
+  ctx.restore();
+}
+
+function drawPixelSlime(en) {
+  ctx.save();
+  ctx.translate(en.x, en.y);
+  ctx.fillStyle = 'rgba(0, 30, 10, 0.35)';
+  ctx.beginPath(); ctx.ellipse(0, 7, 12, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  const squish = Math.sin(en.walkCycle * 2) * 3;
+  ctx.fillStyle = en.burn > 0 ? '#e67e22' : '#2ed573';
+  ctx.fillRect(-10 - squish, -12 + squish, 20 + squish * 2, 16 - squish);
+  ctx.fillStyle = en.burn > 0 ? '#d35400' : '#10ac84';
+  ctx.fillRect(-6, -8 + squish, 12, 10 - squish);
+
+  // Cute eyes
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(-6, -9 + squish, 4, 4);
+  ctx.fillRect(2, -9 + squish, 4, 4);
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(-5, -8 + squish, 2, 2);
+  ctx.fillRect(3, -8 + squish, 2, 2);
+  ctx.restore();
+}
+
+function drawPixelCreeper(en) {
+  ctx.save();
+  ctx.translate(en.x, en.y);
+  ctx.fillStyle = 'rgba(0, 30, 10, 0.35)';
+  ctx.beginPath(); ctx.ellipse(0, 9, 13, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  const isFusing = en.fuse > 0 && Math.floor(en.fuse / 4) % 2 === 0;
+  ctx.fillStyle = isFusing ? '#ffffff' : (en.burn > 0 ? '#e67e22' : '#2ecc71');
+
+  // 4 feet
+  ctx.fillRect(-8, 5, 6, 6);
+  ctx.fillRect(2, 5, 6, 6);
+
+  // Body
+  ctx.fillRect(-7, -7, 14, 14);
+
+  // Head with Creeper Frown
+  ctx.fillRect(-8, -21, 16, 15);
+  ctx.fillStyle = isFusing ? '#ff4757' : '#000000';
+  // Eyes
+  ctx.fillRect(-5, -17, 3, 3);
+  ctx.fillRect(2, -17, 3, 3);
+  // Mouth
+  ctx.fillRect(-2, -14, 4, 5);
+  ctx.fillRect(-4, -11, 2, 4);
+  ctx.fillRect(2, -11, 2, 4);
+
+  ctx.restore();
+}
+
+function drawPixelSpider(en) {
+  ctx.save();
+  ctx.translate(en.x, en.y);
+  ctx.fillStyle = 'rgba(0, 30, 10, 0.35)';
+  ctx.beginPath(); ctx.ellipse(0, 5, 14, 6, 0, 0, Math.PI * 2); ctx.fill();
+
+  const leg = Math.sin(en.walkCycle * 2) * 4;
+  ctx.strokeStyle = '#2c3e50';
+  ctx.lineWidth = 3;
+  // 6 Spider legs
+  ctx.beginPath();
+  ctx.moveTo(-6, -2); ctx.lineTo(-15, -8 + leg);
+  ctx.moveTo(-6, 2); ctx.lineTo(-16, 2 - leg);
+  ctx.moveTo(-6, 6); ctx.lineTo(-14, 10 + leg);
+  ctx.moveTo(6, -2); ctx.lineTo(15, -8 - leg);
+  ctx.moveTo(6, 2); ctx.lineTo(16, 2 + leg);
+  ctx.moveTo(6, 6); ctx.lineTo(14, 10 - leg);
+  ctx.stroke();
+
+  // Spider Body
+  ctx.fillStyle = en.burn > 0 ? '#e67e22' : '#34495e';
+  ctx.fillRect(-7, -5, 14, 12);
+  // Head
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(-5, -11, 10, 7);
+  // Red glowing eyes
+  ctx.fillStyle = '#e74c3c';
+  ctx.fillRect(-3, -9, 2, 2);
+  ctx.fillRect(1, -9, 2, 2);
+  ctx.restore();
+}
+
+function drawPixelWitch(en) {
+  ctx.save();
+  ctx.translate(en.x, en.y);
+  ctx.fillStyle = 'rgba(0, 30, 10, 0.35)';
+  ctx.beginPath(); ctx.ellipse(0, 8, 13, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Purple Robe
+  ctx.fillStyle = en.burn > 0 ? '#e67e22' : '#8e44ad';
+  ctx.fillRect(-8, -6, 16, 16);
+
+  // Pale Face & Big Nose
+  ctx.fillStyle = '#d5dbdb';
+  ctx.fillRect(-6, -16, 12, 11);
+  ctx.fillStyle = '#bdc3c7';
+  ctx.fillRect(-1, -12, 4, 5); // nose
+
+  // Purple Witch Hat
+  ctx.fillStyle = '#5b2c6f';
+  ctx.fillRect(-11, -17, 22, 4); // brim
+  ctx.fillRect(-6, -24, 12, 7);
+  ctx.fillStyle = '#f1c40f'; // hat buckle
+  ctx.fillRect(-3, -20, 6, 3);
+  ctx.restore();
+}
+
+function drawPixelBoss(en) {
+  ctx.save();
+  ctx.translate(en.x, en.y);
+  ctx.fillStyle = 'rgba(0, 30, 10, 0.45)';
+  ctx.beginPath(); ctx.ellipse(0, 16, 26, 10, 0, 0, Math.PI * 2); ctx.fill();
+
+  const bob = Math.sin(en.walkCycle) * 3;
+  const fist = Math.sin(en.walkCycle) * 7;
+
+  // Massive Obsidian Feet
+  ctx.fillStyle = '#1e272e';
+  ctx.fillRect(-18 + fist * 0.5, 10, 14, 10);
+  ctx.fillRect(4 - fist * 0.5, 10, 14, 10);
+
+  // Giant Torso
+  ctx.fillStyle = en.burn > 0 ? '#d35400' : '#2f3542';
+  ctx.fillRect(-22, -18 + bob, 44, 30);
+
+  // Glowing Redstone Heart Core
+  const glow = (Math.sin(Date.now() * 0.008) + 1) * 0.5;
+  ctx.fillStyle = `rgba(235, 47, 6, ${0.7 + glow * 0.3})`;
+  ctx.fillRect(-8, -10 + bob, 16, 16);
+
+  // Heavy Fists
+  ctx.fillStyle = '#485460';
+  ctx.fillRect(-28, -8 + bob + fist, 12, 16);
+  ctx.fillRect(16, -8 + bob - fist, 12, 16);
+
+  // Skull Head with Horns
+  ctx.fillStyle = '#1e272e';
+  ctx.fillRect(-14, -32 + bob, 28, 16);
+  ctx.fillStyle = '#ff4757'; // Horns
+  ctx.fillRect(-16, -38 + bob, 6, 8);
+  ctx.fillRect(10, -38 + bob, 6, 8);
+  // Glowing Eyes
+  ctx.fillStyle = '#ffa502';
+  ctx.fillRect(-8, -26 + bob, 5, 4);
+  ctx.fillRect(3, -26 + bob, 5, 4);
+
+  ctx.restore();
+}
+
+// ENVIRONMENT DRAWING: BRIGHT GRASS, FLOWERS, TREES
+function drawMeadowEnvironment() {
+  // 1. Lush Green Grass Tile Background
+  const tileSize = 48;
+  for (let x = 0; x < W; x += tileSize) {
+    for (let y = 0; y < H; y += tileSize) {
+      const hash = Math.sin(x * 77 + y * 41) * 10000;
+      const shade = Math.floor(Math.abs(hash) % 3);
+      const grassColors = ['#2ecc71', '#27ae60', '#32d477'];
+      ctx.fillStyle = grassColors[shade];
+      ctx.fillRect(x, y, tileSize, tileSize);
+    }
+  }
+
+  // 2. Cobblestone Patches
+  stones.forEach(st => {
+    ctx.fillStyle = '#7f8c8d';
+    ctx.fillRect(st.x, st.y, st.w, st.h);
+    ctx.fillStyle = '#95a5a6';
+    ctx.fillRect(st.x + 3, st.y + 3, st.w - 6, st.h - 6);
+  });
+
+  // 3. Flowers & Grass Tufts
+  flowers.forEach(fl => {
+    ctx.fillStyle = fl.color;
+    if (fl.type === 3) {
+      // Grass blades
+      ctx.fillRect(fl.x, fl.y - 4, 2, 6);
+      ctx.fillRect(fl.x + 3, fl.y - 6, 2, 8);
+    } else {
+      // Flower petals
+      ctx.fillRect(fl.x - 2, fl.y - 2, 5, 5);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(fl.x - 1, fl.y - 1, 3, 3);
+    }
+  });
+
+  // 4. Beautiful Pixel Trees
+  trees.forEach(tr => {
+    // Drop shadow
+    ctx.fillStyle = 'rgba(0, 30, 10, 0.28)';
+    ctx.beginPath();
+    ctx.ellipse(tr.x, tr.y + tr.size * 0.8, tr.size * 0.85, tr.size * 0.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Wood Trunk
+    ctx.fillStyle = '#795548';
+    ctx.fillRect(tr.x - 5, tr.y - 6, 10, tr.size * 0.8);
+    ctx.fillStyle = '#5d4037';
+    ctx.fillRect(tr.x - 2, tr.y - 6, 5, tr.size * 0.8);
+
+    // Green Foliage Layers (Pixel Canopy)
+    ctx.fillStyle = tr.darkShade;
+    ctx.fillRect(tr.x - tr.size * 0.75, tr.y - tr.size * 1.3, tr.size * 1.5, tr.size * 1.2);
+    ctx.fillStyle = tr.shade;
+    ctx.fillRect(tr.x - tr.size * 0.65, tr.y - tr.size * 1.45, tr.size * 1.3, tr.size * 1.1);
+    ctx.fillStyle = '#55efc4';
+    ctx.fillRect(tr.x - tr.size * 0.35, tr.y - tr.size * 1.55, tr.size * 0.7, tr.size * 0.5);
+  });
+}
+
+// ==========================================
+// GAME UPDATE LOOP
 // ==========================================
 function update() {
   if (gameOver || isLevelingUp) return;
@@ -1517,83 +1526,71 @@ function update() {
   if (player.rollCd > 0) player.rollCd--;
   if (player.invulnTime > 0) player.invulnTime--;
   if (player.shroomBuff > 0) player.shroomBuff--;
-  if (player.beaconTime > 0) {
-    player.beaconTime--;
-    if (player.beaconTime <= 0) beamMesh.visible = false;
-  }
+  if (player.beaconTime > 0) player.beaconTime--;
   if (player.cdArt1 > 0) player.cdArt1--;
   if (player.cdArt2 > 0) player.cdArt2--;
   if (player.cdArt3 > 0) player.cdArt3--;
   if (player.potCd > 0) player.potCd--;
 
-  // Player Movement & Bounds
+  // Perk: Call of Storm
+  if (player.perks.stormCall > 0) {
+    player.stormTimer++;
+    if (player.stormTimer >= 180) {
+      player.stormTimer = 0;
+      const target = getClosestEnemy(500);
+      if (target) {
+        lightningArcs.push({ x1: target.x, y1: 0, x2: target.x, y2: target.y, life: 10 });
+        applyDamage(target, 60 + player.weaponTier * 15);
+        spawnParticles(target.x, target.y, '#f1c40f', 16);
+      }
+    }
+  }
+
+  // Perk: Spectral Glaive
+  if (player.perks.glaive > 0) {
+    player.glaiveAngle += 0.08;
+    const gx = player.x + Math.cos(player.glaiveAngle) * 65;
+    const gy = player.y + Math.sin(player.glaiveAngle) * 65;
+    enemies.forEach(en => {
+      if (Math.hypot(en.x - gx, en.y - gy) < 28) {
+        applyDamage(en, 3.5 + player.weaponTier * 0.8);
+        spawnParticles(gx, gy, '#70a1ff', 1);
+      }
+    });
+  }
+
+  // Movement
   const curSpeed = player.speed * (player.shroomBuff > 0 ? 1.45 : 1);
   if (player.rollTime > 0) {
-    player.pos.add(player.rollDir.clone().multiplyScalar(0.48));
+    player.x += player.vx;
+    player.y += player.vy;
     player.rollTime--;
   } else {
-    player.pos.x += joystickVector.x * curSpeed;
-    player.pos.z += joystickVector.y * curSpeed;
+    player.x += joystickVector.x * curSpeed;
+    player.y += joystickVector.y * curSpeed;
     if (Math.hypot(joystickVector.x, joystickVector.y) > 0.1) {
       player.walkCycle += 0.22;
     }
   }
 
-  // Arena wall limits
-  const halfA = ARENA_SIZE / 2 - 2.5;
-  player.pos.x = Math.max(-halfA, Math.min(halfA, player.pos.x));
-  player.pos.z = Math.max(-halfA, Math.min(halfA, player.pos.z));
+  // Bounds
+  player.x = Math.max(30, Math.min(W - 30, player.x));
+  player.y = Math.max(30, Math.min(H - 30, player.y));
 
-  // Sync Player 3D mesh
-  player3D.root.position.copy(player.pos);
-  player3D.root.rotation.y = player.facingAngle;
-
-  // Walk leg animations
-  const legAngle = Math.sin(player.walkCycle) * 0.45;
-  player3D.leftLeg.rotation.x = legAngle;
-  player3D.rightLeg.rotation.x = -legAngle;
-
-  // Invulnerability blink
-  player3D.root.visible = (player.invulnTime % 4 < 2);
-
-  // Spectral Glaive 3D rotation
-  if (player.perks.glaive > 0) {
-    player.glaiveAngle += 0.08;
-    glaiveMesh.position.set(
-      player.pos.x + Math.sin(player.glaiveAngle) * 3.5,
-      1.6,
-      player.pos.z + Math.cos(player.glaiveAngle) * 3.5
-    );
-    glaiveMesh.rotation.y = player.glaiveAngle + Math.PI / 2;
-
-    enemies.forEach(en => {
-      if (en.pos.distanceTo(glaiveMesh.position) < 1.8) {
-        applyDamage(en, 3.5 + player.weaponTier * 0.8);
-        spawn3DParticles(glaiveMesh.position, 0x70a1ff, 1);
-      }
-    });
-  }
-
-  // Beacon Beam 3D Positioning
+  // Beacon Beam Artifact
   if (player.beaconTime > 0) {
-    const target = getClosestEnemy(20);
-    if (target) {
-      player.facingAngle = Math.atan2(target.pos.x - player.pos.x, target.pos.z - player.pos.z);
-    }
-    beamMesh.position.set(
-      player.pos.x + Math.sin(player.facingAngle) * 15,
-      1.5,
-      player.pos.z + Math.cos(player.facingAngle) * 15
-    );
-    beamMesh.rotation.y = player.facingAngle;
+    let target = getClosestEnemy(420);
+    let aimAngle = Math.atan2(player.facing.y, player.facing.x);
+    if (target) aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
 
     enemies.forEach(en => {
-      const d = en.pos.distanceTo(player.pos);
-      const toEn = en.pos.clone().sub(player.pos).normalize();
-      const forward = new THREE.Vector3(Math.sin(player.facingAngle), 0, Math.cos(player.facingAngle));
-      if (d < 18 && forward.dot(toEn) > 0.88) {
-        applyDamage(en, 3.2 + player.weaponTier * 0.8);
-        spawn3DParticles(en.pos, 0xa29bfe, 1);
+      const dist = Math.hypot(en.x - player.x, en.y - player.y);
+      const enAngle = Math.atan2(en.y - player.y, en.x - player.x);
+      let diff = Math.abs(enAngle - aimAngle);
+      if (diff > Math.PI) diff = Math.PI * 2 - diff;
+      if (dist < 420 && diff < 0.22) {
+        en.hp -= 3.5 + player.weaponTier * 0.8;
+        spawnParticles(en.x, en.y, '#a29bfe', 1);
       }
     });
   }
@@ -1601,10 +1598,10 @@ function update() {
   // Projectiles
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const p = projectiles[i];
-    p.mesh.position.add(p.dir.clone().multiplyScalar(p.speed));
+    p.x += p.vx;
+    p.y += p.vy;
 
-    if (Math.abs(p.mesh.position.x) > halfA + 2 || Math.abs(p.mesh.position.z) > halfA + 2) {
-      scene.remove(p.mesh);
+    if (p.x < 10 || p.x > W - 10 || p.y < 10 || p.y > H - 10) {
       projectiles.splice(i, 1);
       continue;
     }
@@ -1612,33 +1609,32 @@ function update() {
     if (p.friendly) {
       for (let j = enemies.length - 1; j >= 0; j--) {
         const en = enemies[j];
-        if (en.pos.distanceTo(p.mesh.position) < en.size) {
+        if (Math.hypot(p.x - en.x, p.y - en.y) < en.size / 2 + 8) {
           applyDamage(en, p.dmg);
-          spawn3DParticles(p.mesh.position, 0xffffff, 5);
+          spawnParticles(en.x, en.y, '#ffffff', 5);
 
           if (p.isFirework) {
             AudioEngine.playBlast();
             enemies.forEach(other => {
-              if (other.pos.distanceTo(p.mesh.position) < 5.0) {
+              if (Math.hypot(other.x - en.x, other.y - en.y) < 85) {
                 applyDamage(other, p.dmg * 0.75);
               }
             });
-            spawn3DParticles(p.mesh.position, 0xff4757, 20);
+            spawnParticles(en.x, en.y, '#ff4757', 24);
+            spawnParticles(en.x, en.y, '#ffd32a', 16);
           }
 
-          scene.remove(p.mesh);
           projectiles.splice(i, 1);
           break;
         }
       }
     } else {
-      if (player.rollTime <= 0 && player.invulnTime <= 0 && player.pos.distanceTo(p.mesh.position) < 1.6) {
+      if (player.rollTime <= 0 && player.invulnTime <= 0 && Math.hypot(p.x - player.x, p.y - player.y) < player.size / 2 + 6) {
         let dmg = p.dmg;
         if (player.perks.thorns > 0) dmg *= 0.75;
         player.hp -= dmg;
         player.invulnTime = 25;
-        spawn3DParticles(player.pos, 0xe74c3c, 8);
-        scene.remove(p.mesh);
+        spawnParticles(player.x, player.y, '#e74c3c', 7);
         projectiles.splice(i, 1);
       }
     }
@@ -1649,14 +1645,13 @@ function update() {
     const pc = poisonClouds[i];
     pc.life--;
     if (pc.life <= 0) {
-      scene.remove(pc.mesh);
       poisonClouds.splice(i, 1);
       continue;
     }
     enemies.forEach(en => {
-      if (en.pos.distanceTo(pc.pos) < pc.radius) {
+      if (Math.hypot(en.x - pc.x, en.y - pc.y) < pc.radius) {
         en.hp -= 0.35;
-        if (Math.random() < 0.1) spawn3DParticles(en.pos, 0x2ecc71, 1);
+        if (Math.random() < 0.1) spawnParticles(en.x, en.y, '#2ecc71', 1);
       }
     });
   }
@@ -1665,100 +1660,127 @@ function update() {
   for (let i = enemies.length - 1; i >= 0; i--) {
     const en = enemies[i];
 
-    if (en.burn > 0) en.hp -= 0.4;
+    if (en.burn > 0) {
+      en.burn--;
+      en.hp -= 0.4;
+      if (Math.random() < 0.2) spawnParticles(en.x, en.y, '#e67e22', 1);
+    }
     if (en.freeze > 0) en.freeze--;
 
     if (en.hp <= 0) {
       const soulGain = player.perks.soulHarvest > 0 ? 30 : 16;
       player.souls = Math.min(player.maxSouls, player.souls + soulGain);
-      addExp(en.type === 'boss' ? 40 : 10);
+      addExp(en.type === 'boss' ? 40 : 10); // -5 EXP
 
       if (player.perks.corpseExplode > 0) {
         AudioEngine.playBlast();
-        spawn3DParticles(en.pos, 0xe74c3c, 25);
+        spawnParticles(en.x, en.y, '#e74c3c', 25);
         enemies.forEach(other => {
-          if (other !== en && other.pos.distanceTo(en.pos) < 5.2) {
+          if (other !== en && Math.hypot(other.x - en.x, other.y - en.y) < 95) {
             applyDamage(other, 35 + player.weaponTier * 10);
           }
         });
       }
 
-      // 3D Emerald / Weapon Drop
-      if (Math.random() < 0.75) {
-        const em = new THREE.Mesh(new THREE.OctahedronGeometry(0.55), materials.emerald);
-        em.position.set(en.pos.x, 0.6, en.pos.z);
-        scene.add(em);
-        drops.push({ mesh: em, pos: em.position, type: 'emerald' });
-      }
-      if (Math.random() < 0.35 || en.type === 'boss') {
-        const wp = new THREE.Mesh(new THREE.SphereGeometry(0.55, 8, 8), materials.weaponOrb);
-        wp.position.set(en.pos.x + 0.6, 0.6, en.pos.z);
-        scene.add(wp);
-        drops.push({ mesh: wp, pos: wp.position, type: 'weapon' });
-      }
-
-      spawn3DParticles(en.pos, en.type === 'boss' ? 0x9b59b6 : 0x2ecc71, 14);
-      scene.remove(en.model.root);
+      if (Math.random() < 0.75) drops.push({ x: en.x, y: en.y, type: 'emerald' });
+      if (Math.random() < 0.35 || en.type === 'boss') drops.push({ x: en.x + 8, y: en.y, type: 'weapon' });
+      spawnParticles(en.x, en.y, '#2ecc71', 14);
       enemies.splice(i, 1);
       continue;
     }
 
-    const dist = en.pos.distanceTo(player.pos);
-    const toPlayer = player.pos.clone().sub(en.pos).normalize();
+    const dist = Math.hypot(player.x - en.x, player.y - en.y);
+    const angle = Math.atan2(player.y - en.y, player.x - en.x);
+    en.facing = { x: Math.cos(angle), y: Math.sin(angle) };
+    en.walkCycle += 0.16;
     const effectiveSpeed = en.freeze > 0 ? en.speed * 0.45 : en.speed;
 
-    en.walkCycle += 0.16;
-    const legA = Math.sin(en.walkCycle) * 0.45;
-    en.model.leftLeg.rotation.x = legA;
-    en.model.rightLeg.rotation.x = -legA;
-    en.model.root.rotation.y = Math.atan2(toPlayer.x, toPlayer.z);
-
+    // Custom Monster Behaviors
     if (en.type === 'skeleton') {
-      if (dist > 8) {
-        en.pos.add(toPlayer.multiplyScalar(effectiveSpeed));
+      if (dist > 190) {
+        en.x += Math.cos(angle) * effectiveSpeed;
+        en.y += Math.sin(angle) * effectiveSpeed;
       }
       en.shootCd--;
       if (en.shootCd <= 0) {
         en.shootCd = en.freeze > 0 ? 190 : Math.max(65, 130 - Math.floor(scalingLevel * 4));
-        const arr = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.2), materials.ironDark);
-        arr.position.set(en.pos.x, 1.8, en.pos.z);
-        arr.rotation.y = Math.atan2(toPlayer.x, toPlayer.z);
-        scene.add(arr);
         projectiles.push({
-          mesh: arr,
-          dir: toPlayer.clone(),
-          speed: 0.32 + scalingLevel * 0.008,
+          x: en.x, y: en.y,
+          vx: Math.cos(angle) * (5.2 + scalingLevel * 0.15),
+          vy: Math.sin(angle) * (5.2 + scalingLevel * 0.15),
           dmg: 7 + Math.floor(scalingLevel * 2.2),
-          friendly: false
+          friendly: false, color: '#ecf0f1'
         });
       }
-    } else {
-      en.pos.add(toPlayer.multiplyScalar(effectiveSpeed));
-      if (en.type === 'boss') {
-        en.shootCd--;
-        if (en.shootCd <= 0) {
-          en.shootCd = Math.max(65, 110 - Math.floor(scalingLevel * 3));
-          for (let k = -1; k <= 1; k++) {
-            const bBall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), materials.redstone);
-            bBall.position.set(en.pos.x, 2.4, en.pos.z);
-            scene.add(bBall);
-            const bDir = toPlayer.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), k * 0.3);
-            projectiles.push({
-              mesh: bBall,
-              dir: bDir,
-              speed: 0.3 + scalingLevel * 0.008,
-              dmg: 12 + Math.floor(scalingLevel * 2.8),
-              friendly: false
-            });
+    } else if (en.type === 'witch') {
+      if (dist > 210) {
+        en.x += Math.cos(angle) * effectiveSpeed;
+        en.y += Math.sin(angle) * effectiveSpeed;
+      }
+      en.shootCd--;
+      if (en.shootCd <= 0) {
+        en.shootCd = Math.max(70, 120 - Math.floor(scalingLevel * 3));
+        projectiles.push({
+          x: en.x, y: en.y,
+          vx: Math.cos(angle) * (4.5 + scalingLevel * 0.12),
+          vy: Math.sin(angle) * (4.5 + scalingLevel * 0.12),
+          dmg: 10 + Math.floor(scalingLevel * 2.4),
+          friendly: false, color: '#9b59b6'
+        });
+      }
+    } else if (en.type === 'creeper') {
+      // Creeper approaches and starts fuse explosion!
+      if (dist < 55) {
+        en.fuse++;
+        if (en.fuse > 50) {
+          // Boom!
+          AudioEngine.playBlast();
+          spawnParticles(en.x, en.y, '#e74c3c', 35);
+          if (Math.hypot(player.x - en.x, player.y - en.y) < 75 && player.rollTime <= 0 && player.invulnTime <= 0) {
+            let cDmg = 25 + scalingLevel * 3.5;
+            if (player.perks.thorns > 0) cDmg *= 0.75;
+            player.hp -= cDmg;
+            player.invulnTime = 30;
           }
+          enemies.splice(i, 1);
+          continue;
+        }
+      } else {
+        en.x += Math.cos(angle) * effectiveSpeed;
+        en.y += Math.sin(angle) * effectiveSpeed;
+        if (en.fuse > 0) en.fuse--;
+      }
+    } else if (en.type === 'slime') {
+      // Slime hops
+      en.hopTimer = (en.hopTimer || 0) + 1;
+      if (en.hopTimer % 40 < 20) {
+        en.x += Math.cos(angle) * (effectiveSpeed * 1.5);
+        en.y += Math.sin(angle) * (effectiveSpeed * 1.5);
+      }
+    } else if (en.type === 'boss') {
+      en.x += Math.cos(angle) * effectiveSpeed;
+      en.y += Math.sin(angle) * effectiveSpeed;
+      en.shootCd--;
+      if (en.shootCd <= 0) {
+        en.shootCd = Math.max(65, 110 - Math.floor(scalingLevel * 3));
+        for (let k = -1; k <= 1; k++) {
+          projectiles.push({
+            x: en.x, y: en.y,
+            vx: Math.cos(angle + k * 0.28) * (5.5 + scalingLevel * 0.12),
+            vy: Math.sin(angle + k * 0.28) * (5.5 + scalingLevel * 0.12),
+            dmg: 12 + Math.floor(scalingLevel * 2.8),
+            friendly: false, color: '#e74c3c'
+          });
         }
       }
+    } else {
+      // Zombie / Spider
+      en.x += Math.cos(angle) * effectiveSpeed;
+      en.y += Math.sin(angle) * effectiveSpeed;
     }
 
-    en.model.root.position.copy(en.pos);
-
-    // Touch collision
-    if (player.rollTime <= 0 && player.invulnTime <= 0 && dist < en.size + 0.8) {
+    // Touch Collision
+    if (player.rollTime <= 0 && player.invulnTime <= 0 && dist < (player.size + en.size) / 2) {
       let dmg = (9 + scalingLevel * 2.2);
       if (player.perks.thorns > 0) {
         dmg *= 0.75;
@@ -1766,59 +1788,50 @@ function update() {
       }
       player.hp -= dmg;
       player.invulnTime = 30;
-      const push = player.pos.clone().sub(en.pos).normalize().multiplyScalar(1.2);
-      player.pos.add(push);
-      spawn3DParticles(player.pos, 0xe74c3c, 6);
+      player.x += Math.cos(angle + Math.PI) * 16;
+      player.y += Math.sin(angle + Math.PI) * 16;
+      spawnParticles(player.x, player.y, '#e74c3c', 6);
     }
   }
 
   // Drops pickup
   for (let i = drops.length - 1; i >= 0; i--) {
     const d = drops[i];
-    d.mesh.rotation.y += 0.04;
-    if (player.pos.distanceTo(d.pos) < 2.0) {
+    if (Math.hypot(player.x - d.x, player.y - d.y) < 38) {
       AudioEngine.playPickup();
       if (d.type === 'emerald') player.emeralds += 8;
       if (d.type === 'weapon') player.weaponTier++;
-      spawn3DParticles(d.pos, 0x2ecc71, 8);
-      scene.remove(d.mesh);
+      spawnParticles(d.x, d.y, '#2ecc71', 8);
       drops.splice(i, 1);
     }
   }
 
-  // Next Floor
   if (enemies.length === 0) {
     dungeonFloor++;
     player.hp = Math.min(player.maxHp, player.hp + 25);
     spawnFloorWave();
   }
 
-  // Slashes life
-  for (let i = slashMeshes.length - 1; i >= 0; i--) {
-    const s = slashMeshes[i];
-    s.life--;
-    s.mesh.material.opacity = s.life / 10;
-    if (s.life <= 0) {
-      scene.remove(s.mesh);
-      slashMeshes.splice(i, 1);
-    }
-  }
-
-  // Particles update
+  // FX & Texts
   for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-    p.mesh.position.add(p.vel);
-    p.life--;
-    if (p.life <= 0) {
-      scene.remove(p.mesh);
-      particles.splice(i, 1);
-    }
+    particles[i].x += particles[i].vx;
+    particles[i].y += particles[i].vy;
+    particles[i].life--;
+    if (particles[i].life <= 0) particles.splice(i, 1);
   }
-
-  // Smooth 3D Camera Follow
-  camera.position.x = THREE.MathUtils.lerp(camera.position.x, player.pos.x, 0.08);
-  camera.position.z = THREE.MathUtils.lerp(camera.position.z, player.pos.z + 24, 0.08);
-  camera.lookAt(player.pos.x, 1.2, player.pos.z);
+  for (let i = slashArcs.length - 1; i >= 0; i--) {
+    slashArcs[i].life--;
+    if (slashArcs[i].life <= 0) slashArcs.splice(i, 1);
+  }
+  for (let i = lightningArcs.length - 1; i >= 0; i--) {
+    lightningArcs[i].life--;
+    if (lightningArcs[i].life <= 0) lightningArcs.splice(i, 1);
+  }
+  for (let i = floatingTexts.length - 1; i >= 0; i--) {
+    floatingTexts[i].y += floatingTexts[i].vy;
+    floatingTexts[i].life--;
+    if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+  }
 
   // Update HUD
   document.getElementById('hp-bar').style.width = Math.max(0, (player.hp / player.maxHp * 100)) + '%';
@@ -1835,21 +1848,166 @@ function update() {
   document.getElementById('cd-art-3').style.height = (player.cdArt3 / player.maxCdArt3 * 100) + '%';
 }
 
-function animate() {
-  requestAnimationFrame(animate);
-  update();
-  renderer.render(scene, camera);
+// ==========================================
+// RENDER LOOP (2D BRIGHT PIXEL ART)
+// ==========================================
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // 1. Draw Bright Meadow, Flowers, Cobblestones, Trees
+  drawMeadowEnvironment();
+
+  // 2. Poison Clouds
+  poisonClouds.forEach(pc => {
+    ctx.save();
+    ctx.fillStyle = 'rgba(46, 204, 113, 0.3)';
+    ctx.beginPath();
+    ctx.arc(pc.x, pc.y, pc.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // 3. Item Drops
+  drops.forEach(d => {
+    const bob = Math.sin(Date.now() * 0.008 + d.x) * 3;
+    if (d.type === 'emerald') {
+      ctx.fillStyle = '#2ecc71';
+      ctx.fillRect(d.x - 7, d.y - 7 + bob, 14, 14);
+      ctx.fillStyle = '#a8e6cf';
+      ctx.fillRect(d.x - 3, d.y - 3 + bob, 6, 6);
+    } else {
+      ctx.fillStyle = '#9b59b6';
+      ctx.fillRect(d.x - 7, d.y - 7 + bob, 14, 14);
+      ctx.fillStyle = '#f1c40f';
+      ctx.fillRect(d.x - 2, d.y - 6 + bob, 4, 12);
+      ctx.fillRect(d.x - 6, d.y - 2 + bob, 12, 4);
+    }
+  });
+
+  // 4. Artifact Beacon Beam
+  if (player.beaconTime > 0) {
+    let target = getClosestEnemy(420);
+    let aimAngle = Math.atan2(player.facing.y, player.facing.x);
+    if (target) aimAngle = Math.atan2(target.y - player.y, target.x - player.x);
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(162, 155, 254, 0.88)';
+    ctx.lineWidth = 16;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(player.x, player.y);
+    ctx.lineTo(player.x + Math.cos(aimAngle) * 420, player.y + Math.sin(aimAngle) * 420);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // 5. Lightning Arcs
+  lightningArcs.forEach(l => {
+    ctx.save();
+    ctx.strokeStyle = '#ffd32a';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(l.x1, l.y1);
+    ctx.lineTo((l.x1 + l.x2) / 2 + (Math.random() - 0.5) * 25, (l.y1 + l.y2) / 2 + (Math.random() - 0.5) * 25);
+    ctx.lineTo(l.x2, l.y2);
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // 6. Slash Arcs
+  slashArcs.forEach(s => {
+    ctx.save();
+    ctx.strokeStyle = player.perks.fire > 0 ? 'rgba(230, 126, 34, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    if (s.swirling) {
+      ctx.arc(s.x, s.y, 65, 0, Math.PI * 2);
+    } else {
+      ctx.arc(s.x, s.y, 52, s.angle - 0.85, s.angle + 0.85);
+    }
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // 7. Spectral Glaive
+  if (player.perks.glaive > 0) {
+    const gx = player.x + Math.cos(player.glaiveAngle) * 65;
+    const gy = player.y + Math.sin(player.glaiveAngle) * 65;
+    ctx.save();
+    ctx.fillStyle = '#70a1ff';
+    ctx.shadowColor = '#70a1ff';
+    ctx.shadowBlur = 10;
+    ctx.fillRect(gx - 6, gy - 6, 12, 12);
+    ctx.restore();
+  }
+
+  // 8. Draw Monsters
+  enemies.forEach(en => {
+    if (en.type === 'boss') drawPixelBoss(en);
+    else if (en.type === 'skeleton') drawPixelSkeleton(en);
+    else if (en.type === 'slime') drawPixelSlime(en);
+    else if (en.type === 'creeper') drawPixelCreeper(en);
+    else if (en.type === 'spider') drawPixelSpider(en);
+    else if (en.type === 'witch') drawPixelWitch(en);
+    else drawPixelZombie(en);
+
+    // HP Mini Bar
+    ctx.fillStyle = '#000';
+    ctx.fillRect(en.x - 16, en.y - en.size / 2 - 12, 32, 4);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(en.x - 16, en.y - en.size / 2 - 12, 32 * Math.max(0, en.hp / en.maxHp), 4);
+  });
+
+  // 9. Draw Player
+  if (player.invulnTime % 4 < 2) {
+    drawPixelHero(player);
+  }
+
+  // 10. Projectiles (Arrows & Magic Orbs)
+  projectiles.forEach(p => {
+    ctx.save();
+    if (p.friendly) {
+      const angle = Math.atan2(p.vy, p.vx);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(angle);
+      ctx.fillStyle = '#8c5027';
+      ctx.fillRect(-10, -2, 18, 4);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(6, -3, 6, 6);
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x - 4, p.y - 4, 8, 8);
+    }
+    ctx.restore();
+  });
+
+  // 11. Particles
+  particles.forEach(pt => {
+    ctx.fillStyle = pt.color;
+    ctx.fillRect(pt.x - 3, pt.y - 3, 6, 6);
+  });
+
+  // 12. Damage Floating Text
+  floatingTexts.forEach(ft => {
+    ctx.save();
+    ctx.fillStyle = ft.color;
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#000';
+    ctx.shadowBlur = 4;
+    ctx.fillText(ft.text, ft.x, ft.y);
+    ctx.restore();
+  });
 }
 
-// Window resize
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
 
 spawnFloorWave();
-animate();
+gameLoop();
 </script>
 </body>
 </html>
